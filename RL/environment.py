@@ -115,10 +115,10 @@ class CoronagraphEnvironment(gym.Env):
     def get_perfect_adjustment(self):
         return self.deformable_mirror.actuators * -1
 
-    def get_camera_image(self):
+    def get_camera_image(self, delta_t=1e-3):
         # Read out WFS camera
         propagrated_wf = self.prop(self.lyot_stop(self.coro(self.deformable_mirror(self.wf))))
-        self.camera.integrate(propagrated_wf, self.delta_t)
+        self.camera.integrate(propagrated_wf, delta_t)
         wfs_image = self.camera.read_out()
         wfs_image = large_poisson(wfs_image).astype('float')
 
