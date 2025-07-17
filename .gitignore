@@ -1,2 +1,4 @@
 /RL/data/*
 /RL/models/*
+/.venv/*
+/.venv
