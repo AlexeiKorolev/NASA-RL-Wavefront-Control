@@ -4,6 +4,7 @@ import numpy as np
 from hcipy import *
 import hcipy
 import numpy as np
+from datetime import datetime
 import matplotlib.pyplot as plt
 import scipy.ndimage as ndimage
 
@@ -115,14 +116,25 @@ class CoronagraphEnvironment(gym.Env):
     def get_perfect_adjustment(self):
         return self.deformable_mirror.actuators * -1
 
-    def get_camera_image(self, delta_t=1e-3):
+    def get_camera_image(self, delta_t=1e-3, defocus=0):
         # Read out WFS camera
         propagrated_wf = self.prop(self.lyot_stop(self.coro(self.deformable_mirror(self.wf))))
+
         self.camera.integrate(propagrated_wf, delta_t)
         wfs_image = self.camera.read_out()
         wfs_image = large_poisson(wfs_image).astype('float')
 
         return wfs_image
+
+
+    def get_contrast(self, corona_image=None, clear_image=None, delta_t=None):
+        if corona_image == None:
+            corona_image = self.get_camera_image(delta_t) if delta_t != None else self.get_camera_image()
+
+        if clear_image == None:
+            clear_image = self.prop(self.lyot_stop(self.wf))
+
+        
 
     def get_strehl_ratio(self):
         wf_aberrated = self.deformable_mirror(self.wf)
@@ -219,4 +231,34 @@ class CoronagraphEnvironment(gym.Env):
 
 if __name__ == "__main__":
     e = CoronagraphEnvironment(num_modes=4)
-    print(e.action_space)
+    e.set_random_dm(noise=1e-1)
+
+    import matplotlib.animation as animation
+
+    fig, ax = plt.subplots(figsize=(8, 8))
+    im = ax.imshow(np.zeros((240, 240)), cmap='inferno', animated=True)
+    ax.axis('off')
+    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    filename = f'Constant noise image sim {current_time}.mp4'
+    anim = FFMpegWriter(filename, framerate=20)
+
+    for _ in range(100):
+        plt.clf()
+        crop_size = 80
+        image = (np.clip(e.get_camera_image(delta_t=1e-5), a_min = 10 ** -20, a_max = None))
+        # print(f"IMAGE SHAPE: {image.shape}")
+        image = image.reshape(240, 240)
+
+
+        center = image.shape[0] // 2
+        half_crop = crop_size // 2
+        cropped_image = image[center - half_crop:center + half_crop, center - half_crop:center + half_crop]
+
+        # print(cropped_image.shape)
+
+        plt.imshow(cropped_image, cmap='inferno')
+        plt.colorbar()
+        anim.add_frame()
+    
+
+    anim.close()
