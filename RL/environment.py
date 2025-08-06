@@ -101,9 +101,11 @@ class CoronagraphEnvironment(gym.Env):
         # Normalize the DM surface so that we get a reasonable surface RMS.
         self.deformable_mirror.actuators *= noise * self.wavelength_sci / np.std(self.deformable_mirror.surface)
 
+
     def set_dm(self, action):
         self.deformable_mirror.actuators += action
-    
+
+
     def get_slopes(self):
         wfs_wf = self.shwfs(self.magnifier(self.deformable_mirror(self.wf)))
         # Produces an image as if the camera was exposed to the light for this amount of time.
@@ -113,12 +115,19 @@ class CoronagraphEnvironment(gym.Env):
         slopes = self.shwfse.estimate([image])
         return slopes
 
+
     def get_perfect_adjustment(self):
         return self.deformable_mirror.actuators * -1
 
-    def get_camera_image(self, delta_t=1e-3, defocus=0):
+
+    def get_camera_image(self, delta_t=1e-3, defocus=1e-5):
         # Read out WFS camera
         propagrated_wf = self.prop(self.lyot_stop(self.coro(self.deformable_mirror(self.wf))))
+
+        # z4_defocus = zernike(4, self.pupil_grid, self.VLT_aperture)
+
+        # defocus_phase = 2 * np.pi / self.wavelength_sci * defocus * z4_defocus
+        # propagrated_wf.electric_field *= np.exp(1j * defocus_phase)
 
         self.camera.integrate(propagrated_wf, delta_t)
         wfs_image = self.camera.read_out()
@@ -231,7 +240,7 @@ class CoronagraphEnvironment(gym.Env):
 
 if __name__ == "__main__":
     e = CoronagraphEnvironment(num_modes=4)
-    e.set_random_dm(noise=1e-1)
+    e.set_random_dm(noise=1e-4)
 
     import matplotlib.animation as animation
 
@@ -244,8 +253,8 @@ if __name__ == "__main__":
 
     for _ in range(100):
         plt.clf()
-        crop_size = 80
-        image = (np.clip(e.get_camera_image(delta_t=1e-5), a_min = 10 ** -20, a_max = None))
+        crop_size = 40
+        image = (np.clip(e.get_camera_image(delta_t=1), a_min = 10 ** -20, a_max = None))
         # print(f"IMAGE SHAPE: {image.shape}")
         image = image.reshape(240, 240)
 
