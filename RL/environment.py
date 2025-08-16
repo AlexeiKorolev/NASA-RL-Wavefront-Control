@@ -27,7 +27,7 @@ class CoronagraphEnvironment(gym.Env):
         self.pupil_grid = make_pupil_grid(self.num_pupil_pixels, self.pupil_grid_diameter)
 
         spatial_resolution = wavelength_sci / telescope_diameter
-        self.focal_grid = make_focal_grid(q=4, num_airy=30, spatial_resolution=spatial_resolution)
+        self.focal_grid = make_focal_grid(q=4, num_airy=10, spatial_resolution=spatial_resolution)
 
         VLT_aperture_generator = hcipy.aperture.make_circular_aperture(telescope_diameter)
         self.VLT_aperture = evaluate_supersampled(VLT_aperture_generator, self.pupil_grid, 4)
@@ -122,17 +122,23 @@ class CoronagraphEnvironment(gym.Env):
 
     def get_camera_image(self, delta_t=1e-3, defocus=1e-5):
         # Read out WFS camera
+        zernike_basis = make_zernike_basis(15, self.pupil_grid_diameter, self.pupil_grid)
+        aberration = defocus * zernike_basis[4]  # e.g., defocus
+        self.wf.electric_field  *= np.exp(1j * aberration)
+
         propagrated_wf = self.prop(self.lyot_stop(self.coro(self.deformable_mirror(self.wf))))
 
         # z4_defocus = zernike(4, self.pupil_grid, self.VLT_aperture)
 
         # defocus_phase = 2 * np.pi / self.wavelength_sci * defocus * z4_defocus
         # propagrated_wf.electric_field *= np.exp(1j * defocus_phase)
-
+        
         self.camera.integrate(propagrated_wf, delta_t)
         wfs_image = self.camera.read_out()
         wfs_image = large_poisson(wfs_image).astype('float')
 
+
+        self.wf.electric_field  /= np.exp(1j * aberration)
         return wfs_image
 
 
