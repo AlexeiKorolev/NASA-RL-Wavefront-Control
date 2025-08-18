@@ -150,6 +150,41 @@ class CoronagraphEnvironment(gym.Env):
             clear_image = self.prop(self.lyot_stop(self.wf))
 
         
+        # Area of interest definition.
+
+        corona_image = np.array(corona_image)
+        clear_image = np.array(clear_image)
+
+        assert corona_image.shape == clear_image.shape, "get_contrast images different shapes."
+        
+        image_width, image_height = corona_image.shape
+
+        def create_circular_mask(h, w, center=None, radius=None):
+            if center is None:
+                center = (int(w/2), int(h/2))
+            if radius is None:
+                radius = min(center[0], center[1], w-center[0], h-center[1])
+
+            Y, X = np.ogrid[:h, :w]
+            dist_from_center = np.sqrt((X - center[0])**2 + (Y-center[1])**2)
+
+            mask = dist_from_center <= radius
+            return mask
+
+
+        circle_mask = create_circular_mask(image_width, image_height, center=None, radius=4)
+        print(f"circle_mask: ")
+        print(circle_mask)
+        
+        masked_corona_image = np.ma(corona_image, mask=np.logical_not(circle_mask))
+        
+        masked_clear_image = np.ma(clear_image, mask=np.logical_not(circle_mask))
+
+        contrast = np.mean(masked_corona_image) / np.mean(masked_clear_image)
+
+        return contrast
+
+        
 
     def get_strehl_ratio(self):
         wf_aberrated = self.deformable_mirror(self.wf)
