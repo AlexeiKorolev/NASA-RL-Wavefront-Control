@@ -13,8 +13,7 @@ class CoronagraphEnvironment(gym.Env):
     def __init__(self, telescope_diameter = 8., oversizing_factor = 16 / 15, wavelength_wfs = 0.7e-6, 
                  wavelength_sci = 2.2e-6, num_modes = 500, zero_magnitude_flux = 3.9e10, #3.9e10 photon/s for a mag 0 star
                 stellar_magnitude = 5, delta_t = 1e-3, pixels = 240, # sec, so a loop speed of 1kHz.
-                num_iterations = 10
-                ):
+                num_iterations = 10):
         super().__init__()
 
         print(f"initializing coronagraph env. might take a minute.")
@@ -118,15 +117,26 @@ class CoronagraphEnvironment(gym.Env):
 
     def get_perfect_adjustment(self):
         return self.deformable_mirror.actuators * -1
+    
 
+    def get_camera_image(self, delta_t=1e-3, defocus=1e-10, crop_width=40, coronagraph_enabled=True):
+        def crop_image(img, width=40):
+            if len(img.shape) == 1:
+                img = img.reshape(int(np.sqrt(img.shape[0])), int(np.sqrt(img.shape[0])))
 
-    def get_camera_image(self, delta_t=1e-3, defocus=1e-5):
+            center = (img.shape[0] // 2, img.shape[1] // 2)
+            half_width = width // 2
+            return img[center[0] - half_width: center[0] + half_width, center[1] - half_width: center[1] + half_width]
+
         # Read out WFS camera
         zernike_basis = make_zernike_basis(15, self.pupil_grid_diameter, self.pupil_grid)
         aberration = defocus * zernike_basis[4]  # e.g., defocus
         self.wf.electric_field  *= np.exp(1j * aberration)
 
-        propagrated_wf = self.prop(self.lyot_stop(self.coro(self.deformable_mirror(self.wf))))
+        if coronagraph_enabled:
+            propagrated_wf = self.prop(self.lyot_stop(self.coro(self.deformable_mirror(self.wf))))
+        else: 
+            propagrated_wf = self.prop(self.lyot_stop(self.wf))
 
         # z4_defocus = zernike(4, self.pupil_grid, self.VLT_aperture)
 
@@ -137,18 +147,17 @@ class CoronagraphEnvironment(gym.Env):
         wfs_image = self.camera.read_out()
         wfs_image = large_poisson(wfs_image).astype('float')
 
-
-        self.wf.electric_field  /= np.exp(1j * aberration)
-        return wfs_image
+        # Return back to normal electric field (may still have floating point errors).
+        self.wf.electric_field /= np.exp(1j * aberration)
+        return crop_image(wfs_image, width=crop_width)
 
 
     def get_contrast(self, corona_image=None, clear_image=None, delta_t=None):
         if corona_image == None:
-            corona_image = self.get_camera_image(delta_t) if delta_t != None else self.get_camera_image()
+            corona_image = self.get_camera_image(delta_t, coronagraph_enabled=True, crop_width=40) if delta_t != None else self.get_camera_image(coronagraph_enabled=True)
 
         if clear_image == None:
-            clear_image = self.prop(self.lyot_stop(self.wf))
-
+            clear_image = self.get_camera_image(delta_t, coronagraph_enabled=False, crop_width=40) if delta_t != None else self.get_camera_image(coronagraph_enabled=False)
         
         # Area of interest definition.
 
@@ -171,20 +180,26 @@ class CoronagraphEnvironment(gym.Env):
             mask = dist_from_center <= radius
             return mask
 
-
         circle_mask = create_circular_mask(image_width, image_height, center=None, radius=4)
-        print(f"circle_mask: ")
-        print(circle_mask)
+        # print(f"circle_mask: ")
+        # plt.imshow(circle_mask)
+        # plt.show()
+
+        # plt.imshow(corona_image)
+        # plt.show()
+
+        negated_circle_mask = np.logical_not(circle_mask)
+
+        # plt.imshow(negated_circle_mask)
+        # plt.show()
         
-        masked_corona_image = np.ma(corona_image, mask=np.logical_not(circle_mask))
+        masked_corona_image = np.ma.array(corona_image, mask=negated_circle_mask)
         
-        masked_clear_image = np.ma(clear_image, mask=np.logical_not(circle_mask))
+        masked_clear_image = np.ma.array(clear_image, mask=negated_circle_mask)
 
         contrast = np.mean(masked_corona_image) / np.mean(masked_clear_image)
 
         return contrast
-
-        
 
     def get_strehl_ratio(self):
         wf_aberrated = self.deformable_mirror(self.wf)
@@ -230,6 +245,7 @@ class CoronagraphEnvironment(gym.Env):
             self.set_random_dm()
 
         observation = self._get_obs()
+        # Reset iteration counter.
 
         """self.current_state = ... # Define your initial state
         observation = self.current_state # or transform the state into an observation"""
@@ -237,18 +253,17 @@ class CoronagraphEnvironment(gym.Env):
         info = {}
         return observation, info
 
-    @staticmethod
-    def reward_function(strehl):
-        return strehl
+    def _compute_reward(self):
+        return -np.log10(self.get_contrast + 1e-20) # Tiny positive value to ensure its positive.
 
     def step(self, action):
         # Update the environment state based on the action
         assert action.shape == self.deformable_mirror.actuators.shape
 
-        self.set_dm(action=action)
+        self.set_dm(action=action * 1e-8)
         self.iteration_counter -= 1
 
-        reward = CoronagraphEnvironment.reward_function(self.get_strehl_ratio())
+        reward = self._compute_reward()
 
         terminated = self.iteration_counter <= 0
         truncated = False
@@ -280,7 +295,54 @@ class CoronagraphEnvironment(gym.Env):
 
 
 if __name__ == "__main__":
+
     e = CoronagraphEnvironment(num_modes=4)
+
+    e.set_random_dm(noise=0.01)
+
+    print(e.deformable_mirror.actuators)
+
+
+
+    exit()
+   
+    print(e.get_contrast(delta_t=1000))
+
+    values_of_noise = [np.pow(10,i/10) for i in range(-60, 10, 2)]
+
+    repetitions = 10
+
+    X = []
+    y = []
+    errors = []
+
+    for noise in values_of_noise:
+        entries = []
+        print(f"simulating {noise} noise")
+
+        for _ in range(repetitions):
+            e.set_random_dm(noise=noise)
+            entries.append(e.get_contrast(delta_t=1000))
+        
+        X.append(noise)
+        y.append(np.mean(entries))
+        errors.append(np.std(entries))
+    
+    plt.plot(X, y)
+    plt.fill_between(X, np.array(y) - np.array(errors), np.array(y) + np.array(errors), alpha=0.3)
+    plt.xlabel("Noise")
+    plt.ylabel("Contrast")
+    plt.xscale("log")
+    plt.yscale("log")
+    plt.title("Contrast vs Noise with Error Range")
+    plt.savefig("contrast_vs_noise.png", dpi=300)
+    plt.show()
+
+    exit() 
+
+
+
+    
     e.set_random_dm(noise=1e-4)
 
     import matplotlib.animation as animation
