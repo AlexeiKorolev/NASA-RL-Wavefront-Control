@@ -181,23 +181,33 @@ class CoronagraphEnvironment(gym.Env):
             return mask
 
         circle_mask = create_circular_mask(image_width, image_height, center=None, radius=4)
-        # print(f"circle_mask: ")
-        # plt.imshow(circle_mask)
-        # plt.show()
+        print(f"circle_mask: ")
+        plt.imshow(circle_mask)
+        plt.colorbar()
+        plt.show()
 
-        # plt.imshow(corona_image)
-        # plt.show()
+        plt.imshow(corona_image)
+        plt.colorbar()
+        plt.show()
 
         negated_circle_mask = np.logical_not(circle_mask)
 
-        # plt.imshow(negated_circle_mask)
-        # plt.show()
-        
+        # Negate an inner smaller circle as well (region blocked by coronagraph). Keep the ring where orbiting planets exist.
+
         masked_corona_image = np.ma.array(corona_image, mask=negated_circle_mask)
+
+        plt.imshow(masked_corona_image)
+        plt.colorbar()
+        plt.show()
+
         
         masked_clear_image = np.ma.array(clear_image, mask=negated_circle_mask)
+  
+        plt.imshow(masked_clear_image)
+        plt.colorbar()
+        plt.show()
 
-        contrast = np.mean(masked_corona_image) / np.mean(masked_clear_image)
+        contrast = np.mean(masked_corona_image) / np.max(clear_image)
 
         return contrast
 
@@ -298,15 +308,53 @@ if __name__ == "__main__":
 
     e = CoronagraphEnvironment(num_modes=4)
 
+    e.set_random_dm(noise=0.001)
+
+    e.get_contrast()
+
+    e.set_random_dm(noise=0.001)
+
+    e.get_contrast()
+
     e.set_random_dm(noise=0.01)
 
-    print(e.deformable_mirror.actuators)
+    e.get_contrast()
 
+    e.set_random_dm(noise=0.1)
 
+    e.get_contrast()
 
     exit()
    
-    print(e.get_contrast(delta_t=1000))
+    values_of_delta_t = [10**(i/2) for i in range(-10, 20, 1)]
+    repetitions = 10
+    X = []
+    y = []
+    errors = []
+
+
+    for delta_t in values_of_delta_t:
+        print(f"testing delta_t = {delta_t}")
+        entries = []
+
+        for _ in range(repetitions):
+            entries.append(e.get_contrast(delta_t=delta_t))
+        
+        X.append(delta_t)
+        y.append(np.mean(entries))
+        errors.append(np.std(entries))
+    
+    plt.plot(X, y)
+    plt.fill_between(X, np.array(y) - np.array(errors), np.array(y) + np.array(errors), alpha=0.3)
+    plt.xlabel("Noise")
+    plt.ylabel("Contrast")
+    plt.xscale("log")
+    plt.yscale("log")
+    plt.title("Contrast vs Noise with Error Range")
+    plt.savefig("contrast_vs_noise.png", dpi=300)
+    plt.show()
+    exit()
+
 
     values_of_noise = [np.pow(10,i/10) for i in range(-60, 10, 2)]
 
