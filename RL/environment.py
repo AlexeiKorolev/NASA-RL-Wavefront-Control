@@ -78,7 +78,6 @@ class CoronagraphEnvironment(gym.Env):
 
         self.max_value = np.max(self.prop(self.wf).intensity)
 
-
         self.observation_space = spaces.Dict({
             "image": spaces.Box(low=0, high=1, shape=self.camera_shape, dtype=np.float32),
             "slopes": spaces.Box(low=-1e-3, high=1e-3, shape=self.slopes_shape, dtype=np.float32),
@@ -135,7 +134,7 @@ class CoronagraphEnvironment(gym.Env):
         if coronagraph_enabled:
             propagrated_wf = self.prop(self.lyot_stop(self.coro(self.deformable_mirror(self.wf))))
         else: 
-            propagrated_wf = self.prop(self.lyot_stop(self.wf))
+            propagrated_wf = self.prop(self.lyot_stop(self.deformable_mirror(self.wf)))
 
         # z4_defocus = zernike(4, self.pupil_grid, self.VLT_aperture)
 
