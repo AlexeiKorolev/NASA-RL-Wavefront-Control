@@ -13,7 +13,7 @@ class CoronagraphEnvironment(gym.Env):
     def __init__(self, telescope_diameter = 8., oversizing_factor = 16 / 15, wavelength_wfs = 0.7e-6, 
                  wavelength_sci = 2.2e-6, num_modes = 500, zero_magnitude_flux = 3.9e10, #3.9e10 photon/s for a mag 0 star
                 stellar_magnitude = 5, delta_t = 1e-3, pixels = 240, # sec, so a loop speed of 1kHz.
-                num_iterations = 10, coronagraph_charge=4):
+                num_iterations = 10, coronagraph_charge=4, num_airy=7):
         super().__init__()
 
         print(f"initializing coronagraph env. might take a minute.")
@@ -26,7 +26,7 @@ class CoronagraphEnvironment(gym.Env):
         self.pupil_grid = make_pupil_grid(self.num_pupil_pixels, self.pupil_grid_diameter)
 
         spatial_resolution = wavelength_sci / telescope_diameter
-        self.focal_grid = make_focal_grid(q=4, num_airy=10, spatial_resolution=spatial_resolution)
+        self.focal_grid = make_focal_grid(q=4, num_airy=num_airy, spatial_resolution=spatial_resolution)
 
         VLT_aperture_generator = hcipy.aperture.make_circular_aperture(telescope_diameter)
         self.VLT_aperture = evaluate_supersampled(VLT_aperture_generator, self.pupil_grid, 4)
@@ -117,7 +117,7 @@ class CoronagraphEnvironment(gym.Env):
         return self.deformable_mirror.actuators * -1
     
 
-    def get_camera_image(self, delta_t=1e-3, defocus=1e-10, crop_width=40, coronagraph_enabled=True):
+    def get_camera_image(self, delta_t=1e-3, defocus=1e-10, crop=True, crop_width=40, coronagraph_enabled=True):
         def crop_image(img, width=40):
             if len(img.shape) == 1:
                 img = img.reshape(int(np.sqrt(img.shape[0])), int(np.sqrt(img.shape[0])))
@@ -144,10 +144,11 @@ class CoronagraphEnvironment(gym.Env):
         self.camera.integrate(propagrated_wf, delta_t)
         wfs_image = self.camera.read_out()
         wfs_image = large_poisson(wfs_image).astype('float')
+        wfs_image = wfs_image.reshape(int(np.sqrt(wfs_image.size)), int(np.sqrt(wfs_image.size)))
 
         # Return back to normal electric field (may still have floating point errors).
         self.wf.electric_field /= np.exp(1j * aberration)
-        return crop_image(wfs_image, width=crop_width)
+        return crop_image(wfs_image, width=crop_width) if crop else wfs_image
 
 
     def get_contrast(self, corona_image=None, clear_image=None, delta_t=None):
