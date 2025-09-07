@@ -13,7 +13,7 @@ class CoronagraphEnvironment(gym.Env):
     def __init__(self, telescope_diameter = 8., oversizing_factor = 16 / 15, wavelength_wfs = 0.7e-6, 
                  wavelength_sci = 2.2e-6, num_modes = 500, zero_magnitude_flux = 3.9e10, #3.9e10 photon/s for a mag 0 star
                 stellar_magnitude = 5, delta_t = 1e-3, pixels = 240, # sec, so a loop speed of 1kHz.
-                num_iterations = 10):
+                num_iterations = 10, coronagraph_charge=4):
         super().__init__()
 
         print(f"initializing coronagraph env. might take a minute.")
@@ -54,8 +54,7 @@ class CoronagraphEnvironment(gym.Env):
         self.deformable_mirror = DeformableMirror(self.dm_modes)
 
         self.lyot_mask = evaluate_supersampled(circular_aperture(telescope_diameter * 0.95), self.pupil_grid, 4)
-        charge = 2
-        self.coro = VortexCoronagraph(self.pupil_grid, charge)
+        self.coro = VortexCoronagraph(self.pupil_grid, coronagraph_charge)
         self.lyot_stop = Apodizer(self.lyot_mask)
 
         self.delta_t = delta_t

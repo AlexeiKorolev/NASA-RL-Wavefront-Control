@@ -37,3 +37,5 @@
 # Check computational cost of noise.
 
 # Homework: rerun NN with tweaks above, and see if we can get 10\*\*-10 contrast.
+
+# DIVERSITY IMAGE CAN JUST BE WITH A NEW WAVELENGTH OF LIGHT????
