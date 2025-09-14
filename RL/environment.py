@@ -37,8 +37,6 @@ class CoronagraphEnvironment(gym.Env):
         self.wf = Wavefront(self.VLT_aperture, wavelength_sci)
         self.wf.total_power = zero_magnitude_flux * 10**(-stellar_magnitude / 2.5)
 
-        spatial_resolution = wavelength_sci / telescope_diameter
-
         self.prop = FraunhoferPropagator(self.pupil_grid, self.focal_grid)
 
         self.unaberrated_PSF = self.prop.forward(self.wf)
@@ -117,7 +115,7 @@ class CoronagraphEnvironment(gym.Env):
         return self.deformable_mirror.actuators * -1
     
 
-    def get_camera_image(self, delta_t=1e-3, defocus=1e-10, crop=True, crop_width=40, coronagraph_enabled=True):
+    def get_camera_image(self, delta_t=1e3, crop=False, crop_width=40, coronagraph_enabled=True):
         def crop_image(img, width=40):
             if len(img.shape) == 1:
                 img = img.reshape(int(np.sqrt(img.shape[0])), int(np.sqrt(img.shape[0])))
@@ -127,27 +125,17 @@ class CoronagraphEnvironment(gym.Env):
             return img[center[0] - half_width: center[0] + half_width, center[1] - half_width: center[1] + half_width]
 
         # Read out WFS camera
-        zernike_basis = make_zernike_basis(15, self.pupil_grid_diameter, self.pupil_grid)
-        aberration = defocus * zernike_basis[4]  # e.g., defocus
-        self.wf.electric_field  *= np.exp(1j * aberration)
 
         if coronagraph_enabled:
             propagrated_wf = self.prop(self.lyot_stop(self.coro(self.deformable_mirror(self.wf))))
         else: 
             propagrated_wf = self.prop(self.lyot_stop(self.deformable_mirror(self.wf)))
 
-        # z4_defocus = zernike(4, self.pupil_grid, self.VLT_aperture)
-
-        # defocus_phase = 2 * np.pi / self.wavelength_sci * defocus * z4_defocus
-        # propagrated_wf.electric_field *= np.exp(1j * defocus_phase)
-        
         self.camera.integrate(propagrated_wf, delta_t)
         wfs_image = self.camera.read_out()
         wfs_image = large_poisson(wfs_image).astype('float')
         wfs_image = wfs_image.reshape(int(np.sqrt(wfs_image.size)), int(np.sqrt(wfs_image.size)))
 
-        # Return back to normal electric field (may still have floating point errors).
-        self.wf.electric_field /= np.exp(1j * aberration)
         return crop_image(wfs_image, width=crop_width) if crop else wfs_image
 
 
@@ -165,7 +153,7 @@ class CoronagraphEnvironment(gym.Env):
 
         assert corona_image.shape == clear_image.shape, "get_contrast images different shapes."
         
-        image_width, image_height = corona_image.shape
+        img_height, img_width = corona_image.shape
 
         def create_circular_mask(h, w, center=None, radius=None):
             if center is None:
@@ -179,36 +167,14 @@ class CoronagraphEnvironment(gym.Env):
             mask = dist_from_center <= radius
             return mask
 
-        circle_mask = create_circular_mask(image_width, image_height, center=None, radius=4)
-        print(f"circle_mask: ")
-        plt.imshow(circle_mask)
-        plt.colorbar()
-        plt.show()
+        inner_circle = create_circular_mask(img_height, img_width, radius=18)
+        outer_circle = create_circular_mask(img_height, img_width, radius=35)
+        right_side = np.zeros((img_height, img_width), dtype=int)
+        right_side[:, :img_width // 2] = 1
 
-        plt.imshow(corona_image)
-        plt.colorbar()
-        plt.show()
+        mask = np.where(np.logical_and(right_side, np.logical_and(outer_circle, np.logical_not(inner_circle))), 1, 0)
 
-        negated_circle_mask = np.logical_not(circle_mask)
-
-        # Negate an inner smaller circle as well (region blocked by coronagraph). Keep the ring where orbiting planets exist.
-
-        masked_corona_image = np.ma.array(corona_image, mask=negated_circle_mask)
-
-        plt.imshow(masked_corona_image)
-        plt.colorbar()
-        plt.show()
-
-        
-        masked_clear_image = np.ma.array(clear_image, mask=negated_circle_mask)
-  
-        plt.imshow(masked_clear_image)
-        plt.colorbar()
-        plt.show()
-
-        contrast = np.mean(masked_corona_image) / np.max(clear_image)
-
-        return contrast
+        return np.mean(corona_image[mask]) / np.max(clear_image[mask])
 
     def get_strehl_ratio(self):
         wf_aberrated = self.deformable_mirror(self.wf)

@@ -45,4 +45,15 @@
 - fixed everything to be in terms of spacial_resolution.
 - reduced the resolution of DM surface
 - fixed contrast
--
+
+* Note: hcipy contrast is behaving weirdly.. really noisy images are still >10 \*\* 10 contrast
+
+# Probe the actuators a couple of directions. Std way of doing it: take a probe and an -probe. ASSUMING electric field didn't change (slow changes over time), I'll get 2 images from which I can estimate the electric field (real and complex parts). So no way a single image can contain all the information. Image is just L2 norm of electric field. Probe structure isn't exactly defined.
+
+# Not entirely clear if current probing is best for RL. Read more: EFC and probing, pairwise probing (tyler groff, AJ Riggs).
+
+# For RL, can just use past images as diversity images (but only for a short period of time, prior to large changes in the electric field).
+
+# If I get down to 50x50 images (small images), there will be an artificial limit for contrast.
+
+# hcipy raw contrast needs to be normalized with energy
