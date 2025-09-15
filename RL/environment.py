@@ -10,10 +10,10 @@ import scipy.ndimage as ndimage
 
 
 class CoronagraphEnvironment(gym.Env):
-    def __init__(self, telescope_diameter = 8., oversizing_factor = 16 / 15, wavelength_wfs = 0.7e-6, 
+    def __init__(self, telescope_diameter = 8., oversizing_factor = 16 / 15, 
                  wavelength_sci = 2.2e-6, num_modes = 500, zero_magnitude_flux = 3.9e10, #3.9e10 photon/s for a mag 0 star
                 stellar_magnitude = 5, delta_t = 1e-3, pixels = 240, # sec, so a loop speed of 1kHz.
-                num_iterations = 10, coronagraph_charge=4, num_airy=7):
+                num_iterations = 10, coronagraph_charge=4, num_airy=7, pixels_per_spacial_res=4):
         super().__init__()
 
         print(f"initializing coronagraph env. might take a minute.")
@@ -26,12 +26,11 @@ class CoronagraphEnvironment(gym.Env):
         self.pupil_grid = make_pupil_grid(self.num_pupil_pixels, self.pupil_grid_diameter)
 
         spatial_resolution = wavelength_sci / telescope_diameter
-        self.focal_grid = make_focal_grid(q=4, num_airy=num_airy, spatial_resolution=spatial_resolution)
+        self.focal_grid = make_focal_grid(q=pixels_per_spacial_res, num_airy=num_airy, spatial_resolution=spatial_resolution)
 
         VLT_aperture_generator = hcipy.aperture.make_circular_aperture(telescope_diameter)
         self.VLT_aperture = evaluate_supersampled(VLT_aperture_generator, self.pupil_grid, 4)
 
-        self.wavelength_wfs = wavelength_wfs
         self.wavelength_sci = wavelength_sci
 
         self.wf = Wavefront(self.VLT_aperture, wavelength_sci)
@@ -83,18 +82,20 @@ class CoronagraphEnvironment(gym.Env):
         })
 
         self.action_space = spaces.Box(low=-1e-3, high=1e-3, shape=(num_modes,), dtype=np.float32)
-        # Define observation and action spaces
-        # self.observation_space = spaces.Box(low=..., high=..., shape=(...), dtype=np.float32)  # Adjust shape based on your state representation
-        # self.action_space = spaces.Discrete(...) # Adjust number based on your possible actions
 
-        # Initialize other environment-specific attributes
+    def set_random_dm(self, noise=1e-2):
 
-    def set_random_dm(self, noise=0.3):
+
         # Put actuators at random values, putting a little more power in low-order modes
         self.deformable_mirror.actuators = np.random.randn(self.num_modes)  / (np.arange(self.num_modes) + 10)
 
         # Normalize the DM surface so that we get a reasonable surface RMS.
         self.deformable_mirror.actuators *= noise * self.wavelength_sci / np.std(self.deformable_mirror.surface)
+
+        magnitude = np.linalg.norm(self.deformable_mirror.actuators)
+
+        self.deformable_mirror.actuators /= magnitude
+        self.deformable_mirror.actuators *= noise
 
 
     def set_dm(self, action):
@@ -141,10 +142,10 @@ class CoronagraphEnvironment(gym.Env):
 
     def get_contrast(self, corona_image=None, clear_image=None, delta_t=None):
         if corona_image == None:
-            corona_image = self.get_camera_image(delta_t, coronagraph_enabled=True, crop_width=40) if delta_t != None else self.get_camera_image(coronagraph_enabled=True)
+            corona_image = self.get_camera_image(delta_t, coronagraph_enabled=True, crop=False) if delta_t != None else self.get_camera_image(coronagraph_enabled=True)
 
         if clear_image == None:
-            clear_image = self.get_camera_image(delta_t, coronagraph_enabled=False, crop_width=40) if delta_t != None else self.get_camera_image(coronagraph_enabled=False)
+            clear_image = self.get_camera_image(delta_t, coronagraph_enabled=False, crop=False) if delta_t != None else self.get_camera_image(coronagraph_enabled=False)
         
         # Area of interest definition.
 
@@ -173,6 +174,16 @@ class CoronagraphEnvironment(gym.Env):
         right_side[:, :img_width // 2] = 1
 
         mask = np.where(np.logical_and(right_side, np.logical_and(outer_circle, np.logical_not(inner_circle))), 1, 0)
+        # plt.imshow(mask)
+        # plt.colorbar()
+        # plt.show()
+        
+        # plt.imshow(np.where(mask, corona_image, np.zeros_like(corona_image)))
+        # plt.colorbar()
+        # plt.show()
+        # plt.imshow(corona_image)
+        # plt.colorbar()
+        # plt.show()
 
         return np.mean(corona_image[mask]) / np.max(clear_image[mask])
 
@@ -271,13 +282,13 @@ class CoronagraphEnvironment(gym.Env):
 
 if __name__ == "__main__":
 
-    e = CoronagraphEnvironment(num_modes=4)
+    e = CoronagraphEnvironment(num_modes=40)
 
-    e.set_random_dm(noise=0.001)
+    e.set_random_dm(noise=0.01)
 
-    e.get_contrast()
+    e.get_contrast(delta_t=1000)
 
-    e.set_random_dm(noise=0.001)
+    e.set_random_dm(noise=0.01)
 
     e.get_contrast()
 
