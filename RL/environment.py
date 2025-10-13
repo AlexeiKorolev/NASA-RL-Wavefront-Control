@@ -50,7 +50,7 @@ class CoronagraphEnvironment(gym.Env):
 
         self.deformable_mirror = DeformableMirror(self.dm_modes)
 
-        self.lyot_mask = evaluate_supersampled(circular_aperture(telescope_diameter * 0.95), self.pupil_grid, 4)
+        self.lyot_mask = evaluate_supersampled(circular_aperture(telescope_diameter * 0.8), self.pupil_grid, 4) # keep at point 8 for now, removes noise, test .7
         self.coro = VortexCoronagraph(self.pupil_grid, coronagraph_charge)
         self.lyot_stop = Apodizer(self.lyot_mask)
 
@@ -84,8 +84,6 @@ class CoronagraphEnvironment(gym.Env):
         self.action_space = spaces.Box(low=-1e-3, high=1e-3, shape=(num_modes,), dtype=np.float32)
 
     def set_random_dm(self, noise=1e-2):
-
-
         # Put actuators at random values, putting a little more power in low-order modes
         self.deformable_mirror.actuators = np.random.randn(self.num_modes)  / (np.arange(self.num_modes) + 10)
 
@@ -283,8 +281,31 @@ class CoronagraphEnvironment(gym.Env):
 if __name__ == "__main__":
 
     e = CoronagraphEnvironment(num_modes=40)
+    plt.imshow(e.get_camera_image(delta_t=100))
+    plt.colorbar()
+    plt.show()
 
-    e.set_random_dm(noise=0.01)
+    exit()
+
+
+
+    avgs = np.zeros_like(e.deformable_mirror.actuators)
+
+    N = 400
+    for _ in range(N):
+        e.set_random_dm(noise=1e-7)
+        avgs += e.deformable_mirror.actuators
+    
+    avgs /= N
+
+    print(avgs)
+
+    plt.plot(np.arange(len(e.deformable_mirror.actuators)), avgs)
+    plt.show()
+
+
+
+    exit()
 
     e.get_contrast(delta_t=1000)
 
