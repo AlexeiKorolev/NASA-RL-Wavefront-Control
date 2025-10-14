@@ -12,4 +12,4 @@ module purge
 module load anaconda3/2025.6
 conda activate /home/ak9088/anaconda3/envs/dmrl2
 
-python /scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/environment.py
+python data_generator.py
