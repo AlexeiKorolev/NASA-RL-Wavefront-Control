@@ -20,6 +20,7 @@ class CoronagraphEnvironment(gym.Env):
 
         self.telescope_diameter = telescope_diameter
         self.oversizing_factor = oversizing_factor
+        self.pixels = pixels
     
         self.num_pupil_pixels = pixels * oversizing_factor
         self.pupil_grid_diameter = telescope_diameter * oversizing_factor
