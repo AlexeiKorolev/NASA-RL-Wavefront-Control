@@ -22,14 +22,12 @@ class CNN1(nn.Module):
             nn.Flatten(),
             nn.Linear(32 * height * width, 256),
             nn.ReLU(),
-            nn.Dropout(p=0.25),
+            # nn.Dropout(p=0.25),
             nn.Linear(256, 128),
             nn.ReLU(),
-            nn.Dropout(p=0.25),
-            nn.Linear(128, 64),
-            nn.ReLU(),
-            nn.Dropout(p=0.25),
-            nn.Linear(64, image_output_dim)
+            # nn.Dropout(p=0.25),
+            nn.Linear(128, image_output_dim),
+            nn.ReLU()
         )
 
         # Encoder for the list of elements
@@ -42,7 +40,11 @@ class CNN1(nn.Module):
 
         # Final fusion and output
         self.final_net = nn.Sequential(
-            nn.Linear(image_output_dim * 2 + image_output_dim, 64),
+            nn.Linear(image_output_dim * 2 + image_output_dim, 128),
+            nn.ReLU(),
+            nn.Linear(128, 64),
+            nn.ReLU(),
+            nn.Linear(64, 64),
             nn.ReLU(),
             nn.Linear(64, final_output_dim)
         )

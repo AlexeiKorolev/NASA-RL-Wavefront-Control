@@ -114,7 +114,7 @@ class CoronagraphEnvironment(gym.Env):
         return self.deformable_mirror.actuators * -1
     
 
-    def get_camera_image(self, delta_t=1e3, crop=False, crop_width=40, coronagraph_enabled=True):
+    def get_camera_image(self, delta_t=1e3, crop=False, crop_width=40, coronagraph_enabled=True, noise_enabled=True):
         def crop_image(img, width=40):
             if len(img.shape) == 1:
                 img = img.reshape(int(np.sqrt(img.shape[0])), int(np.sqrt(img.shape[0])))
@@ -132,7 +132,7 @@ class CoronagraphEnvironment(gym.Env):
 
         self.camera.integrate(propagrated_wf, delta_t)
         wfs_image = self.camera.read_out()
-        wfs_image = large_poisson(wfs_image).astype('float')
+        if noise_enabled: wfs_image = large_poisson(wfs_image).astype('float')
         wfs_image = wfs_image.reshape(int(np.sqrt(wfs_image.size)), int(np.sqrt(wfs_image.size)))
 
         return crop_image(wfs_image, width=crop_width) if crop else wfs_image
@@ -172,16 +172,6 @@ class CoronagraphEnvironment(gym.Env):
         right_side[:, :img_width // 2] = 1
 
         mask = np.where(np.logical_and(right_side, np.logical_and(outer_circle, np.logical_not(inner_circle))), 1, 0)
-        # plt.imshow(mask)
-        # plt.colorbar()
-        # plt.show()
-        
-        # plt.imshow(np.where(mask, corona_image, np.zeros_like(corona_image)))
-        # plt.colorbar()
-        # plt.show()
-        # plt.imshow(corona_image)
-        # plt.colorbar()
-        # plt.show()
 
         return np.mean(corona_image[mask]) / np.max(clear_image[mask])
 
@@ -281,9 +271,12 @@ class CoronagraphEnvironment(gym.Env):
 if __name__ == "__main__":
 
     e = CoronagraphEnvironment(num_modes=40)
-    plt.imshow(e.get_camera_image(delta_t=100))
+    e.set_random_dm(noise=1e-8)
+    plt.imshow(e.get_camera_image(delta_t=1e-3, noise_enabled=False), cmap='inferno')
     plt.colorbar()
-    plt.show()
+    # plt.show()
+    # plt.savefig("coronagraph_image.png", dpi=300)
+    plt.savefig("/scratch/network/ak9088/coronagraph_image.png", dpi=300)
 
     exit()
 
