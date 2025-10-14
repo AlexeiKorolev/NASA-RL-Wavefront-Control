@@ -269,7 +269,7 @@ class CoronagraphEnvironment(gym.Env):
 
 
 if __name__ == "__main__":
-
+    print(f"RUNNING!")
     e = CoronagraphEnvironment(num_modes=40)
     e.set_random_dm(noise=1e-8)
     plt.imshow(e.get_camera_image(delta_t=1e-3, noise_enabled=False), cmap='inferno')

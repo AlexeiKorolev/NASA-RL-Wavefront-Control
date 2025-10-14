@@ -10,6 +10,6 @@
 
 module purge
 module load anaconda3/2025.6
-conda activate dmrl2
+conda activate /home/ak9088/anaconda3/envs/dmrl2
 
-python environment.py
+python /scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/environment.py
