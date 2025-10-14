@@ -21,7 +21,15 @@ class CoronagraphEnvironment(gym.Env):
         self.telescope_diameter = telescope_diameter
         self.oversizing_factor = oversizing_factor
         self.pixels = pixels
-    
+        self.num_airy = num_airy
+        self.pixels_per_spacial_res = pixels_per_spacial_res
+        self.coronagraph_charge = coronagraph_charge
+        self.num_iterations = num_iterations
+        self.delta_t = delta_t 
+        self.stellar_magnitude = stellar_magnitude
+        self.num_modes = num_modes
+        self.wavelength_sci = wavelength_sci
+
         self.num_pupil_pixels = pixels * oversizing_factor
         self.pupil_grid_diameter = telescope_diameter * oversizing_factor
         self.pupil_grid = make_pupil_grid(self.num_pupil_pixels, self.pupil_grid_diameter)
@@ -31,8 +39,6 @@ class CoronagraphEnvironment(gym.Env):
 
         VLT_aperture_generator = hcipy.aperture.make_circular_aperture(telescope_diameter)
         self.VLT_aperture = evaluate_supersampled(VLT_aperture_generator, self.pupil_grid, 4)
-
-        self.wavelength_sci = wavelength_sci
 
         self.wf = Wavefront(self.VLT_aperture, wavelength_sci)
         self.wf.total_power = zero_magnitude_flux * 10**(-stellar_magnitude / 2.5)
@@ -44,7 +50,6 @@ class CoronagraphEnvironment(gym.Env):
         self.camera = NoiselessDetector(self.focal_grid)
 
         # Number of harmonic modes
-        self.num_modes = num_modes
         self.dm_modes = make_disk_harmonic_basis(self.pupil_grid, num_modes, telescope_diameter, 'neumann')
         # Normalizing each mode with the peak-to-peak value (max - min)
         self.dm_modes = ModeBasis([mode / np.ptp(mode) for mode in self.dm_modes], self.pupil_grid)
@@ -54,8 +59,6 @@ class CoronagraphEnvironment(gym.Env):
         self.lyot_mask = evaluate_supersampled(circular_aperture(telescope_diameter * 0.8), self.pupil_grid, 4) # keep at point 8 for now, removes noise, test .7
         self.coro = VortexCoronagraph(self.pupil_grid, coronagraph_charge)
         self.lyot_stop = Apodizer(self.lyot_mask)
-
-        self.delta_t = delta_t
 
         self.f_number = 50
         self.num_lenslets = 40 # 40 lenslets along one diameter
