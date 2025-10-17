@@ -1,4 +1,5 @@
 /RL/data/*
+/RL/oldmodels/*
 /RL/__pycache__/*
 /.venv/*
 /.venv
