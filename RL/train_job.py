@@ -24,7 +24,8 @@ import argparse
 import json
 import os
 from dataclasses import dataclass, asdict
-from typing import Tuple, List, Dict, Any
+from typing import Tuple, List, Dict, Any, Optional
+from datetime import datetime
 
 import numpy as np
 import torch
@@ -73,13 +74,14 @@ NORMALIZERS = {
 # Data loading
 # ---------------------------
 
-def load_dataset(pkl_path: str) -> Tuple[np.ndarray, np.ndarray]:
+def load_dataset(pkl_path: str) -> Tuple[np.ndarray, np.ndarray, Optional[Dict[str, Any]]]:
     import pickle
     with open(pkl_path, "rb") as f:
         data = pickle.load(f)
     images = np.array([np.array(x) for x in data["images"]], dtype=np.float32)  # (N,3,H,W)
     y = np.array(data["dm_settings"], dtype=np.float32)  # (N,num_modes)
-    return images, y
+    meta = data.get("meta") if isinstance(data, dict) else None
+    return images, y, meta
 
 
 # ---------------------------
@@ -195,7 +197,7 @@ def main():
     os.makedirs(args.out_dir, exist_ok=True)
 
     # Load
-    X, y = load_dataset(args.datapath)  # X: (N,3,H,W)
+    X, y, dataset_meta = load_dataset(args.datapath)  # X: (N,3,H,W)
 
     # Normalization for X
     X_norm, x_meta = NORMALIZERS[args.norm](X)
@@ -262,6 +264,24 @@ def main():
     model_path = os.path.join(args.out_dir, f"{args.model_type}_best.pth")
     torch.save(model.state_dict(), model_path)
 
+    # Build training job metadata and aggregate into a single meta JSON
+    try:
+        gpu_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else None
+    except Exception:
+        gpu_name = None
+
+    train_job_meta = {
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "torch_version": torch.__version__,
+        "numpy_version": np.__version__,
+        "device": str(device),
+        "cuda_available": bool(torch.cuda.is_available()),
+        "gpu_name": gpu_name,
+        "num_parameters": int(sum(p.numel() for p in model.parameters())),
+        "train_size": len(train_ds),
+        "val_size": len(val_ds),
+    }
+
     meta = {
         "args": vars(args),
         "x_norm": x_meta,
@@ -269,6 +289,8 @@ def main():
         "history": history,
         "input_shape": input_shape,
         "output_dim": int(output_dim),
+        "dataset_meta": dataset_meta,
+        "train_job_meta": train_job_meta,
     }
     with open(os.path.join(args.out_dir, "metrics.json"), "w") as f:
         json.dump(meta, f, indent=2)
