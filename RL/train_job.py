@@ -56,7 +56,7 @@ def norm_zscore(x: np.ndarray) -> Tuple[np.ndarray, Dict[str, Any]]:
 
 def norm_log(x: np.ndarray) -> Tuple[np.ndarray, Dict[str, Any]]:
     # log1p handles zeros; assume intensities >= 0
-    x_log = np.log1p(x)
+    x_log = np.log1p(x + 1)
     mu = np.mean(x_log)
     sd = np.std(x_log)
     x_zn = (x_log - mu) / (sd + 1e-12)
