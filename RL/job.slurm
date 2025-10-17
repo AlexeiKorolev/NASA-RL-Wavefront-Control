@@ -10,6 +10,6 @@
 
 module purge
 module load anaconda3/2025.6
-conda activate /home/ak9088/anaconda3/envs/dmrl2
+conda activate /scratch/network/ak9088/anaconda3/envs/dmrl2
 
-python data_generator.py --N 100000 --output data/dataset100K25M.pkl --num-modes=25
+python data_generator.py --N 100 --output data/dataset100S25M.pkl --num-modes=25
