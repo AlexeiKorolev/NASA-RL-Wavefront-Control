@@ -56,7 +56,7 @@ def norm_zscore(x: np.ndarray) -> Tuple[np.ndarray, Dict[str, Any]]:
 
 def norm_log(x: np.ndarray) -> Tuple[np.ndarray, Dict[str, Any]]:
     # log1p handles zeros; assume intensities >= 0
-    x_log = np.log1p(x + 1)
+    x_log = np.log1p(x)
     mu = np.mean(x_log)
     sd = np.std(x_log)
     x_zn = (x_log - mu) / (sd + 1e-12)
@@ -292,8 +292,26 @@ def main():
         "dataset_meta": dataset_meta,
         "train_job_meta": train_job_meta,
     }
+    # Ensure JSON-serializable content (convert numpy arrays/scalars and tensors)
+    def to_jsonable(o):
+        import numpy as _np
+        if isinstance(o, dict):
+            return {k: to_jsonable(v) for k, v in o.items()}
+        if isinstance(o, (list, tuple)):
+            return [to_jsonable(v) for v in o]
+        if isinstance(o, _np.ndarray):
+            return o.tolist()
+        if isinstance(o, (_np.floating, _np.integer, _np.bool_)):
+            return o.item()
+        if isinstance(o, _np.generic):
+            return o.item()
+        if isinstance(o, torch.Tensor):
+            return o.detach().cpu().tolist()
+        return o
+
+    meta_safe = to_jsonable(meta)
     with open(os.path.join(args.out_dir, "metrics.json"), "w") as f:
-        json.dump(meta, f, indent=2)
+        json.dump(meta_safe, f, indent=2)
 
     print(f"Saved model to {model_path}")
 
