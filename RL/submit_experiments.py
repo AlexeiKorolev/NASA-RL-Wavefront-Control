@@ -88,8 +88,14 @@ def main():
     ap.add_argument("--lr", nargs="+", default=["1e-3"])  # keep as str for readability in names
     ap.add_argument("--val_split", type=float, default=0.2)
     ap.add_argument("--seed", nargs="+", type=int, default=[42])
-    # FC1 architecture override (optional, not part of grid by default)
-    ap.add_argument("--fc1_hidden", type=str, default=None, help="Comma-separated hidden layer sizes for FC1, e.g., '256,128,64'")
+    # FC1 architecture override (can accept multiple specs to grid over)
+    # Example: --fc1_hidden 256,128 512,256,128
+    ap.add_argument(
+        "--fc1_hidden",
+        nargs="*",
+        default=[],
+        help="One or more comma-separated hidden layer specs for FC1 (e.g., '256,128' '512,256,128')."
+    )
 
     # SLURM overrides
     ap.add_argument("--time", default="08:00:00")
@@ -126,70 +132,79 @@ def main():
     generated_files = []
 
     for model_type, norm, epochs, batch_size, lr, seed in combos:
-        tag = f"{args.job_prefix}-{model_type}-{norm}-ep{epochs}-bs{batch_size}-lr{lr}-s{seed}"
-        job_name = tag
-        stdout_path = str(out_root / f"{tag}.out")
-        stderr_path = str(out_root / f"{tag}.err")
-        out_dir = str(out_root / tag)
-        os.makedirs(out_dir, exist_ok=True)
+        # Determine FC1 hidden-layer sweep values (only applies to fc1); for others, single None
+        fc1_hidden_specs = args.fc1_hidden if (model_type == "fc1" and len(args.fc1_hidden) > 0) else [None]
 
-        # Build python exec line
-        exec_parts = [
-            "python train_job.py",
-            f"--datapath {shlex.quote(args.datapath)}",
-            f"--model_type {model_type}",
-            f"--norm {norm}",
-            f"--epochs {epochs}",
-            f"--batch_size {batch_size}",
-            f"--lr {lr}",
-            f"--val_split {args.val_split}",
-            f"--seed {seed}",
-            f"--out_dir {shlex.quote(out_dir)}",
-        ]
-        # Optional FC1 architecture passthrough
-        if model_type == "fc1" and args.fc1_hidden:
-            hidden_spec = args.fc1_hidden.replace(",", " ").strip()
-            if hidden_spec:
-                exec_parts.append(f"--fc1_hidden {hidden_spec}")
-        exec_line = " ".join(exec_parts)
+        for fc1_hidden in fc1_hidden_specs:
+            # Tag augmentation for FC1 hidden spec
+            if model_type == "fc1" and fc1_hidden:
+                clean = "-h" + fc1_hidden.replace(",", "-").replace(" ", "")
+            else:
+                clean = ""
 
-        # Allow SLURM header overrides (cpus, mem, gres, time, mail)
-        # We'll patch only time via builder; others we inject by replacing lines if found or appending.
-        job_text = build_job_text(
-            template=template,
-            job_name=job_name,
-            time_limit=args.time,
-            stdout_path=stdout_path,
-            stderr_path=stderr_path,
-            conda_env_activate_line=args.conda_activate,
-            exec_line=exec_line,
-        )
-        # Patch other sbatch options if present
-        lines = job_text.splitlines()
-        def replace_or_append(prefix: str, new_line: str):
-            for i, ln in enumerate(lines):
-                if ln.startswith(prefix):
-                    lines[i] = new_line
-                    return
-            lines.insert(2, new_line)
-        replace_or_append("#SBATCH --cpus-per-task=", f"#SBATCH --cpus-per-task={args.cpus}")
-        replace_or_append("#SBATCH --mem=", f"#SBATCH --mem={args.mem}")
-        replace_or_append("#SBATCH --gres=", f"#SBATCH --gres={args.gres}")
-        if args.mail_user:
-            replace_or_append("#SBATCH --mail-user=", f"#SBATCH --mail-user={args.mail_user}")
-        job_text = "\n".join(lines) + "\n"
+            tag = f"{args.job_prefix}-{model_type}-{norm}-ep{epochs}-bs{batch_size}-lr{lr}-s{seed}{clean}"
+            job_name = tag
+            stdout_path = str(out_root / f"{tag}.out")
+            stderr_path = str(out_root / f"{tag}.err")
+            out_dir = str(out_root / tag)
+            os.makedirs(out_dir, exist_ok=True)
 
-        job_path = out_root / f"{tag}.slurm"
-        with open(job_path, "w", encoding="utf-8") as f:
-            f.write(job_text)
-        generated_files.append(job_path)
+            # Build python exec line
+            exec_parts = [
+                "python train_job.py",
+                f"--datapath {shlex.quote(args.datapath)}",
+                f"--model_type {model_type}",
+                f"--norm {norm}",
+                f"--epochs {epochs}",
+                f"--batch_size {batch_size}",
+                f"--lr {lr}",
+                f"--val_split {args.val_split}",
+                f"--seed {seed}",
+                f"--out_dir {shlex.quote(out_dir)}",
+            ]
+            # Optional FC1 architecture passthrough
+            if model_type == "fc1" and fc1_hidden:
+                hidden_spec = fc1_hidden.replace(",", " ").strip()
+                if hidden_spec:
+                    exec_parts.append(f"--fc1_hidden {hidden_spec}")
+            exec_line = " ".join(exec_parts)
 
-        if args.submit and not args.dry_run:
-            try:
-                print(f"Submitting {job_path} ...")
-                subprocess.run(["sbatch", str(job_path)], check=True)
-            except Exception as e:
-                print(f"Failed to submit {job_path}: {e}")
+            # Allow SLURM header overrides (cpus, mem, gres, time, mail)
+            job_text = build_job_text(
+                template=template,
+                job_name=job_name,
+                time_limit=args.time,
+                stdout_path=stdout_path,
+                stderr_path=stderr_path,
+                conda_env_activate_line=args.conda_activate,
+                exec_line=exec_line,
+            )
+            # Patch other sbatch options if present
+            lines = job_text.splitlines()
+            def replace_or_append(prefix: str, new_line: str):
+                for i, ln in enumerate(lines):
+                    if ln.startswith(prefix):
+                        lines[i] = new_line
+                        return
+                lines.insert(2, new_line)
+            replace_or_append("#SBATCH --cpus-per-task=", f"#SBATCH --cpus-per-task={args.cpus}")
+            replace_or_append("#SBATCH --mem=", f"#SBATCH --mem={args.mem}")
+            replace_or_append("#SBATCH --gres=", f"#SBATCH --gres={args.gres}")
+            if args.mail_user:
+                replace_or_append("#SBATCH --mail-user=", f"#SBATCH --mail-user={args.mail_user}")
+            job_text = "\n".join(lines) + "\n"
+
+            job_path = out_root / f"{tag}.slurm"
+            with open(job_path, "w", encoding="utf-8") as f:
+                f.write(job_text)
+            generated_files.append(job_path)
+
+            if args.submit and not args.dry_run:
+                try:
+                    print(f"Submitting {job_path} ...")
+                    subprocess.run(["sbatch", str(job_path)], check=True)
+                except Exception as e:
+                    print(f"Failed to submit {job_path}: {e}")
 
     print(f"Generated {len(generated_files)} jobs under {out_root}")
     if not args.submit:
