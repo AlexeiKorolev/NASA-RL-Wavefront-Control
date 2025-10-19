@@ -88,6 +88,8 @@ def main():
     ap.add_argument("--lr", nargs="+", default=["1e-3"])  # keep as str for readability in names
     ap.add_argument("--val_split", type=float, default=0.2)
     ap.add_argument("--seed", nargs="+", type=int, default=[42])
+    # FC1 architecture override (optional, not part of grid by default)
+    ap.add_argument("--fc1_hidden", type=str, default=None, help="Comma-separated hidden layer sizes for FC1, e.g., '256,128,64'")
 
     # SLURM overrides
     ap.add_argument("--time", default="08:00:00")
@@ -144,6 +146,11 @@ def main():
             f"--seed {seed}",
             f"--out_dir {shlex.quote(out_dir)}",
         ]
+        # Optional FC1 architecture passthrough
+        if model_type == "fc1" and args.fc1_hidden:
+            hidden_spec = args.fc1_hidden.replace(",", " ").strip()
+            if hidden_spec:
+                exec_parts.append(f"--fc1_hidden {hidden_spec}")
         exec_line = " ".join(exec_parts)
 
         # Allow SLURM header overrides (cpus, mem, gres, time, mail)

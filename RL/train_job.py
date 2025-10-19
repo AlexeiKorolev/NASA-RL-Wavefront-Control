@@ -95,14 +95,27 @@ def build_model(model_type: str,
     if model_type.lower() == "fc1":
         # FC1 expects image_input_shape=(3,H,W) but inside uses height,width,depth order
         h, w, c = image_shape
-        model = FC1(final_output_dim=output_dim, image_input_shape=(h, w, c))
+        model = FC1(
+            final_output_dim=output_dim,
+            image_input_shape=(h, w, c),
+            hidden_layers=arch_args.get("hidden_layers"),
+            activation=arch_args.get("activation", "leaky_relu"),
+            final_activation=arch_args.get("final_activation", "leaky_relu"),
+            dropout=arch_args.get("dropout", 0.0),
+        )
         return model
     elif model_type.lower() == "cnn1":
         # CNN1: We'll process two images + a list. For simplicity, encode three images by summing first two as pair.
         # But our simpler path: adapt CNN1 by feeding two frames and a zeros list the correct size.
         # We'll wrap later in training loop.
         h, w, c = image_shape
-        model = CNN1(image_output_dim=32, dm_input_dim=output_dim, dm_hidden_dim=32, final_output_dim=output_dim, image_input_shape=(c, h, w))
+        model = CNN1(
+            image_output_dim=arch_args.get("image_output_dim", 32),
+            dm_input_dim=output_dim,
+            dm_hidden_dim=arch_args.get("dm_hidden_dim", 32),
+            final_output_dim=output_dim,
+            image_input_shape=(c, h, w)
+        )
         return model
     else:
         raise ValueError("Unsupported model_type. Use 'fc1' or 'cnn1'.")
@@ -182,7 +195,10 @@ def main():
     ap.add_argument("--seed", type=int, default=42)
 
     # Architecture params
-    ap.add_argument("--fc1_hidden", type=int, nargs=3, default=[128, 64, 0], help="Hidden sizes for FC1; third ignored in current arch")
+    ap.add_argument("--fc1_hidden", type=int, nargs="+", default=[128, 64], help="Hidden layer sizes for FC1 (space-separated)")
+    ap.add_argument("--fc1_activation", choices=["leaky_relu", "relu", "gelu", "tanh"], default="leaky_relu")
+    ap.add_argument("--fc1_final_activation", choices=["leaky_relu", "relu", "gelu", "tanh", "none"], default="leaky_relu")
+    ap.add_argument("--fc1_dropout", type=float, default=0.0)
     ap.add_argument("--cnn1_img_out", type=int, default=32)
     ap.add_argument("--cnn1_dm_hidden", type=int, default=32)
 
@@ -222,7 +238,13 @@ def main():
         y_t = torch.tensor(y_norm, dtype=torch.float32)
         dataset = TensorDataset(X_t, y_t)
         input_shape = (H, W, C)
-        model = build_model("fc1", input_shape, output_dim, arch_args={})
+        fa = None if args.fc1_final_activation == "none" else args.fc1_final_activation
+        model = build_model("fc1", input_shape, output_dim, arch_args={
+            "hidden_layers": args.fc1_hidden,
+            "activation": args.fc1_activation,
+            "final_activation": fa,
+            "dropout": args.fc1_dropout,
+        })
     else:
         # CNN1 takes (img1, img2, list) -> We'll map (3,H,W) into two frames and a zero-vector list
         img1 = torch.tensor(X_norm[:, 0:1, :, :], dtype=torch.float32)
