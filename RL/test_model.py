@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""
+r"""
 test_model.py
 
 Given a training run directory containing metrics.json and a model .pth file,
@@ -11,7 +11,7 @@ this script:
   5) Runs inference and optionally saves predictions (both normalized and unnormalized)
 
 Usage (PowerShell):
-  python a:\Projects\DM + RL\RL\test_model.py --run_dir "a:\\Projects\\DM + RL\\RL\\models\\AutoTrain\\exp-fc1..." --N 1000
+    python a:\\Projects\\DM + RL\\RL\\test_model.py --run_dir "a:\\Projects\\DM + RL\\RL\\models\\AutoTrain\\exp-fc1..." --N 1000
 """
 from __future__ import annotations
 import argparse

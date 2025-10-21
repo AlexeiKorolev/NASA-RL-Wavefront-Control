@@ -143,10 +143,10 @@ class CoronagraphEnvironment(gym.Env):
 
 
     def get_contrast(self, corona_image=None, clear_image=None, delta_t=None):
-        if corona_image == None:
+        if corona_image is None:
             corona_image = self.get_camera_image(delta_t, coronagraph_enabled=True, crop=False) if delta_t != None else self.get_camera_image(coronagraph_enabled=True)
 
-        if clear_image == None:
+        if clear_image is None:
             clear_image = self.get_camera_image(delta_t, coronagraph_enabled=False, crop=False) if delta_t != None else self.get_camera_image(coronagraph_enabled=False)
         
         # Area of interest definition.
