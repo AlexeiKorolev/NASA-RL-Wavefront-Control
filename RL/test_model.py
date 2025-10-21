@@ -64,7 +64,7 @@ def build_env_from_meta(dataset_meta: Dict[str, Any]) -> CoronagraphEnvironment:
 def generate_samples(env: CoronagraphEnvironment,
                      N: int,
                      dataset_cfg: Dict[str, Any],
-                     nudge_vec: np.ndarray) -> np.ndarray:
+                     nudge_vec: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """Generate N triplets of images as in data generation.
     Returns array X with shape (N, 3, H, W).
     """
@@ -73,10 +73,12 @@ def generate_samples(env: CoronagraphEnvironment,
     dm_random_noise = float(dataset_cfg.get("dm_random_noise", 1e-7))
 
     images = []
+    dms = []
     for _ in range(N):
         env.deformable_mirror.flatten()
         env.set_random_dm(noise=dm_random_noise)
         original = env.deformable_mirror.actuators.copy()
+        dms.append(original.astype(np.float32))
 
         img1 = env.get_camera_image(delta_t=delta_t, noise_enabled=noise_enabled)
 
@@ -91,7 +93,14 @@ def generate_samples(env: CoronagraphEnvironment,
         images.append(np.stack([img1, img2, img3], axis=0).astype(np.float32))
 
     X = np.stack(images, axis=0)  # (N,3,H,W)
-    return X
+    return X, np.stack(dms, axis=0)
+
+
+def compute_contrast(env: CoronagraphEnvironment, delta_t: float, noise_enabled: bool) -> float:
+    """Compute contrast using explicit images to honor noise_enabled setting."""
+    corona = env.get_camera_image(delta_t=delta_t, noise_enabled=noise_enabled, coronagraph_enabled=True, crop=False)
+    clear = env.get_camera_image(delta_t=delta_t, noise_enabled=noise_enabled, coronagraph_enabled=False, crop=False)
+    return float(env.get_contrast(corona_image=corona, clear_image=clear))
 
 
 def apply_x_normalization(X: np.ndarray, x_norm_meta: Dict[str, Any]) -> np.ndarray:
@@ -183,7 +192,7 @@ def main():
 
     # Generate samples according to dataset configuration
     dcfg = dataset_meta.get("dataset_config", {}) if dataset_meta else {}
-    X = generate_samples(env, args.N, dcfg, nudge_vec)  # (N,3,H,W)
+    X, dm_list = generate_samples(env, args.N, dcfg, nudge_vec)  # X: (N,3,H,W), dm_list: (N,num_modes)
 
     # Validate shape vs training input
     H, W, C = input_shape
@@ -224,18 +233,49 @@ def main():
     y_sd = float(y_norm_meta.get("std", 1.0))
     y_pred = y_pred_norm * y_sd + y_mu
 
-    print({
+    # Evaluate contrast before and after applying correction (-y_pred)
+    delta_t = float(dcfg.get("delta_t", 1e-3))
+    noise_enabled = bool(dcfg.get("noise_enabled", False))
+    before_contrasts = []
+    after_contrasts = []
+    for i in range(args.N):
+        # Before
+        env.deformable_mirror.flatten()
+        env.deformable_mirror.actuators = dm_list[i]
+        c_before = compute_contrast(env, delta_t=delta_t, noise_enabled=noise_enabled)
+        before_contrasts.append(c_before)
+
+        # After applying correction
+        correction = -y_pred[i]
+        env.deformable_mirror.flatten()
+        env.deformable_mirror.actuators = dm_list[i] + correction
+        c_after = compute_contrast(env, delta_t=delta_t, noise_enabled=noise_enabled)
+        after_contrasts.append(c_after)
+
+    before_contrasts = np.array(before_contrasts, dtype=float)
+    after_contrasts = np.array(after_contrasts, dtype=float)
+
+    summary = {
         "run_dir": args.run_dir,
         "model_type": model_type,
         "N": int(args.N),
         "pred_shape": y_pred.shape,
         "first_pred_sample": y_pred[0].tolist() if y_pred.shape[0] > 0 else None,
-    })
+        "contrast_before_mean": float(before_contrasts.mean()) if before_contrasts.size else None,
+        "contrast_after_mean": float(after_contrasts.mean()) if after_contrasts.size else None,
+        "contrast_before_median": float(np.median(before_contrasts)) if before_contrasts.size else None,
+        "contrast_after_median": float(np.median(after_contrasts)) if after_contrasts.size else None,
+    }
+    print(summary)
 
     if args.save_preds:
         os.makedirs(os.path.dirname(args.save_preds), exist_ok=True) if os.path.dirname(args.save_preds) else None
-        np.save(args.save_preds, y_pred)
-        print(f"Saved predictions to {args.save_preds}")
+    np.save(args.save_preds, y_pred)
+    # Also save contrasts alongside
+    base = os.path.splitext(args.save_preds)[0]
+    np.save(base + "_contrast_before.npy", before_contrasts)
+    np.save(base + "_contrast_after.npy", after_contrasts)
+    print(f"Saved predictions to {args.save_preds} and contrasts to {base}_contrast_*.npy")
 
 
 if __name__ == "__main__":
