@@ -40,25 +40,25 @@ from archs.cnn1 import CNN1
 # Normalization utilities
 # ---------------------------
 
-def norm_minmax(x: np.ndarray) -> Tuple[np.ndarray, Dict[str, Any]]:
-    x_min = np.min(x)
-    x_max = np.max(x)
+def norm_minmax(x: np.ndarray, min: float = None, max: float = None) -> Tuple[np.ndarray, Dict[str, Any]]:
+    x_min = np.min(x) if min is None else min
+    x_max = np.max(x) if max is None else max
     x_mm = (x - x_min) / (x_max - x_min + 1e-12)
     return x_mm, {"type": "minmax", "min": float(x_min), "max": float(x_max)}
 
 
-def norm_zscore(x: np.ndarray) -> Tuple[np.ndarray, Dict[str, Any]]:
-    mu = np.mean(x)
-    sd = np.std(x)
+def norm_zscore(x: np.ndarray, mean: float = None, std: float = None) -> Tuple[np.ndarray, Dict[str, Any]]:
+    mu = np.mean(x) if mean is None else mean
+    sd = np.std(x) if std is None else std
     x_zn = (x - mu) / (sd + 1e-12)
     return x_zn, {"type": "zscore", "mean": float(mu), "std": float(sd)}
 
 
-def norm_log(x: np.ndarray) -> Tuple[np.ndarray, Dict[str, Any]]:
+def norm_log(x: np.ndarray, mean: float = None, std: float = None) -> Tuple[np.ndarray, Dict[str, Any]]:
     # log1p handles zeros; assume intensities >= 0
     x_log = np.log1p(x)
-    mu = np.mean(x_log)
-    sd = np.std(x_log)
+    mu = np.mean(x_log) if mean is None else mean
+    sd = np.std(x_log) if std is None else std
     x_zn = (x_log - mu) / (sd + 1e-12)
     return x_zn, {"type": "log+zscore", "mean": float(mu), "std": float(sd)}
 
