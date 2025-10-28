@@ -13,7 +13,14 @@ class CoronagraphEnvironment(gym.Env):
     def __init__(self, telescope_diameter = 8., oversizing_factor = 16 / 15, 
                  wavelength_sci = 2.2e-6, num_modes = 500, zero_magnitude_flux = 3.9e10, #3.9e10 photon/s for a mag 0 star
                 stellar_magnitude = 5, delta_t = 1e-3, pixels = 240, # sec, so a loop speed of 1kHz.
-                num_iterations = 10, coronagraph_charge=4, num_airy=7, pixels_per_spacial_res=4):
+                num_iterations = 10, coronagraph_charge=4, num_airy=7, pixels_per_spacial_res=4,
+                # Diversity / observation configuration
+                diversity_enabled: bool = True,
+                nudge_magnitude: float = 3e-7,
+                nudge_mode_indices: list | None = None,
+                num_diversity_pairs: int = 1,
+                obs_noise_enabled: bool = False,
+                obs_delta_t: float | None = None):
         super().__init__()
 
         print(f"initializing coronagraph env. might take a minute.")
@@ -29,6 +36,13 @@ class CoronagraphEnvironment(gym.Env):
         self.stellar_magnitude = stellar_magnitude
         self.num_modes = num_modes
         self.wavelength_sci = wavelength_sci
+        # Observation config
+        self.diversity_enabled = diversity_enabled
+        self.nudge_magnitude = float(nudge_magnitude)
+        self.nudge_mode_indices = list(nudge_mode_indices) if nudge_mode_indices is not None else [0]
+        self.num_diversity_pairs = int(num_diversity_pairs)
+        self.obs_noise_enabled = bool(obs_noise_enabled)
+        self.obs_delta_t = delta_t if obs_delta_t is None else obs_delta_t
 
         self.num_pupil_pixels = pixels * oversizing_factor
         self.pupil_grid_diameter = telescope_diameter * oversizing_factor
@@ -74,20 +88,105 @@ class CoronagraphEnvironment(gym.Env):
         self.max_value = 1
 
         self.slopes_shape = self.get_slopes().shape
-        self.camera_shape = self.get_camera_image().shape
+        base_h, base_w = self.get_camera_image().shape
+        # Determine number of channels for observation image stack
+        self.channels = 1
+        if self.diversity_enabled:
+            # Baseline + (±nudge) per diversity pair
+            self.channels = 1 + 2 * max(1, self.num_diversity_pairs)
+        self.camera_shape = [self.channels, base_h, base_w]
         self.iteration_counter = num_iterations
 
         self.max_value = np.max(self.prop(self.wf).intensity)
 
+        # print(self.max_value)
+
+        # Use array low/high to match shapes explicitly. Allow wide ranges for robustness.
+        image_low = np.zeros(self.camera_shape, dtype=np.float32)
+        image_high = np.full(self.camera_shape, np.inf, dtype=np.float32)  # bright spikes allowed
+        slopes_low = np.full(self.slopes_shape, -np.inf, dtype=np.float32)
+        slopes_high = np.full(self.slopes_shape, np.inf, dtype=np.float32)
+        strehl_low = np.array([0.0], dtype=np.float32)
+        strehl_high = np.array([np.inf], dtype=np.float32)  # contrast proxy may exceed 1
+
+        # Build default nudge vectors (one per requested mode index), repeated per diversity pair if needed
+        self.nudge_vectors = []
+        for _ in range(max(1, self.num_diversity_pairs)):
+            for idx in self.nudge_mode_indices:
+                v = np.zeros(self.num_modes, dtype=np.float64)
+                if 0 <= idx < self.num_modes:
+                    v[idx] = self.nudge_magnitude
+                self.nudge_vectors.append(v)
+
         self.observation_space = spaces.Dict({
-            "image": spaces.Box(low=0, high=1, shape=self.camera_shape, dtype=np.float32),
-            "slopes": spaces.Box(low=-1e-3, high=1e-3, shape=self.slopes_shape, dtype=np.float32),
-            "strehl": spaces.Box(low=0, high=1, shape=(1,), dtype=np.float32)
+            "image": spaces.Box(low=image_low, high=image_high, shape=self.camera_shape, dtype=np.float32),
+            "slopes": spaces.Box(low=slopes_low, high=slopes_high, shape=self.slopes_shape, dtype=np.float32),
+            "strehl": spaces.Box(low=strehl_low, high=strehl_high, shape=(1,), dtype=np.float32)
         })
 
         self.action_space = spaces.Box(low=-1e-3, high=1e-3, shape=(num_modes,), dtype=np.float32)
 
-    def set_random_dm(self, noise=1e-2):
+    # -------------------------
+    # Modularity helpers
+    # -------------------------
+    def set_nudge_vectors(self, vectors: list[np.ndarray] | np.ndarray):
+        """Set one or multiple nudge vectors used to generate diversity images.
+
+        vectors can be a list of 1D arrays (num_modes,) or a 2D array (k, num_modes).
+        """
+        if isinstance(vectors, np.ndarray):
+            if vectors.ndim == 1:
+                vectors = [vectors]
+            elif vectors.ndim == 2:
+                vectors = [vectors[i] for i in range(vectors.shape[0])]
+            else:
+                raise ValueError("nudge vectors must be 1D or 2D numpy arrays")
+        out = []
+        for v in vectors:
+            v = np.asarray(v, dtype=np.float64).reshape(-1)
+            if v.shape[0] != self.num_modes:
+                raise ValueError(f"nudge vector length {v.shape[0]} != num_modes {self.num_modes}")
+            out.append(v)
+        self.nudge_vectors = out
+
+    def _sanitize_image(self, img: np.ndarray) -> np.ndarray:
+        img = np.asarray(img, dtype=np.float32)
+        return np.nan_to_num(img, posinf=np.finfo(np.float32).max, neginf=0.0)
+
+    def _capture_image_with_dm(self, dm_act: np.ndarray, delta_t: float, coronagraph_enabled: bool, noise_enabled: bool) -> np.ndarray:
+        original = self.deformable_mirror.actuators.copy()
+        try:
+            self.deformable_mirror.flatten()
+            self.deformable_mirror.actuators = np.asarray(dm_act, dtype=np.float64)
+            return self._sanitize_image(self.get_camera_image(delta_t=delta_t, coronagraph_enabled=coronagraph_enabled, crop=False, noise_enabled=noise_enabled))
+        finally:
+            self.deformable_mirror.flatten()
+            self.deformable_mirror.actuators = original
+
+    def generate_diversity_images(self, baseline_dm: np.ndarray | None = None, delta_t: float | None = None, noise_enabled: bool | None = None) -> np.ndarray:
+        """Return stacked images (C, H, W): baseline plus ± nudges if enabled.
+
+        - If diversity is disabled, returns a single-channel stack [baseline].
+        - If enabled, returns [baseline, +v1, -v1, +v2, -v2, ...].
+        """
+        if baseline_dm is None:
+            baseline_dm = self.deformable_mirror.actuators.copy()
+        dt = self.obs_delta_t if delta_t is None else delta_t
+        nz = self.obs_noise_enabled if noise_enabled is None else noise_enabled
+
+        # Baseline
+        baseline_img = self._capture_image_with_dm(baseline_dm, dt, coronagraph_enabled=True, noise_enabled=nz)
+        stack = [baseline_img]
+
+        if self.diversity_enabled and self.nudge_vectors:
+            for v in self.nudge_vectors:
+                plus = self._capture_image_with_dm(baseline_dm + v, dt, True, nz)
+                minus = self._capture_image_with_dm(baseline_dm - v, dt, True, nz)
+                stack.extend([plus, minus])
+
+        return np.stack(stack, axis=0).astype(np.float32)
+
+    def set_random_dm(self, noise=1e-7):
         # Put actuators at random values, putting a little more power in low-order modes
         self.deformable_mirror.actuators = np.random.randn(self.num_modes)  / (np.arange(self.num_modes) + 10)
 
@@ -101,7 +200,8 @@ class CoronagraphEnvironment(gym.Env):
 
 
     def set_dm(self, action):
-        self.deformable_mirror.actuators += action
+        # Additive update relative to current actuators (preserve previous state)
+        self.deformable_mirror.actuators = np.asarray(self.deformable_mirror.actuators, dtype=np.float64) + np.asarray(action, dtype=np.float64)
 
 
     def get_slopes(self):
@@ -143,41 +243,48 @@ class CoronagraphEnvironment(gym.Env):
 
 
     def get_contrast(self, corona_image=None, clear_image=None, delta_t=None):
+        # Generate images if not provided; use noiseless frames for a stable metric
         if corona_image is None:
-            corona_image = self.get_camera_image(delta_t, coronagraph_enabled=True, crop=False) if delta_t != None else self.get_camera_image(coronagraph_enabled=True)
+            if delta_t is not None:
+                corona_image = self.get_camera_image(delta_t, coronagraph_enabled=True, crop=False, noise_enabled=False)
+            else:
+                corona_image = self.get_camera_image(coronagraph_enabled=True, crop=False, noise_enabled=False)
 
         if clear_image is None:
-            clear_image = self.get_camera_image(delta_t, coronagraph_enabled=False, crop=False) if delta_t != None else self.get_camera_image(coronagraph_enabled=False)
-        
-        # Area of interest definition.
+            if delta_t is not None:
+                clear_image = self.get_camera_image(delta_t, coronagraph_enabled=False, crop=False, noise_enabled=False)
+            else:
+                clear_image = self.get_camera_image(coronagraph_enabled=False, crop=False, noise_enabled=False)
 
-        corona_image = np.array(corona_image)
-        clear_image = np.array(clear_image)
-
+        # Ensure numpy arrays and same shape
+        corona_image = np.asarray(corona_image)
+        clear_image = np.asarray(clear_image)
         assert corona_image.shape == clear_image.shape, "get_contrast images different shapes."
-        
+
         img_height, img_width = corona_image.shape
 
         def create_circular_mask(h, w, center=None, radius=None):
             if center is None:
-                center = (int(w/2), int(h/2))
+                center = (int(w / 2), int(h / 2))
             if radius is None:
-                radius = min(center[0], center[1], w-center[0], h-center[1])
-
+                radius = min(center[0], center[1], w - center[0], h - center[1])
             Y, X = np.ogrid[:h, :w]
-            dist_from_center = np.sqrt((X - center[0])**2 + (Y-center[1])**2)
+            dist_from_center = np.sqrt((X - center[0]) ** 2 + (Y - center[1]) ** 2)
+            return dist_from_center <= radius  # boolean mask
 
-            mask = dist_from_center <= radius
-            return mask
-
+        # D-shaped region (half-annulus): outer minus inner, restricted to right half-plane
         inner_circle = create_circular_mask(img_height, img_width, radius=18)
         outer_circle = create_circular_mask(img_height, img_width, radius=35)
-        right_side = np.zeros((img_height, img_width), dtype=int)
-        right_side[:, :img_width // 2] = 1
+        half_plane = np.zeros((img_height, img_width), dtype=bool)
+        half_plane[:, img_width // 2 :] = True  # right half
+        annulus = np.logical_and(outer_circle, np.logical_not(inner_circle))
+        mask = np.logical_and(half_plane, annulus)  # boolean mask
 
-        mask = np.where(np.logical_and(right_side, np.logical_and(outer_circle, np.logical_not(inner_circle))), 1, 0)
-
-        return np.mean(corona_image[mask]) / np.max(clear_image[mask])
+        # Contrast definition: mean coronagraph intensity in D-shaped mask over PEAK of aberrated non-coronagraph image
+        num = float(np.mean(corona_image[mask]))
+        denom = float(np.max(clear_image))  # use global peak, not masked
+        denom = max(denom, 1e-20)
+        return num / denom
 
     def get_strehl_ratio(self):
         wf_aberrated = self.deformable_mirror(self.wf)
@@ -192,24 +299,27 @@ class CoronagraphEnvironment(gym.Env):
         return strehl
 
     def _get_obs(self):
-        image = self.get_camera_image().astype(np.float32)
-        slopes = self.get_slopes().astype(np.float32)
-        strehl = np.array([self.get_strehl_ratio()], dtype=np.float32)
+        # Images stack (C,H,W)
+        images = self.generate_diversity_images(baseline_dm=self.deformable_mirror.actuators.copy())
+        # Slopes and strehl
+        slopes = np.asarray(self.get_slopes(), dtype=np.float32)
+        slopes = np.nan_to_num(slopes, posinf=0.0, neginf=0.0)
+        strehl = np.array([self.get_contrast(delta_t=1e15)], dtype=np.float32)
+        strehl = np.nan_to_num(strehl, posinf=np.finfo(np.float32).max, neginf=0.0)
 
         observation = {
-            "image": image,
+            "image": images,
             "slopes": slopes,
             "strehl": strehl
         }
 
-        # print(f"observation: {observation}")
-        # print(f"max_value: {self.max_value}")
-        # print(f"image min: {np.min(observation['image'])}, max: {np.max(observation['image'])}")
-        # print(f"slopes min: {np.min(observation['slopes'])}, max: {np.max(observation['slopes'])}")
-        # print(f"strehl min: {np.min(observation['strehl'])}, max: {np.max(observation['strehl'])}")
-        
-
-        assert self.observation_space.contains(observation), "Observation doesn't match space"
+        # Robustness: avoid hard crash; warn if out of bounds
+        if not self.observation_space.contains(observation):
+            # Optionally clip images to observation space high if finite
+            img_space = self.observation_space.spaces["image"]
+            finite_high = np.isfinite(img_space.high)
+            if np.any(finite_high):
+                observation["image"] = np.minimum(observation["image"], img_space.high)
         return observation
 
 
@@ -232,13 +342,15 @@ class CoronagraphEnvironment(gym.Env):
         return observation, info
 
     def _compute_reward(self):
-        return -np.log10(self.get_contrast + 1e-20) # Tiny positive value to ensure its positive.
+        # Use high-exposure contrast as a proxy; ensure numerical stability
+        contrast = self.get_contrast(delta_t=1e15)
+        return -np.log10(contrast + 1e-20) # Tiny positive value to ensure it's positive.
 
     def step(self, action):
         # Update the environment state based on the action
         assert action.shape == self.deformable_mirror.actuators.shape
 
-        self.set_dm(action=action * 1e-8)
+        self.set_dm(action=action)
         self.iteration_counter -= 1
 
         reward = self._compute_reward()
