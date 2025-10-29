@@ -242,7 +242,19 @@ class CoronagraphEnvironment(gym.Env):
         return crop_image(wfs_image, width=crop_width) if crop else wfs_image
 
 
-    def get_contrast(self, corona_image=None, clear_image=None, delta_t=None):
+    def lod_to_pixels(self, lod: float) -> float:
+        """Convert a separation in units of λ/D to pixels on the detector image.
+
+        With the focal grid created via make_focal_grid(q=pixels_per_spacial_res, ...),
+        the pixel scale is q pixels per λ/D. Hence: pixels = lod * q.
+        """
+        return float(lod) * float(self.pixels_per_spacial_res)
+
+    def pixels_to_lod(self, pixels: float) -> float:
+        """Convert pixels on the detector image to units of λ/D."""
+        return float(pixels) / float(self.pixels_per_spacial_res)
+
+    def get_contrast(self, corona_image=None, clear_image=None, delta_t=None, *, inner_lod: float | None = None, outer_lod: float | None = None, half: str = "right"):
         # Generate images if not provided; use noiseless frames for a stable metric
         if corona_image is None:
             if delta_t is not None:
@@ -272,11 +284,23 @@ class CoronagraphEnvironment(gym.Env):
             dist_from_center = np.sqrt((X - center[0]) ** 2 + (Y - center[1]) ** 2)
             return dist_from_center <= radius  # boolean mask
 
-        # D-shaped region (half-annulus): outer minus inner, restricted to right half-plane
-        inner_circle = create_circular_mask(img_height, img_width, radius=18)
-        outer_circle = create_circular_mask(img_height, img_width, radius=35)
+        # D-shaped region (half-annulus): outer minus inner, restricted to chosen half-plane
+        # Radii can be provided in λ/D; otherwise fallback to pixel radii 18 and 35
+        if inner_lod is not None:
+            r_in = int(round(self.lod_to_pixels(inner_lod)))
+        else:
+            r_in = 18
+        if outer_lod is not None:
+            r_out = int(round(self.lod_to_pixels(outer_lod)))
+        else:
+            r_out = 35
+        inner_circle = create_circular_mask(img_height, img_width, radius=r_in)
+        outer_circle = create_circular_mask(img_height, img_width, radius=r_out)
         half_plane = np.zeros((img_height, img_width), dtype=bool)
-        half_plane[:, img_width // 2 :] = True  # right half
+        if half.lower() == "left":
+            half_plane[:, : img_width // 2] = True
+        else:
+            half_plane[:, img_width // 2 :] = True  # right half (default)
         annulus = np.logical_and(outer_circle, np.logical_not(inner_circle))
         mask = np.logical_and(half_plane, annulus)  # boolean mask
 
@@ -284,6 +308,72 @@ class CoronagraphEnvironment(gym.Env):
         num = float(np.mean(corona_image[mask]))
         denom = float(np.max(clear_image))  # use global peak, not masked
         denom = max(denom, 1e-20)
+
+        if (num > denom and False):
+            print(f"ERROR IMPOSSIBLE VALUE ENCOUNTERED! Dumping info!")
+            # Dump relevant variables and visualize masks/images for debugging
+            try:
+                def arr_stats(a):
+                    a = np.asarray(a)
+                    return {
+                        "shape": tuple(a.shape),
+                        "dtype": str(a.dtype),
+                        "min": float(np.nanmin(a)),
+                        "max": float(np.nanmax(a)),
+                        "mean": float(np.nanmean(a)),
+                        "sum": float(np.nansum(a)),
+                        "nan_count": int(np.isnan(a).sum()),
+                        "inf_count": int(np.isinf(a).sum()),
+                    }
+
+                masked_mean = float(np.mean(corona_image[mask]))
+                masked_max = float(np.max(corona_image[mask]))
+                print("=== Contrast Debug Dump ===")
+                print(f"time: {datetime.now().isoformat()}")
+                print(f"delta_t={delta_t}, inner_lod={inner_lod}, outer_lod={outer_lod}, half='{half}'")
+                print(f"r_in={r_in}, r_out={r_out}, pixels_per_spacial_res={self.pixels_per_spacial_res}")
+                print(f"num(mean masked corona)={num}, denom(peak clear)={denom}")
+                print(f"masked_mean={masked_mean}, masked_max={masked_max}")
+                print(f"mask_coverage={float(mask.mean())}, annulus_coverage={float(annulus.mean())}, half_plane_coverage={float(half_plane.mean())}")
+                print(f"telescope_diameter={self.telescope_diameter}, wavelength_sci={self.wavelength_sci}, coronagraph_charge={self.coronagraph_charge}")
+                print(f"num_modes={self.num_modes}, dm_norm={float(np.linalg.norm(self.deformable_mirror.actuators))}")
+                print("corona_image:", arr_stats(corona_image))
+                print("clear_image:", arr_stats(clear_image))
+
+                # Visualize images and masks
+                fig, axs = plt.subplots(2, 3, figsize=(12, 8), constrained_layout=True)
+
+                im0 = axs[0, 0].imshow(corona_image, cmap="inferno")
+                axs[0, 0].imshow(mask, cmap="cool", alpha=0.3)
+                axs[0, 0].set_title("Coronagraph Image + Mask")
+                plt.colorbar(im0, ax=axs[0, 0], fraction=0.046, pad=0.04)
+
+                im1 = axs[0, 1].imshow(clear_image, cmap="inferno")
+                axs[0, 1].imshow(mask, cmap="cool", alpha=0.3)
+                axs[0, 1].set_title("Clear (No Coro) + Mask")
+                plt.colorbar(im1, ax=axs[0, 1], fraction=0.046, pad=0.04)
+
+                im2 = axs[0, 2].imshow(corona_image * mask, cmap="inferno")
+                axs[0, 2].set_title("Masked Coronagraph Image")
+                plt.colorbar(im2, ax=axs[0, 2], fraction=0.046, pad=0.04)
+
+                axs[1, 0].imshow(inner_circle, cmap="gray")
+                axs[1, 0].set_title("Inner Circle")
+
+                axs[1, 1].imshow(outer_circle, cmap="gray")
+                axs[1, 1].set_title("Outer Circle")
+
+                axs[1, 2].imshow(annulus, cmap="gray")
+                axs[1, 2].imshow(half_plane, cmap="cool", alpha=0.3)
+                axs[1, 2].set_title("Annulus + Half-Plane")
+
+                for ax in axs.flat:
+                    ax.set_xticks([])
+                    ax.set_yticks([])
+
+                plt.show()
+            except Exception as ex:
+                print(f"[contrast debug] visualization failed: {ex}")
         return num / denom
 
     def get_strehl_ratio(self):
@@ -385,31 +475,19 @@ class CoronagraphEnvironment(gym.Env):
 
 
 if __name__ == "__main__":
-    print(f"RUNNING!")
     e = CoronagraphEnvironment(num_modes=40)
-    e.set_random_dm(noise=1e-8)
-    plt.imshow(e.get_camera_image(delta_t=1e-3, noise_enabled=False), cmap='inferno')
-    plt.colorbar()
-    # plt.show()
-    # plt.savefig("coronagraph_image.png", dpi=300)
-    plt.savefig("/scratch/network/ak9088/coronagraph_image.png", dpi=300)
-
-    exit()
-
-
-
-    avgs = np.zeros_like(e.deformable_mirror.actuators)
 
     N = 400
-    for _ in range(N):
-        e.set_random_dm(noise=1e-7)
-        avgs += e.deformable_mirror.actuators
-    
-    avgs /= N
+    avgs = np.zeros(shape=(N,))
+
+    for i in range(200, N):
+        for _ in range(50):
+            e.set_random_dm(noise=i * 1e-7)
+            avgs[i] = max(avgs[i], e.get_contrast(delta_t=1e15))
 
     print(avgs)
 
-    plt.plot(np.arange(len(e.deformable_mirror.actuators)), avgs)
+    plt.plot(np.arange(N), avgs)
     plt.show()
 
 
