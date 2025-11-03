@@ -20,7 +20,10 @@ class CoronagraphEnvironment(gym.Env):
                 nudge_mode_indices: list | None = None,
                 num_diversity_pairs: int = 1,
                 obs_noise_enabled: bool = False,
-                obs_delta_t: float | None = None):
+                obs_delta_t: float | None = None,
+                # RL stability knobs
+                action_scale: float = 1e-8,
+                dm_clip: float | None = None):
         super().__init__()
 
         print(f"initializing coronagraph env. might take a minute.")
@@ -43,6 +46,9 @@ class CoronagraphEnvironment(gym.Env):
         self.num_diversity_pairs = int(num_diversity_pairs)
         self.obs_noise_enabled = bool(obs_noise_enabled)
         self.obs_delta_t = delta_t if obs_delta_t is None else obs_delta_t
+        # RL stability knobs
+        self.action_scale = float(action_scale)
+        self.dm_clip = float(dm_clip) if dm_clip is not None else None
 
         self.num_pupil_pixels = pixels * oversizing_factor
         self.pupil_grid_diameter = telescope_diameter * oversizing_factor
@@ -121,10 +127,12 @@ class CoronagraphEnvironment(gym.Env):
         self.observation_space = spaces.Dict({
             "image": spaces.Box(low=image_low, high=image_high, shape=self.camera_shape, dtype=np.float32),
             "slopes": spaces.Box(low=slopes_low, high=slopes_high, shape=self.slopes_shape, dtype=np.float32),
-            "strehl": spaces.Box(low=strehl_low, high=strehl_high, shape=(1,), dtype=np.float32)
+            "contrast": spaces.Box(low=strehl_low, high=strehl_high, shape=(1,), dtype=np.float32)
         })
 
-        self.action_space = spaces.Box(low=-1e-3, high=1e-3, shape=(num_modes,), dtype=np.float32)
+        self.action_space = spaces.Box(low=-1e1, high=1e1, shape=(num_modes,), dtype=np.float32)
+
+        self.reset()
 
     # -------------------------
     # Modularity helpers
@@ -188,20 +196,25 @@ class CoronagraphEnvironment(gym.Env):
 
     def set_random_dm(self, noise=1e-7):
         # Put actuators at random values, putting a little more power in low-order modes
-        self.deformable_mirror.actuators = np.random.randn(self.num_modes)  / (np.arange(self.num_modes) + 10)
+        action = np.random.randn(self.num_modes)  / (np.arange(self.num_modes) + 10)
 
-        # Normalize the DM surface so that we get a reasonable surface RMS.
-        self.deformable_mirror.actuators *= noise * self.wavelength_sci / np.std(self.deformable_mirror.surface)
+        self.deformable_mirror.actuators = action
 
-        magnitude = np.linalg.norm(self.deformable_mirror.actuators)
+        action *= noise * self.wavelength_sci / np.std(self.deformable_mirror.surface)
 
-        self.deformable_mirror.actuators /= magnitude
-        self.deformable_mirror.actuators *= noise
+        magnitude = np.linalg.norm(action)
+
+        action /= magnitude
+        action *= noise
+
+        self.deformable_mirror.actuators = action
 
 
     def set_dm(self, action):
         # Additive update relative to current actuators (preserve previous state)
         self.deformable_mirror.actuators = np.asarray(self.deformable_mirror.actuators, dtype=np.float64) + np.asarray(action, dtype=np.float64)
+        if self.dm_clip is not None:
+            self.deformable_mirror.actuators = np.clip(self.deformable_mirror.actuators, -self.dm_clip, self.dm_clip)
 
 
     def get_slopes(self):
@@ -217,7 +230,6 @@ class CoronagraphEnvironment(gym.Env):
     def get_perfect_adjustment(self):
         return self.deformable_mirror.actuators * -1
     
-
     def get_camera_image(self, delta_t=1e3, crop=False, crop_width=40, coronagraph_enabled=True, noise_enabled=True):
         def crop_image(img, width=40):
             if len(img.shape) == 1:
@@ -289,11 +301,11 @@ class CoronagraphEnvironment(gym.Env):
         if inner_lod is not None:
             r_in = int(round(self.lod_to_pixels(inner_lod)))
         else:
-            r_in = 18
+            r_in = 3
         if outer_lod is not None:
             r_out = int(round(self.lod_to_pixels(outer_lod)))
         else:
-            r_out = 35
+            r_out = 10
         inner_circle = create_circular_mask(img_height, img_width, radius=r_in)
         outer_circle = create_circular_mask(img_height, img_width, radius=r_out)
         half_plane = np.zeros((img_height, img_width), dtype=bool)
@@ -308,6 +320,24 @@ class CoronagraphEnvironment(gym.Env):
         num = float(np.mean(corona_image[mask]))
         denom = float(np.max(clear_image))  # use global peak, not masked
         denom = max(denom, 1e-20)
+
+        # fig, axs = plt.subplots(1, 3, figsize=(12, 4), constrained_layout=True)
+        # im0 = axs[0].imshow(inner_circle.astype(float), cmap="gray")
+
+        # axs[0].set_title("Mask")
+        # im1 = axs[1].imshow(corona_image, cmap="inferno")
+        # axs[1].set_title("Coronagraph")
+        # im2 = axs[2].imshow(clear_image, cmap="inferno")
+        # axs[2].set_title("Clear")
+        # for ax in axs:
+        #     ax.set_xticks([])
+        #     ax.set_yticks([])
+        # plt.colorbar(im0, ax=axs[0], fraction=0.046, pad=0.04)
+        # plt.colorbar(im1, ax=axs[1], fraction=0.046, pad=0.04)
+        # plt.colorbar(im2, ax=axs[2], fraction=0.046, pad=0.04)
+        # plt.show()
+
+        # print(f"corona masked: {corona_image[mask]}")
 
         if (num > denom and False):
             print(f"ERROR IMPOSSIBLE VALUE ENCOUNTERED! Dumping info!")
@@ -390,19 +420,19 @@ class CoronagraphEnvironment(gym.Env):
 
     def _get_obs(self):
         # Images stack (C,H,W)
-        images = self.generate_diversity_images(baseline_dm=self.deformable_mirror.actuators.copy())
+        images = self.generate_diversity_images()
         # Slopes and strehl
         slopes = np.asarray(self.get_slopes(), dtype=np.float32)
         slopes = np.nan_to_num(slopes, posinf=0.0, neginf=0.0)
-        strehl = np.array([self.get_contrast(delta_t=1e15)], dtype=np.float32)
-        strehl = np.nan_to_num(strehl, posinf=np.finfo(np.float32).max, neginf=0.0)
+        contrast = np.array([self.get_contrast(delta_t=1e15)], dtype=np.float32)
+        contrast = np.nan_to_num(contrast, posinf=np.finfo(np.float32).max, neginf=0.0)
 
         observation = {
             "image": images,
             "slopes": slopes,
-            "strehl": strehl
+            "contrast": contrast
         }
-
+    
         # Robustness: avoid hard crash; warn if out of bounds
         if not self.observation_space.contains(observation):
             # Optionally clip images to observation space high if finite
@@ -433,14 +463,18 @@ class CoronagraphEnvironment(gym.Env):
 
     def _compute_reward(self):
         # Use high-exposure contrast as a proxy; ensure numerical stability
-        contrast = self.get_contrast(delta_t=1e15)
-        return -np.log10(contrast + 1e-20) # Tiny positive value to ensure it's positive.
+        contrast = self.get_contrast(delta_t=1e15)        
+        # Guard against NaN/Inf and non-positive values
+        c = float(np.nan_to_num(contrast, nan=1e-20, posinf=1e-20, neginf=1e-20))
+        c = max(c, 1e-20)
+        return -np.log10(c)  # higher is better
 
     def step(self, action):
         # Update the environment state based on the action
         assert action.shape == self.deformable_mirror.actuators.shape
 
-        self.set_dm(action=action)
+        # Scale down the action to keep DM updates numerically safe
+        self.set_dm(action=action * self.action_scale)
         self.iteration_counter -= 1
 
         reward = self._compute_reward()
@@ -454,17 +488,6 @@ class CoronagraphEnvironment(gym.Env):
         
         return observation, reward, terminated, truncated, info
 
-        ...
-        # Calculate the reward
-        reward = ...
-        # Determine if the episode is terminated or truncated
-        terminated = False
-        truncated = False
-        # Provide any extra information
-        info = {}
-        observation = self.current_state # or transform the state into an observation
-        return observation, reward, terminated, truncated, info
-
     def render(self, mode="human"):
         # Implement visualization if needed
         ...
@@ -475,7 +498,48 @@ class CoronagraphEnvironment(gym.Env):
 
 
 if __name__ == "__main__":
-    e = CoronagraphEnvironment(num_modes=40)
+    e = CoronagraphEnvironment(num_modes=40, num_airy=5, pixels_per_spacial_res=2)
+    e.set_random_dm(noise=1e-7)
+    diversity_imgs = e.generate_diversity_images()
+
+    # Visualize stacked diversity images (C, H, W) using inferno colormap
+    imgs = diversity_imgs
+    if imgs.ndim == 2:
+        imgs = imgs[None, ...]
+    C, H, W = imgs.shape
+
+    ncols = int(np.ceil(np.sqrt(C)))
+    nrows = int(np.ceil(C / ncols))
+
+    vmin = float(np.nanmin(imgs))
+    vmax = float(np.nanmax(imgs))
+
+    fig, axes = plt.subplots(nrows, ncols, figsize=(4 * ncols, 4 * nrows), squeeze=False)
+    im = None
+    for i in range(nrows * ncols):
+        ax = axes[i // ncols, i % ncols]
+        if i < C:
+            im = ax.imshow(imgs[i], cmap='inferno', vmin=vmin, vmax=vmax)
+            ax.set_title(f'Channel {i}')
+            ax.set_xticks([])
+            ax.set_yticks([])
+        else:
+            ax.axis('off')
+
+    if im is not None:
+        fig.colorbar(im, ax=axes.ravel().tolist(), shrink=0.8, label='Intensity')
+
+    plt.tight_layout()
+    plt.show()
+
+    print(diversity_imgs.shape)
+
+    obs = e._get_obs()
+
+    print(obs)
+
+    exit()
+
 
     N = 400
     avgs = np.zeros(shape=(N,))

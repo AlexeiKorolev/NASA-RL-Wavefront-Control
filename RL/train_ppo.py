@@ -40,20 +40,21 @@ class SafeCoronagraphEnvironment(CoronagraphEnvironment):
     - Do NOT assert against observation_space (wrapper will clip if needed)
     """
     def _get_obs(self):
+
         # Get raw arrays
         image = np.asarray(self.get_camera_image(), dtype=np.float32)
         slopes = np.asarray(self.get_slopes(), dtype=np.float32)
-        strehl = np.array([self.get_contrast(delta_t=1e15)], dtype=np.float32)
+        contrast = np.array([self.get_contrast(delta_t=1e15)], dtype=np.float32)
 
         # Replace NaNs/Infs to finite
         image = np.nan_to_num(image, posinf=np.finfo(np.float32).max, neginf=0.0)
         slopes = np.nan_to_num(slopes, posinf=0.0, neginf=0.0)
-        strehl = np.nan_to_num(strehl, posinf=np.finfo(np.float32).max, neginf=0.0)
+        contrast = np.nan_to_num(contrast, posinf=np.finfo(np.float32).max, neginf=0.0)
 
         return {
             "image": image,
             "slopes": slopes,
-            "strehl": strehl,
+            "contrast": contrast,
         }
 
 
@@ -74,7 +75,7 @@ class SafeObsWrapper(gym.ObservationWrapper):
             return np.clip(arr, low, high)
         obs["image"] = _fix(obs["image"], self.obs_space.spaces["image"])
         obs["slopes"] = _fix(obs["slopes"], self.obs_space.spaces["slopes"])
-        obs["strehl"] = _fix(obs["strehl"], self.obs_space.spaces["strehl"])
+        obs["contrast"] = _fix(obs["contrast"], self.obs_space.spaces["contrast"])
         return obs
 
 
@@ -96,9 +97,10 @@ def build_env(num_modes: int, pixels: int, oversizing_factor: float, num_airy: i
         oversizing_factor=oversizing_factor,
         num_airy=num_airy,
         pixels_per_spacial_res=ppsr,
+        coronagraph_charge=6,
     )
     env = Monitor(env)
-    env = SafeObsWrapper(env)
+    # env = SafeObsWrapper(env)
     return env
 
 

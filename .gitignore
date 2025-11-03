@@ -3,3 +3,4 @@
 /RL/__pycache__/*
 /.venv/*
 /.venv
+/logs/*
