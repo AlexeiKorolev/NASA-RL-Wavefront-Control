@@ -40,22 +40,12 @@ class SafeCoronagraphEnvironment(CoronagraphEnvironment):
     - Do NOT assert against observation_space (wrapper will clip if needed)
     """
     def _get_obs(self):
-
-        # Get raw arrays
-        image = np.asarray(self.get_camera_image(), dtype=np.float32)
-        slopes = np.asarray(self.get_slopes(), dtype=np.float32)
-        contrast = np.array([self.get_contrast(delta_t=1e15)], dtype=np.float32)
-
-        # Replace NaNs/Infs to finite
-        image = np.nan_to_num(image, posinf=np.finfo(np.float32).max, neginf=0.0)
-        slopes = np.nan_to_num(slopes, posinf=0.0, neginf=0.0)
-        contrast = np.nan_to_num(contrast, posinf=np.finfo(np.float32).max, neginf=0.0)
-
-        return {
-            "image": image,
-            "slopes": slopes,
-            "contrast": contrast,
-        }
+        # Delegate to base implementation to preserve shapes/keys, then sanitize
+        obs = super()._get_obs()
+        for k, v in list(obs.items()):
+            arr = np.asarray(v, dtype=np.float32)
+            obs[k] = np.nan_to_num(arr, posinf=np.finfo(np.float32).max, neginf=0.0)
+        return obs
 
 
 class SafeObsWrapper(gym.ObservationWrapper):
@@ -74,7 +64,8 @@ class SafeObsWrapper(gym.ObservationWrapper):
             high = np.where(np.isfinite(space.high), space.high, np.inf).astype(np.float32)
             return np.clip(arr, low, high)
         obs["image"] = _fix(obs["image"], self.obs_space.spaces["image"])
-        obs["slopes"] = _fix(obs["slopes"], self.obs_space.spaces["slopes"])
+        if "slopes" in obs and "slopes" in self.obs_space.spaces:
+            obs["slopes"] = _fix(obs["slopes"], self.obs_space.spaces["slopes"])
         obs["contrast"] = _fix(obs["contrast"], self.obs_space.spaces["contrast"])
         return obs
 
@@ -90,7 +81,7 @@ class TBContrastCallback(BaseCallback):
         return True
 
 
-def build_env(num_modes: int, pixels: int, oversizing_factor: float, num_airy: int, ppsr: int) -> gym.Env:
+def build_env(num_modes: int, pixels: int, oversizing_factor: float, num_airy: int, ppsr: int, include_slopes: bool = True) -> gym.Env:
     env = SafeCoronagraphEnvironment(
         num_modes=num_modes,
         pixels=pixels,
@@ -98,6 +89,7 @@ def build_env(num_modes: int, pixels: int, oversizing_factor: float, num_airy: i
         num_airy=num_airy,
         pixels_per_spacial_res=ppsr,
         coronagraph_charge=6,
+        include_slopes=include_slopes,
     )
     env = Monitor(env)
     # env = SafeObsWrapper(env)
@@ -123,6 +115,10 @@ def parse_args():
     p.add_argument("--tb-log-name", type=str, default="ppo_coronagraph")
     p.add_argument("--eval-freq", type=int, default=5000)
     p.add_argument("--seed", type=int, default=None)
+    # Slopes toggle
+    p.add_argument("--include-slopes", dest="include_slopes", action="store_true", help="include slopes in observations (default)")
+    p.add_argument("--no-slopes", dest="include_slopes", action="store_false", help="exclude slopes from observations")
+    p.set_defaults(include_slopes=True)
     return p.parse_args()
 
 
@@ -150,6 +146,7 @@ def main():
         oversizing_factor=args.oversizing_factor,
         num_airy=args.num_airy,
         ppsr=args.ppsr,
+        include_slopes=args.include_slopes,
     )
     env = make_vec_env(args.num_envs, **env_kwargs)
     eval_env = make_vec_env(1, **env_kwargs)

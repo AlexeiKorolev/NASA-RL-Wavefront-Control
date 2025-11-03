@@ -21,6 +21,7 @@ class CoronagraphEnvironment(gym.Env):
                 num_diversity_pairs: int = 1,
                 obs_noise_enabled: bool = False,
                 obs_delta_t: float | None = None,
+                include_slopes: bool = True,
                 # RL stability knobs
                 action_scale: float = 1e-8,
                 dm_clip: float | None = None):
@@ -45,6 +46,7 @@ class CoronagraphEnvironment(gym.Env):
         self.nudge_mode_indices = list(nudge_mode_indices) if nudge_mode_indices is not None else [0]
         self.num_diversity_pairs = int(num_diversity_pairs)
         self.obs_noise_enabled = bool(obs_noise_enabled)
+        self.include_slopes = bool(include_slopes)
         self.obs_delta_t = delta_t if obs_delta_t is None else obs_delta_t
         # RL stability knobs
         self.action_scale = float(action_scale)
@@ -110,8 +112,9 @@ class CoronagraphEnvironment(gym.Env):
         # Use array low/high to match shapes explicitly. Allow wide ranges for robustness.
         image_low = np.zeros(self.camera_shape, dtype=np.float32)
         image_high = np.full(self.camera_shape, np.inf, dtype=np.float32)  # bright spikes allowed
-        slopes_low = np.full(self.slopes_shape, -np.inf, dtype=np.float32)
-        slopes_high = np.full(self.slopes_shape, np.inf, dtype=np.float32)
+        if self.include_slopes:
+            slopes_low = np.full(self.slopes_shape, -np.inf, dtype=np.float32)
+            slopes_high = np.full(self.slopes_shape, np.inf, dtype=np.float32)
         strehl_low = np.array([0.0], dtype=np.float32)
         strehl_high = np.array([np.inf], dtype=np.float32)  # contrast proxy may exceed 1
 
@@ -124,11 +127,13 @@ class CoronagraphEnvironment(gym.Env):
                     v[idx] = self.nudge_magnitude
                 self.nudge_vectors.append(v)
 
-        self.observation_space = spaces.Dict({
+        obs_spaces = {
             "image": spaces.Box(low=image_low, high=image_high, shape=self.camera_shape, dtype=np.float32),
-            "slopes": spaces.Box(low=slopes_low, high=slopes_high, shape=self.slopes_shape, dtype=np.float32),
             "contrast": spaces.Box(low=strehl_low, high=strehl_high, shape=(1,), dtype=np.float32)
-        })
+        }
+        if self.include_slopes:
+            obs_spaces["slopes"] = spaces.Box(low=slopes_low, high=slopes_high, shape=self.slopes_shape, dtype=np.float32)
+        self.observation_space = spaces.Dict(obs_spaces)
 
         self.action_space = spaces.Box(low=-1e1, high=1e1, shape=(num_modes,), dtype=np.float32)
 
@@ -422,16 +427,18 @@ class CoronagraphEnvironment(gym.Env):
         # Images stack (C,H,W)
         images = self.generate_diversity_images()
         # Slopes and strehl
-        slopes = np.asarray(self.get_slopes(), dtype=np.float32)
-        slopes = np.nan_to_num(slopes, posinf=0.0, neginf=0.0)
+        if self.include_slopes:
+            slopes = np.asarray(self.get_slopes(), dtype=np.float32)
+            slopes = np.nan_to_num(slopes, posinf=0.0, neginf=0.0)
         contrast = np.array([self.get_contrast(delta_t=1e15)], dtype=np.float32)
         contrast = np.nan_to_num(contrast, posinf=np.finfo(np.float32).max, neginf=0.0)
 
         observation = {
             "image": images,
-            "slopes": slopes,
             "contrast": contrast
         }
+        if self.include_slopes:
+            observation["slopes"] = slopes
     
         # Robustness: avoid hard crash; warn if out of bounds
         if not self.observation_space.contains(observation):
