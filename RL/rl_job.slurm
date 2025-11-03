@@ -12,4 +12,4 @@ module purge
 module load anaconda3/2025.6
 conda activate /scratch/network/ak9088/anaconda3/envs/dmrl2
 
-python train_ppo.py --total-timesteps=1000000 --num-modes=5 --model-output=models/ppo_model_1M_5modes --log-dir=logs/ppo_1M_5modes
+python train_ppo.py --total-timesteps=1000000 --num-modes=5 --model-output=models/ppo_model_1M_5modes_no_slopes --log-dir=logs/ppo_1M_5modes_no_slopes --no-slopes
