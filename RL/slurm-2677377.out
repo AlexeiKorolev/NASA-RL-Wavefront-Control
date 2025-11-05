@@ -1,7 +1,0 @@
-using device: cuda
-Epoch 1/5 - train 0.644916 - val 0.505743
-Epoch 2/5 - train 0.503105 - val 0.495935
-Epoch 3/5 - train 0.496872 - val 0.492644
-Epoch 4/5 - train 0.493153 - val 0.487209
-Epoch 5/5 - train 0.484896 - val 0.472955
-Saved model to models/AutoTrain/fc1_best.pth

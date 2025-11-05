@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/train_job.py", line 36, in <module>
+    from archs.cnn1 import CNN1
+  File "/scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/archs/cnn1.py", line 2, in <module>
+    from torchviz import make_dot
+ModuleNotFoundError: No module named 'torchviz'
