@@ -81,7 +81,7 @@ class TBContrastCallback(BaseCallback):
         return True
 
 
-def build_env(num_modes: int, pixels: int, oversizing_factor: float, num_airy: int, ppsr: int, include_slopes: bool = True) -> gym.Env:
+def build_env(num_modes: int, pixels: int, oversizing_factor: float, num_airy: int, ppsr: int, include_slopes: bool = True, basis: str = "harmonic") -> gym.Env:
     env = SafeCoronagraphEnvironment(
         num_modes=num_modes,
         pixels=pixels,
@@ -90,6 +90,7 @@ def build_env(num_modes: int, pixels: int, oversizing_factor: float, num_airy: i
         pixels_per_spacial_res=ppsr,
         coronagraph_charge=6,
         include_slopes=include_slopes,
+        basis=basis
     )
     env = Monitor(env)
     # env = SafeObsWrapper(env)
