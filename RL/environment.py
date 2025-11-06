@@ -8,6 +8,14 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import scipy.ndimage as ndimage
 
+"""
+- Compare Zernike performance to Neumann performance
+- Evaluate out-of-distribution generalization by training on 5 modes and testing on 25 modes
+- Make nudges a hyperparameter
+- Compare strehl with contrast optimization
+- Somehow involve mech interp.
+"""
+
 
 class CoronagraphEnvironment(gym.Env):
     def __init__(self, telescope_diameter = 8., oversizing_factor = 16 / 15, 
@@ -24,7 +32,10 @@ class CoronagraphEnvironment(gym.Env):
                 include_slopes: bool = True,
                 # RL stability knobs
                 action_scale: float = 1e-8,
-                dm_clip: float | None = None):
+                dm_clip: float | None = None,
+                # Basis type
+                basis: str = 'harmonic'
+                ):
         super().__init__()
 
         print(f"initializing coronagraph env. might take a minute.")
@@ -71,10 +82,17 @@ class CoronagraphEnvironment(gym.Env):
 
         self.camera = NoiselessDetector(self.focal_grid)
 
-        # Number of harmonic modes
-        self.dm_modes = make_disk_harmonic_basis(self.pupil_grid, num_modes, telescope_diameter, 'neumann')
-        # Normalizing each mode with the peak-to-peak value (max - min)
-        self.dm_modes = ModeBasis([mode / np.ptp(mode) for mode in self.dm_modes], self.pupil_grid)
+        self.basis = basis.lower()
+        if self.basis == 'zernike':
+            # Number of Zernike modes
+            self.dm_modes = make_zernike_basis(num_modes=self.num_modes, D=self.telescope_diameter, grid=self.pupil_grid, starting_mode=1, ansi=False, radial_cutoff=True, use_cache=True)
+            # Normalizing each mode with the peak-to-peak value (max - min)
+            self.dm_modes = ModeBasis([mode / np.ptp(mode) for mode in self.dm_modes], self.pupil_grid)
+        else:
+            # Number of harmonic modes
+            self.dm_modes = make_disk_harmonic_basis(self.pupil_grid, num_modes, telescope_diameter, 'neumann')
+            # Normalizing each mode with the peak-to-peak value (max - min)
+            self.dm_modes = ModeBasis([mode / np.ptp(mode) for mode in self.dm_modes], self.pupil_grid)
 
         self.deformable_mirror = DeformableMirror(self.dm_modes)
 
@@ -212,6 +230,9 @@ class CoronagraphEnvironment(gym.Env):
         action /= magnitude
         action *= noise
 
+        if self.basis == 'zernike':
+            action *= np.sqrt(5.0, dtype=np.float16) # scaling zernike so that it is similar to harmonic noise levels.
+        
         self.deformable_mirror.actuators = action
 
 
