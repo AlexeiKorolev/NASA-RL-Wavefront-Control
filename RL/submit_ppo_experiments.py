@@ -193,7 +193,6 @@ def main():
                     return
             lines.insert(2, new_line)
         replace_or_append("#SBATCH --cpus-per-task=", f"#SBATCH --cpus-per-task={args.cpus}")
-        replace_or_append("#SBATCH --mem=", f"#SBATCH --mem={args.mem}")
         replace_or_append("#SBATCH --gres=", f"#SBATCH --gres={args.gres}")
         if args.mail_user:
             replace_or_append("#SBATCH --mail-user=", f"#SBATCH --mail-user={args.mail_user}")
