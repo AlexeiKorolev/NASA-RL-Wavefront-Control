@@ -203,7 +203,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     p.add_argument("--ppsr", type=int, default=2, help="Pixels per spatial resolution element.")
     # Output
     p.add_argument("--output", type=str, default="data/dataset.pkl", help="Path to output pickle file.")
-    p.add_argument("--basis_type", type=str, default="zernike", choices=["zernike", "harmonic"])  # New argument for mode type
+    p.add_argument("--basis-type", type=str, default="zernike", choices=["zernike", "harmonic"])  # New argument for mode type
 
     return p.parse_args(argv)
 
