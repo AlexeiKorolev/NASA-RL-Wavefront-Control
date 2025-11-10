@@ -66,6 +66,7 @@ class EnvironmentConfig:
     num_airy: int = 5
     coronagraph_charge: int = 6
     ppsr: int = 2  # pixels_per_spacial_res
+    basis: str = "zernike"  # New field for mode type
 
 @dataclass
 class DatasetConfig:
@@ -170,6 +171,7 @@ def ecfg_from_env(env: CoronagraphEnvironment) -> EnvironmentConfig:
         num_airy=getattr(env, "num_airy"),
         coronagraph_charge=getattr(env, "coronagraph_charge"),
         ppsr=getattr(env, "pixels_per_spacial_res"),
+        basis=getattr(env, "basis", "zernike")  # Default; adjust if environment exposes this
     )
 
 
