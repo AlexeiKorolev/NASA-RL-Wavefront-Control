@@ -1,0 +1,13 @@
+usage: data_generator.py [-h] [--N N] [--delta-t DELTA_T] [--noise-enabled]
+                         [--dm-random-noise DM_RANDOM_NOISE]
+                         [--nudge-amplitude NUDGE_AMPLITUDE]
+                         [--nudge-mode-index NUDGE_MODE_INDEX]
+                         [--checkpoints [CHECKPOINTS ...]]
+                         [--num-modes NUM_MODES]
+                         [--pixel-resolution PIXEL_RESOLUTION]
+                         [--oversizing-factor OVERSIZING_FACTOR]
+                         [--num-airy NUM_AIRY]
+                         [--coronagraph-charge CORONAGRAPH_CHARGE]
+                         [--ppsr PPSR] [--output OUTPUT]
+                         [--basis_type {zernike,harmonic}]
+data_generator.py: error: unrecognized arguments: --basis-type zernike
