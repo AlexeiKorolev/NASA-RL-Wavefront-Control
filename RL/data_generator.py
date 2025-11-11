@@ -78,7 +78,6 @@ class DatasetConfig:
     nudge_mode_index: int = 0
     save_checkpoints: Optional[List[int]] = None  # e.g. [1000, 5000, 10000]
 
-
 # ---------------------------------------------------------------------------
 # Core functionality
 # ---------------------------------------------------------------------------
@@ -90,7 +89,8 @@ def build_environment(ecfg: EnvironmentConfig) -> CoronagraphEnvironment:
         oversizing_factor=ecfg.oversizing_factor,
         num_airy=ecfg.num_airy,
         coronagraph_charge=ecfg.coronagraph_charge,
-        pixels_per_spacial_res=ecfg.ppsr
+        pixels_per_spacial_res=ecfg.ppsr,
+        basis=ecfg.basis,
     )
     return env
 
