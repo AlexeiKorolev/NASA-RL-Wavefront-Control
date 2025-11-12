@@ -22,6 +22,7 @@ class CoronagraphEnvironment(gym.Env):
                  wavelength_sci = 2.2e-6, num_modes = 500, zero_magnitude_flux = 3.9e10, #3.9e10 photon/s for a mag 0 star
                 stellar_magnitude = 5, delta_t = 1e-3, pixels = 240, # sec, so a loop speed of 1kHz.
                 num_iterations = 10, coronagraph_charge=4, num_airy=7, pixels_per_spacial_res=4,
+                num_noise_modes=500,
                 # Diversity / observation configuration
                 diversity_enabled: bool = True,
                 nudge_magnitude: float = 3e-7,
@@ -50,6 +51,7 @@ class CoronagraphEnvironment(gym.Env):
         self.delta_t = delta_t 
         self.stellar_magnitude = stellar_magnitude
         self.num_modes = num_modes
+        self.num_noise_modes = num_noise_modes
         self.wavelength_sci = wavelength_sci
         # Observation config
         self.diversity_enabled = diversity_enabled
@@ -86,15 +88,20 @@ class CoronagraphEnvironment(gym.Env):
         if self.basis == 'zernike':
             # Number of Zernike modes
             self.dm_modes = make_zernike_basis(num_modes=self.num_modes, D=self.telescope_diameter, grid=self.pupil_grid, starting_mode=1, ansi=False, radial_cutoff=True, use_cache=True)
+            self.dm_noise_modes = make_zernike_basis(num_modes=num_noise_modes, D=self.telescope_diameter, grid=self.pupil_grid, starting_mode=1, ansi=False, radial_cutoff=True, use_cache=True)
             # Normalizing each mode with the peak-to-peak value (max - min)
             self.dm_modes = ModeBasis([mode / np.ptp(mode) for mode in self.dm_modes], self.pupil_grid)
+            self.dm_noise_modes = ModeBasis([mode / np.ptp(mode) for mode in self.dm_noise_modes], self.pupil_grid)
         else:
             # Number of harmonic modes
             self.dm_modes = make_disk_harmonic_basis(self.pupil_grid, num_modes, telescope_diameter, 'neumann')
+            self.dm_noise_modes = make_disk_harmonic_basis(self.pupil_grid, num_noise_modes, telescope_diameter, 'neumann')
             # Normalizing each mode with the peak-to-peak value (max - min)
             self.dm_modes = ModeBasis([mode / np.ptp(mode) for mode in self.dm_modes], self.pupil_grid)
+            self.dm_noise_modes = ModeBasis([mode / np.ptp(mode) for mode in self.dm_noise_modes], self.pupil_grid)
 
         self.deformable_mirror = DeformableMirror(self.dm_modes)
+        self.noise_gen_mirror = DeformableMirror(self.dm_noise_modes)
 
         self.lyot_mask = evaluate_supersampled(circular_aperture(telescope_diameter * 0.8), self.pupil_grid, 4) # keep at point 8 for now, removes noise, test .7
         self.coro = VortexCoronagraph(self.pupil_grid, coronagraph_charge)
@@ -217,8 +224,31 @@ class CoronagraphEnvironment(gym.Env):
 
         return np.stack(stack, axis=0).astype(np.float32)
 
+    def set_random_noise_dm(self, noise=1e-7):
+        # Put actuators at random values, putting a little more power in low-order modes
+        self.noise_gen_mirror.flatten()
+
+        action = np.random.randn(self.num_noise_modes)
+
+        self.noise_gen_mirror.actuators = action
+
+        action *= noise * self.wavelength_sci / np.std(self.noise_gen_mirror.surface)
+
+        magnitude = np.linalg.norm(action)
+
+        action /= magnitude
+        action *= noise
+
+        if self.basis == 'zernike':
+            action *= np.sqrt(5.0, dtype=np.float16) # scaling zernike so that it is similar to harmonic noise levels.
+        
+        self.noise_gen_mirror.actuators = action
+
+
     def set_random_dm(self, noise=1e-7):
         # Put actuators at random values, putting a little more power in low-order modes
+        self.deformable_mirror.flatten()
+
         action = np.random.randn(self.num_modes)  / (np.arange(self.num_modes) + 10)
 
         self.deformable_mirror.actuators = action
@@ -268,9 +298,9 @@ class CoronagraphEnvironment(gym.Env):
         # Read out WFS camera
 
         if coronagraph_enabled:
-            propagrated_wf = self.prop(self.lyot_stop(self.coro(self.deformable_mirror(self.wf))))
+            propagrated_wf = self.prop(self.lyot_stop(self.coro(self.deformable_mirror(self.noise_gen_mirror(self.wf)))))
         else: 
-            propagrated_wf = self.prop(self.lyot_stop(self.deformable_mirror(self.wf)))
+            propagrated_wf = self.prop(self.lyot_stop(self.deformable_mirror(self.noise_gen_mirror(self.wf))))
 
         self.camera.integrate(propagrated_wf, delta_t)
         wfs_image = self.camera.read_out()
