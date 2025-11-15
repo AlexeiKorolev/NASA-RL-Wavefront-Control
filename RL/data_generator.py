@@ -112,6 +112,7 @@ def generate_dataset(
     """
     images: List[Tuple[np.ndarray, np.ndarray, np.ndarray]] = []
     dm_settings: List[np.ndarray] = []
+    slopes: List[np.ndarray] = []
 
     # Pre-compute nudge vector
     nudge = np.zeros(env.deformable_mirror.actuators.shape, dtype=float)
@@ -125,21 +126,25 @@ def generate_dataset(
         env.deformable_mirror.flatten()
         env.set_random_dm(noise=dcfg.dm_random_noise)
         baseline_dm = env.deformable_mirror.actuators.copy()
+        cur_slope = np.array(env.get_slopes())
 
-        image1 = env.get_camera_image(delta_t=dcfg.delta_t, noise_enabled=dcfg.noise_enabled)
+        imgs = env.generate_diversity_images(delta_t=dcfg.delta_t, noise_enabled=dcfg.noise_enabled)
 
-        # + nudge
-        env.deformable_mirror.flatten()
-        env.deformable_mirror.actuators = baseline_dm + nudge
-        image2 = env.get_camera_image(delta_t=dcfg.delta_t, noise_enabled=dcfg.noise_enabled)
+        # image1 = env.get_camera_image(delta_t=dcfg.delta_t, noise_enabled=dcfg.noise_enabled)
 
-        # - nudge
-        env.deformable_mirror.flatten()
-        env.deformable_mirror.actuators = baseline_dm - nudge
-        image3 = env.get_camera_image(delta_t=dcfg.delta_t, noise_enabled=dcfg.noise_enabled)
+        # # + nudge
+        # env.deformable_mirror.flatten()
+        # env.deformable_mirror.actuators = baseline_dm + nudge
+        # image2 = env.get_camera_image(delta_t=dcfg.delta_t, noise_enabled=dcfg.noise_enabled)
 
-        images.append((np.array(image1), np.array(image2), np.array(image3)))
+        # # - nudge
+        # env.deformable_mirror.flatten()
+        # env.deformable_mirror.actuators = baseline_dm - nudge
+        # image3 = env.get_camera_image(delta_t=dcfg.delta_t, noise_enabled=dcfg.noise_enabled)
+
+        images.append(imgs)
         dm_settings.append(baseline_dm)
+        slopes.append(cur_slope)
 
         if (i + 1) in checkpoints:
             print(f"[Checkpoint] Generated {i + 1} / {dcfg.N} samples")
@@ -155,6 +160,7 @@ def generate_dataset(
     return {
         "dm_settings": dm_settings,
         "images": images,
+        "slopes": slopes,
         "meta": meta
     }
 
