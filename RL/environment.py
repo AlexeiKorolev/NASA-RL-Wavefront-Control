@@ -34,6 +34,7 @@ class CoronagraphEnvironment(gym.Env):
                 # RL stability knobs
                 action_scale: float = 1e-8,
                 dm_clip: float | None = None,
+                lyot_fraction: float = 0.8,
                 # Basis type
                 basis: str = 'harmonic'
                 ):
@@ -56,7 +57,7 @@ class CoronagraphEnvironment(gym.Env):
         # Observation config
         self.diversity_enabled = diversity_enabled
         self.nudge_magnitude = float(nudge_magnitude)
-        self.nudge_mode_indices = list(nudge_mode_indices) if nudge_mode_indices is not None else [0]
+        self.nudge_mode_indices = list(nudge_mode_indices) if nudge_mode_indices is not None else ([0] if basis.lower() == 'harmonic' else [3])
         self.num_diversity_pairs = int(num_diversity_pairs)
         self.obs_noise_enabled = bool(obs_noise_enabled)
         self.include_slopes = bool(include_slopes)
@@ -103,7 +104,7 @@ class CoronagraphEnvironment(gym.Env):
         self.deformable_mirror = DeformableMirror(self.dm_modes)
         self.noise_gen_mirror = DeformableMirror(self.dm_noise_modes)
 
-        self.lyot_mask = evaluate_supersampled(circular_aperture(telescope_diameter * 0.8), self.pupil_grid, 4) # keep at point 8 for now, removes noise, test .7
+        self.lyot_mask = evaluate_supersampled(circular_aperture(telescope_diameter * lyot_fraction), self.pupil_grid, 4) # keep at point 8 for now, removes noise, test .7
         self.coro = VortexCoronagraph(self.pupil_grid, coronagraph_charge)
         self.lyot_stop = Apodizer(self.lyot_mask)
 
@@ -162,7 +163,7 @@ class CoronagraphEnvironment(gym.Env):
 
         self.action_space = spaces.Box(low=-1e1, high=1e1, shape=(num_modes,), dtype=np.float32)
 
-        self.reset()
+        # self.reset()
 
     # -------------------------
     # Modularity helpers
@@ -264,7 +265,6 @@ class CoronagraphEnvironment(gym.Env):
             action *= np.sqrt(5.0, dtype=np.float16) # scaling zernike so that it is similar to harmonic noise levels.
         
         self.deformable_mirror.actuators = action
-
 
     def set_dm(self, action):
         # Additive update relative to current actuators (preserve previous state)
@@ -370,7 +370,7 @@ class CoronagraphEnvironment(gym.Env):
         else:
             half_plane[:, img_width // 2 :] = True  # right half (default)
         annulus = np.logical_and(outer_circle, np.logical_not(inner_circle))
-        mask = np.logical_and(half_plane, annulus)  # boolean mask
+        mask = annulus # np.logical_and(half_plane, annulus)  # boolean mask
 
         # Contrast definition: mean coronagraph intensity in D-shaped mask over PEAK of aberrated non-coronagraph image
         num = float(np.mean(corona_image[mask]))
@@ -463,14 +463,22 @@ class CoronagraphEnvironment(gym.Env):
         return num / denom
 
     def get_strehl_ratio(self):
+        # max_aberrated_value = get_camera_image(self, delta_t=1e3, coronagraph_enabled=False, crop=False, noise_enabled=False).max()
         wf_aberrated = self.deformable_mirror(self.wf)
         psf_aberrated = self.prop(wf_aberrated).intensity
         peak_aberrated = np.max(psf_aberrated)
 
-        psf_ideal = self.prop(self.wf).intensity
-        peak_ideal = np.max(psf_ideal)
+        # print(f"psf_aberrated.shape: {psf_aberrated.shape}")
+        # print(f"pupil grid shape: {self.pupil_grid.shape}")
+        # print(f"VLT_aperture shape: {self.VLT_aperture.shape}")
+        # print(f"wavefront shape: {self.wf.grid.shape}")
+        # print(f"aberrated wavefront shape: {wf_aberrated.grid.shape}")
+        # print(f"propagated wavefront shape: {self.prop(wf_aberrated).grid.shape}")
+        # print(f"focal grid shape: {self.focal_grid.shape}")
+        # psf_ideal = self.prop(self.wf).intensity
+        # peak_ideal = np.max(psf_ideal)
 
-        strehl = peak_aberrated / peak_ideal
+        strehl = peak_aberrated / self.max_value
 
         return strehl
 

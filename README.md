@@ -1,3 +1,12 @@
+# findings:
+
+1. Optimal normalization.
+2. Zernike converges slower and overfits more?
+3. Transformers vs fully-connected
+4. RL for coronagraphic imaging!
+
+USE STREHL FOR RL FIRST
+
 # Deformable Mirror Control with Reinforcement Learning and High-Contrast Imaging
 
 This project explores the intersection of adaptive optics, high-contrast imaging, and machine learning. It provides a simulation framework for controlling a deformable mirror (DM) in a coronagraphic telescope system using reinforcement learning (RL) and neural networks. The goal is to optimize wavefront correction for exoplanet imaging and other high-contrast astronomical applications.
