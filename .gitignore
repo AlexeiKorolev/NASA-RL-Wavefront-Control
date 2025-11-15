@@ -4,3 +4,4 @@
 /.venv/*
 /.venv
 /logs/*
+/Pulls/*
