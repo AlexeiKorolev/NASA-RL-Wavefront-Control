@@ -91,6 +91,7 @@ class DatasetConfig:
     delta_t: float = 1e-3
     noise_enabled: bool = False
     dm_random_noise: float = 1e-7
+    dm_random_noise_std: float = 0.0
     nudge_amplitude: float = 3e-7
     nudge_mode_index: int = 0
     save_checkpoints: Optional[List[int]] = None  # e.g. [1000, 5000, 10000]
@@ -158,7 +159,12 @@ def generate_dataset(
     for i in range(dcfg.N):
         # Random baseline DM
         env.deformable_mirror.flatten()
-        env.set_random_dm(noise=dcfg.dm_random_noise)
+        if dcfg.dm_random_noise_std and dcfg.dm_random_noise_std > 0:
+            sampled_noise = float(np.random.normal(loc=dcfg.dm_random_noise, scale=dcfg.dm_random_noise_std))
+            noise_level = max(0.0, sampled_noise)
+        else:
+            noise_level = float(dcfg.dm_random_noise)
+        env.set_random_dm(noise=noise_level)
         baseline_dm = env.deformable_mirror.actuators.copy()
         cur_slope = np.array(env.get_slopes())
 
@@ -249,7 +255,8 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     p.add_argument("--N", type=int, default=100, help="Number of samples to generate.")
     p.add_argument("--delta-t", type=float, default=1e-3, dest="delta_t", help="Exposure/integration time for images.")
     p.add_argument("--noise-enabled", action="store_true", dest="noise_enabled", help="Enable camera noise.")
-    p.add_argument("--dm-random-noise", type=float, default=1e-7, help="Std dev for random DM initialization.")
+    p.add_argument("--dm-random-noise", type=float, default=1e-7, help="Mean std dev for random DM initialization.")
+    p.add_argument("--dm-random-noise-std", type=float, default=0.0, help="Std deviation around --dm-random-noise; sampled per sample.")
     p.add_argument("--nudge-amplitude", type=float, default=3e-7, help="Amplitude of single-mode nudge.")
     p.add_argument("--nudge-mode-index", type=int, default=0, help="Index of mode to nudge.")
     p.add_argument("--checkpoints", type=int, nargs="*", default=None, help="Optional sample counts at which to print progress.")
@@ -325,6 +332,7 @@ def main(argv: List[str]) -> None:
         delta_t=args.delta_t,
         noise_enabled=args.noise_enabled,
         dm_random_noise=args.dm_random_noise,
+        dm_random_noise_std=args.dm_random_noise_std,
         nudge_amplitude=args.nudge_amplitude,
         nudge_mode_index=args.nudge_mode_index,
         save_checkpoints=args.checkpoints
