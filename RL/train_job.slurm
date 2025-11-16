@@ -13,4 +13,4 @@ module purge
 module load anaconda3/2025.6
 conda activate /scratch/network/ak9088/anaconda3/envs/dmrl2
 
-python train_job.py --datapath /scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/data/dataset100K25M.pkl --epochs 5000
+python train_job.py --datapath /scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/data/dataset100K25M.pkl --epochs 5000 --output

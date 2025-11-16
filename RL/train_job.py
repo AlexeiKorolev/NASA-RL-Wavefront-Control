@@ -34,6 +34,7 @@ from torch.utils.data import DataLoader, TensorDataset, random_split
 
 from archs.fc1 import FC1
 from archs.cnn1 import CNN1
+from archs.tf1 import TF1
 
 
 # ---------------------------
@@ -122,6 +123,27 @@ def build_model(model_type: str,
             image_input_shape=(c, h, w)
         )
         return model
+    elif model_type.lower() == "tf1":
+        # TF1 (ViT) accepts either (C,H,W) or (H,W,C) and handles both internally
+        # We'll pass channels-first for clarity
+        c, h, w = image_shape if image_shape[0] in (1, 3) else (image_shape[2], image_shape[0], image_shape[1])
+        model = TF1(
+            final_output_dim=output_dim,
+            image_input_shape=(c, h, w),
+            hidden_layers=arch_args.get("hidden_layers"),
+            activation=arch_args.get("activation", "leaky_relu"),
+            final_activation=arch_args.get("final_activation", "leaky_relu"),
+            dropout=arch_args.get("dropout", 0.0),
+            patch_size=arch_args.get("patch_size", 8),
+            dim=arch_args.get("dim", 128),
+            depth=arch_args.get("depth", 4),
+            heads=arch_args.get("heads", 4),
+            mlp_dim=arch_args.get("mlp_dim", 256),
+            attn_dropout=arch_args.get("attn_dropout", 0.0),
+            emb_dropout=arch_args.get("emb_dropout", 0.0),
+            use_cls_token=arch_args.get("use_cls_token", True),
+        )
+        return model
     else:
         raise ValueError("Unsupported model_type. Use 'fc1' or 'cnn1'.")
 
@@ -191,7 +213,7 @@ def train(model: nn.Module,
 def main():
     ap = argparse.ArgumentParser(description="Train a neural net on coronagraph dataset")
     ap.add_argument("--datapath", required=True, help="Path to dataset .pkl")
-    ap.add_argument("--model_type", choices=["fc1", "cnn1"], default="fc1")
+    ap.add_argument("--model_type", choices=["fc1", "cnn1", "tf1"], default="fc1")
     ap.add_argument("--norm", choices=["minmax", "zscore", "log"], default="minmax")
     ap.add_argument("--epochs", type=int, default=100)
     ap.add_argument("--batch_size", type=int, default=128)
@@ -206,6 +228,16 @@ def main():
     ap.add_argument("--fc1_dropout", type=float, default=0.0)
     ap.add_argument("--cnn1_img_out", type=int, default=32)
     ap.add_argument("--cnn1_dm_hidden", type=int, default=32)
+
+    # TF1 (ViT) params
+    ap.add_argument("--tf1_patch_size", type=int, default=8)
+    ap.add_argument("--tf1_dim", type=int, default=128)
+    ap.add_argument("--tf1_depth", type=int, default=4)
+    ap.add_argument("--tf1_heads", type=int, default=4)
+    ap.add_argument("--tf1_mlp_dim", type=int, default=256)
+    ap.add_argument("--tf1_attn_dropout", type=float, default=0.0)
+    ap.add_argument("--tf1_emb_dropout", type=float, default=0.0)
+    ap.add_argument("--tf1_use_cls_token", action="store_true")
 
     ap.add_argument("--train_type", type=str, choices=["images", "slopes"], default="images", help="Train with slopes in input if model supports it")
 
@@ -253,6 +285,27 @@ def main():
             "activation": args.fc1_activation,
             "final_activation": fa,
             "dropout": args.fc1_dropout,
+        })
+    elif args.model_type == "tf1":
+        # TF1 can accept NCHW directly
+        X_t = torch.tensor(X_norm.astype(np.float32), dtype=torch.float32)
+        y_t = torch.tensor(y_norm, dtype=torch.float32)
+        dataset = TensorDataset(X_t, y_t)
+        input_shape = (C, H, W)
+        fa = None if args.fc1_final_activation == "none" else args.fc1_final_activation
+        model = build_model("tf1", input_shape, output_dim, arch_args={
+            "hidden_layers": args.fc1_hidden,
+            "activation": args.fc1_activation,
+            "final_activation": fa,
+            "dropout": args.fc1_dropout,
+            "patch_size": args.tf1_patch_size,
+            "dim": args.tf1_dim,
+            "depth": args.tf1_depth,
+            "heads": args.tf1_heads,
+            "mlp_dim": args.tf1_mlp_dim,
+            "attn_dropout": args.tf1_attn_dropout,
+            "emb_dropout": args.tf1_emb_dropout,
+            "use_cls_token": args.tf1_use_cls_token,
         })
     else:
         pass
