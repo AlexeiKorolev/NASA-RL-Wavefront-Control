@@ -74,14 +74,19 @@ NORMALIZERS = {
 # Data loading
 # ---------------------------
 
-def load_dataset(pkl_path: str) -> Tuple[np.ndarray, np.ndarray, Optional[Dict[str, Any]]]:
+def load_dataset(pkl_path: str, type: str = "images") -> Tuple[np.ndarray, np.ndarray, Optional[Dict[str, Any]]]:
     import pickle
     with open(pkl_path, "rb") as f:
         data = pickle.load(f)
     images = np.array([np.array(x) for x in data["images"]], dtype=np.float32)  # (N,3,H,W)
+    slopes = np.array([np.array(x) for x in data.get("slopes", [])], dtype=np.float32) # (N, 2, x) if present
+    slopes = np.expand_dims(slopes, -1)  # (N, 2, x, 1) if present
+
     y = np.array(data["dm_settings"], dtype=np.float32)  # (N,num_modes)
     meta = data.get("meta") if isinstance(data, dict) else None
-    return images, y, meta
+
+    X = images if type == "images" else slopes
+    return X, y, meta
 
 
 # ---------------------------
@@ -202,6 +207,8 @@ def main():
     ap.add_argument("--cnn1_img_out", type=int, default=32)
     ap.add_argument("--cnn1_dm_hidden", type=int, default=32)
 
+    ap.add_argument("--train_type", type=str, choices=["images", "slopes"], default="images", help="Train with slopes in input if model supports it")
+
     # Fine-tuning / checkpoint
     ap.add_argument("--resume", type=str, default=None, help="Path to model checkpoint to resume")
     ap.add_argument("--freeze", action="store_true", help="Freeze all layers except final output for fine-tune")
@@ -213,7 +220,7 @@ def main():
     os.makedirs(args.out_dir, exist_ok=True)
 
     # Load
-    X, y, dataset_meta = load_dataset(args.datapath)  # X: (N,3,H,W)
+    X, y, dataset_meta = load_dataset(args.datapath, type=args.train_type)  # X: (N,3,H,W)
 
     # Normalization for X
     X_norm, x_meta = NORMALIZERS[args.norm](X)
@@ -225,6 +232,8 @@ def main():
 
     # Build tensors and dataset according to model
     N, C, H, W = X_norm.shape
+
+    print(f"Dataset loaded: N={N}, C={C}, H={H}, W={W}, y_dim={y.shape[1]}")
     output_dim = y.shape[1]
 
     # Model
@@ -246,17 +255,18 @@ def main():
             "dropout": args.fc1_dropout,
         })
     else:
+        pass
         # CNN1 takes (img1, img2, list) -> We'll map (3,H,W) into two frames and a zero-vector list
-        img1 = torch.tensor(X_norm[:, 0:1, :, :], dtype=torch.float32)
-        img2 = torch.tensor(X_norm[:, 1:2, :, :], dtype=torch.float32)
-        vec = torch.zeros((N, output_dim), dtype=torch.float32)
-        y_t = torch.tensor(y_norm, dtype=torch.float32)
-        dataset = TensorDataset(img1, img2, vec, y_t)
-        input_shape = (H, W, 1)
-        model = build_model("cnn1", (H, W, 1), output_dim, arch_args={
-            "image_output_dim": args.cnn1_img_out,
-            "dm_hidden_dim": args.cnn1_dm_hidden,
-        })
+        # img1 = torch.tensor(X_norm[:, 0:1, :, :], dtype=torch.float32)
+        # img2 = torch.tensor(X_norm[:, 1:2, :, :], dtype=torch.float32)
+        # vec = torch.zeros((N, output_dim), dtype=torch.float32)
+        # y_t = torch.tensor(y_norm, dtype=torch.float32)
+        # dataset = TensorDataset(img1, img2, vec, y_t)
+        # input_shape = (H, W, 1)
+        # model = build_model("cnn1", (H, W, 1), output_dim, arch_args={
+        #     "image_output_dim": args.cnn1_img_out,
+        #     "dm_hidden_dim": args.cnn1_dm_hidden,
+        # })
 
     # Split
     torch.manual_seed(args.seed)

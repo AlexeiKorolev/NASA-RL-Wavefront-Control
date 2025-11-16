@@ -88,6 +88,13 @@ def main():
     ap.add_argument("--lr", nargs="+", default=["1e-3"])  # keep as str for readability in names
     ap.add_argument("--val_split", type=float, default=0.2)
     ap.add_argument("--seed", nargs="+", type=int, default=[42])
+    # Train input type grid: images or slopes
+    ap.add_argument(
+        "--train_type",
+        nargs="+",
+        default=["images"],
+        help="One or more train input types to sweep: images or slopes"
+    )
     # FC1 architecture override (can accept multiple specs to grid over)
     # Example: --fc1_hidden 256,128 512,256,128
     ap.add_argument(
@@ -127,11 +134,12 @@ def main():
         args.batch_size,
         args.lr,
         args.seed,
+        args.train_type,
     ))
 
     generated_files = []
 
-    for model_type, norm, epochs, batch_size, lr, seed in combos:
+    for model_type, norm, epochs, batch_size, lr, seed, train_type in combos:
         # Determine FC1 hidden-layer sweep values (only applies to fc1); for others, single None
         fc1_hidden_specs = args.fc1_hidden if (model_type == "fc1" and len(args.fc1_hidden) > 0) else [None]
 
@@ -141,8 +149,8 @@ def main():
                 clean = "-h" + fc1_hidden.replace(",", "-").replace(" ", "")
             else:
                 clean = ""
-
-            tag = f"{args.job_prefix}-{model_type}-{norm}-ep{epochs}-bs{batch_size}-lr{lr}-s{seed}{clean}"
+            tt_suffix = f"-{train_type}"
+            tag = f"{args.job_prefix}-{model_type}-{norm}-ep{epochs}-bs{batch_size}-lr{lr}-s{seed}{clean}{tt_suffix}"
             job_name = tag
             stdout_path = str(out_root / f"{tag}.out")
             stderr_path = str(out_root / f"{tag}.err")
@@ -160,6 +168,7 @@ def main():
                 f"--lr {lr}",
                 f"--val_split {args.val_split}",
                 f"--seed {seed}",
+                f"--train_type {train_type}",
                 f"--out_dir {shlex.quote(out_dir)}",
             ]
             # Optional FC1 architecture passthrough
