@@ -4,6 +4,8 @@
 2. Zernike converges slower and overfits more?
 3. Transformers vs fully-connected
 4. RL for coronagraphic imaging!
+5. Fine tuning on adverserial noise vs. adding different levels of noise to the data vs. gaussian neural nets.
+6.
 
 USE STREHL FOR RL FIRST
 
