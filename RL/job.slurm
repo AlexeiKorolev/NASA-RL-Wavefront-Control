@@ -12,4 +12,4 @@ module purge
 module load anaconda3/2025.6
 conda activate /scratch/network/ak9088/anaconda3/envs/dmrl2
 
-python data_generator.py --N 220000 --output data/dataset220K25M.pkl --num-modes=25
+python data_generator.py --N 220000 --output data/dataset220K25M_zernike.pkl --num-modes=25 --basis-type zernike
