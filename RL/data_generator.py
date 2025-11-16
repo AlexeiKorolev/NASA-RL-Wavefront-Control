@@ -60,13 +60,30 @@ except ImportError as exc:
 
 @dataclass
 class EnvironmentConfig:
+    telescope_diameter: float = 8.0
+    oversizing_factor: float = 16/15
+    wavelength_sci: float = 2.2e-6
     num_modes: int = 10
-    pixel_resolution: int = 64
-    oversizing_factor: int = 1
-    num_airy: int = 5
+    zero_magnitude_flux: float = 3.9e10
+    stellar_magnitude: float = 5.0
+    env_delta_t: float = 1e-3  # internal loop delta_t for environment
+    pixels: int = 64
+    num_iterations: int = 10
     coronagraph_charge: int = 6
-    ppsr: int = 2  # pixels_per_spacial_res
-    basis: str = "zernike"  # New field for mode type
+    num_airy: int = 5
+    pixels_per_spacial_res: int = 2  # ppsr
+    num_noise_modes: int = 10
+    diversity_enabled: bool = True
+    nudge_magnitude: float = 3e-7
+    nudge_mode_indices: Optional[List[int]] = None
+    num_diversity_pairs: int = 1
+    obs_noise_enabled: bool = False
+    obs_delta_t: Optional[float] = None
+    include_slopes: bool = True
+    action_scale: float = 1e-8
+    dm_clip: Optional[float] = None
+    lyot_fraction: float = 0.8
+    basis: str = "harmonic"  # 'harmonic' or 'zernike'
 
 @dataclass
 class DatasetConfig:
@@ -84,12 +101,29 @@ class DatasetConfig:
 
 def build_environment(ecfg: EnvironmentConfig) -> CoronagraphEnvironment:
     env = CoronagraphEnvironment(
-        num_modes=ecfg.num_modes,
-        pixels=ecfg.pixel_resolution,
+        telescope_diameter=ecfg.telescope_diameter,
         oversizing_factor=ecfg.oversizing_factor,
-        num_airy=ecfg.num_airy,
+        wavelength_sci=ecfg.wavelength_sci,
+        num_modes=ecfg.num_modes,
+        zero_magnitude_flux=ecfg.zero_magnitude_flux,
+        stellar_magnitude=ecfg.stellar_magnitude,
+        delta_t=ecfg.env_delta_t,
+        pixels=ecfg.pixels,
+        num_iterations=ecfg.num_iterations,
         coronagraph_charge=ecfg.coronagraph_charge,
-        pixels_per_spacial_res=ecfg.ppsr,
+        num_airy=ecfg.num_airy,
+        pixels_per_spacial_res=ecfg.pixels_per_spacial_res,
+        num_noise_modes=ecfg.num_noise_modes,
+        diversity_enabled=ecfg.diversity_enabled,
+        nudge_magnitude=ecfg.nudge_magnitude,
+        nudge_mode_indices=ecfg.nudge_mode_indices,
+        num_diversity_pairs=ecfg.num_diversity_pairs,
+        obs_noise_enabled=ecfg.obs_noise_enabled,
+        obs_delta_t=ecfg.obs_delta_t,
+        include_slopes=ecfg.include_slopes,
+        action_scale=ecfg.action_scale,
+        dm_clip=ecfg.dm_clip,
+        lyot_fraction=ecfg.lyot_fraction,
         basis=ecfg.basis,
     )
     return env
@@ -171,13 +205,30 @@ def ecfg_from_env(env: CoronagraphEnvironment) -> EnvironmentConfig:
     """
     # Attribute names may differ; adjust if your CoronagraphEnvironment differs.
     return EnvironmentConfig(
-        num_modes=getattr(env, "num_modes"),
-        pixel_resolution=getattr(env, "pixels"),
+        telescope_diameter=getattr(env, "telescope_diameter"),
         oversizing_factor=getattr(env, "oversizing_factor"),
-        num_airy=getattr(env, "num_airy"),
+        wavelength_sci=getattr(env, "wavelength_sci"),
+        num_modes=getattr(env, "num_modes"),
+        zero_magnitude_flux=getattr(env, "wf", None).total_power if hasattr(env, "wf") else 3.9e10,
+        stellar_magnitude=getattr(env, "stellar_magnitude", 5.0),
+        env_delta_t=getattr(env, "delta_t", 1e-3),
+        pixels=getattr(env, "pixels"),
+        num_iterations=getattr(env, "num_iterations", 10),
         coronagraph_charge=getattr(env, "coronagraph_charge"),
-        ppsr=getattr(env, "pixels_per_spacial_res"),
-        basis=getattr(env, "basis", "zernike")  # Default; adjust if environment exposes this
+        num_airy=getattr(env, "num_airy"),
+        pixels_per_spacial_res=getattr(env, "pixels_per_spacial_res"),
+        num_noise_modes=getattr(env, "num_noise_modes", 0),
+        diversity_enabled=getattr(env, "diversity_enabled", True),
+        nudge_magnitude=getattr(env, "nudge_magnitude", 3e-7),
+        nudge_mode_indices=getattr(env, "nudge_mode_indices", None),
+        num_diversity_pairs=getattr(env, "num_diversity_pairs", 1),
+        obs_noise_enabled=getattr(env, "obs_noise_enabled", False),
+        obs_delta_t=getattr(env, "obs_delta_t", None),
+        include_slopes=getattr(env, "include_slopes", True),
+        action_scale=getattr(env, "action_scale", 1e-8),
+        dm_clip=getattr(env, "dm_clip", None),
+        lyot_fraction=getattr(env, "lyot_fraction", 0.8) if hasattr(env, "lyot_fraction") else 0.8,
+        basis=getattr(env, "basis", "harmonic"),
     )
 
 
@@ -203,15 +254,39 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     p.add_argument("--nudge-mode-index", type=int, default=0, help="Index of mode to nudge.")
     p.add_argument("--checkpoints", type=int, nargs="*", default=None, help="Optional sample counts at which to print progress.")
     # Environment parameters
-    p.add_argument("--num-modes", type=int, default=10, dest="num_modes", help="Number of DM modes.")
-    p.add_argument("--pixel-resolution", type=int, default=64, dest="pixel_resolution", help="Image pixel resolution.")
-    p.add_argument("--oversizing-factor", type=int, default=1, dest="oversizing_factor", help="Oversizing factor.")
-    p.add_argument("--num-airy", type=int, default=5, dest="num_airy", help="Number of Airy rings (if applicable).")
-    p.add_argument("--coronagraph-charge", type=int, default=6, dest="coronagraph_charge", help="Coronagraph topological charge.")
-    p.add_argument("--ppsr", type=int, default=2, help="Pixels per spatial resolution element.")
+    # Environment parameters
+    p.add_argument("--telescope-diameter", type=float, default=8.0)
+    p.add_argument("--oversizing-factor", type=float, default=16/15)
+    p.add_argument("--wavelength-sci", type=float, default=2.2e-6)
+    p.add_argument("--num-modes", type=int, default=10)
+    p.add_argument("--zero-magnitude-flux", type=float, default=3.9e10)
+    p.add_argument("--stellar-magnitude", type=float, default=5.0)
+    p.add_argument("--env-delta-t", type=float, default=1e-3, help="Environment internal loop delta_t")
+    p.add_argument("--pixels", type=int, default=64)
+    p.add_argument("--num-iterations", type=int, default=10)
+    p.add_argument("--coronagraph-charge", type=int, default=6)
+    p.add_argument("--num-airy", type=int, default=5)
+    p.add_argument("--pixels-per-spacial-res", type=int, default=2, dest="pixels_per_spacial_res")
+    p.add_argument("--num-noise-modes", type=int, default=10)
+    p.add_argument("--diversity-enabled", action="store_true", dest="diversity_enabled")
+    p.add_argument("--no-diversity", action="store_false", dest="diversity_enabled")
+    p.set_defaults(diversity_enabled=True)
+    p.add_argument("--nudge-magnitude", type=float, default=3e-7)
+    p.add_argument("--nudge-mode-indices", type=int, nargs="*", default=None, help="List of mode indices for diversity nudges.")
+    p.add_argument("--num-diversity-pairs", type=int, default=1)
+    p.add_argument("--obs-noise-enabled", action="store_true", dest="obs_noise_enabled")
+    p.add_argument("--no-obs-noise", action="store_false", dest="obs_noise_enabled")
+    p.set_defaults(obs_noise_enabled=False)
+    p.add_argument("--obs-delta-t", type=float, default=None)
+    p.add_argument("--include-slopes", action="store_true", dest="include_slopes")
+    p.add_argument("--no-slopes", action="store_false", dest="include_slopes")
+    p.set_defaults(include_slopes=True)
+    p.add_argument("--action-scale", type=float, default=1e-8)
+    p.add_argument("--dm-clip", type=float, default=None)
+    p.add_argument("--lyot-fraction", type=float, default=0.8)
+    p.add_argument("--basis-type", type=str, default="harmonic", choices=["harmonic", "zernike"], dest="basis_type")
     # Output
     p.add_argument("--output", type=str, default="data/dataset.pkl", help="Path to output pickle file.")
-    p.add_argument("--basis-type", type=str, default="zernike", choices=["zernike", "harmonic"])  # New argument for mode type
 
     return p.parse_args(argv)
 
@@ -220,12 +295,29 @@ def main(argv: List[str]) -> None:
     args = parse_args(argv)
 
     ecfg = EnvironmentConfig(
-        num_modes=args.num_modes,
-        pixel_resolution=args.pixel_resolution,
+        telescope_diameter=args.telescope_diameter,
         oversizing_factor=args.oversizing_factor,
-        num_airy=args.num_airy,
+        wavelength_sci=args.wavelength_sci,
+        num_modes=args.num_modes,
+        zero_magnitude_flux=args.zero_magnitude_flux,
+        stellar_magnitude=args.stellar_magnitude,
+        env_delta_t=args.env_delta_t,
+        pixels=args.pixels,
+        num_iterations=args.num_iterations,
         coronagraph_charge=args.coronagraph_charge,
-        ppsr=args.ppsr,
+        num_airy=args.num_airy,
+        pixels_per_spacial_res=args.pixels_per_spacial_res,
+        num_noise_modes=args.num_noise_modes,
+        diversity_enabled=args.diversity_enabled,
+        nudge_magnitude=args.nudge_magnitude,
+        nudge_mode_indices=args.nudge_mode_indices,
+        num_diversity_pairs=args.num_diversity_pairs,
+        obs_noise_enabled=args.obs_noise_enabled,
+        obs_delta_t=args.obs_delta_t,
+        include_slopes=args.include_slopes,
+        action_scale=args.action_scale,
+        dm_clip=args.dm_clip,
+        lyot_fraction=args.lyot_fraction,
         basis=args.basis_type,
     )
     dcfg = DatasetConfig(

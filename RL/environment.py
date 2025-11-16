@@ -286,7 +286,7 @@ class CoronagraphEnvironment(gym.Env):
     def get_perfect_adjustment(self):
         return self.deformable_mirror.actuators * -1
     
-    def get_camera_image(self, delta_t=1e3, crop=False, crop_width=40, coronagraph_enabled=True, noise_enabled=True):
+    def get_camera_image(self, delta_t=1e3, crop=False, crop_width=40, coronagraph_enabled=True, noise_enabled=False):
         def crop_image(img, width=40):
             if len(img.shape) == 1:
                 img = img.reshape(int(np.sqrt(img.shape[0])), int(np.sqrt(img.shape[0])))
