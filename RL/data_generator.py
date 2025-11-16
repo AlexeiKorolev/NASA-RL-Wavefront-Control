@@ -161,9 +161,13 @@ def generate_dataset(
         env.deformable_mirror.flatten()
         if dcfg.dm_random_noise_std and dcfg.dm_random_noise_std > 0:
             sampled_noise = float(np.random.normal(loc=dcfg.dm_random_noise, scale=dcfg.dm_random_noise_std))
-            noise_level = max(0.0, sampled_noise)
+            noise_level = sampled_noise # max(0.0, sampled_noise)
+            while np.abs(noise_level) < 1e-20: # keep retrying to avoid small noise values
+                sampled_noise = float(np.random.normal(loc=dcfg.dm_random_noise, scale=dcfg.dm_random_noise_std))
+                noise_level = sampled_noise
         else:
             noise_level = float(dcfg.dm_random_noise)
+
         env.set_random_dm(noise=noise_level)
         baseline_dm = env.deformable_mirror.actuators.copy()
         cur_slope = np.array(env.get_slopes())

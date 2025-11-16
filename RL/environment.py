@@ -227,6 +227,8 @@ class CoronagraphEnvironment(gym.Env):
 
     def set_random_noise_dm(self, noise=1e-7):
         # Put actuators at random values, putting a little more power in low-order modes
+        noise = np.abs(noise)
+        
         self.noise_gen_mirror.flatten()
 
         action = np.random.randn(self.num_noise_modes)
@@ -248,6 +250,8 @@ class CoronagraphEnvironment(gym.Env):
 
     def set_random_dm(self, noise=1e-7):
         # Put actuators at random values, putting a little more power in low-order modes
+        noise = np.abs(noise)
+
         self.deformable_mirror.flatten()
 
         action = np.random.randn(self.num_modes)  / (np.arange(self.num_modes) + 10)

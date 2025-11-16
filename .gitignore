@@ -5,3 +5,4 @@
 /.venv
 /logs/*
 /Pulls/*
+/RL/archs/__pycache__/*
