@@ -5,7 +5,8 @@
 3. Transformers vs fully-connected
 4. RL for coronagraphic imaging!
 5. Fine tuning on adverserial noise vs. adding different levels of noise to the data vs. gaussian neural nets.
-6.
+
+distribution graph: https://www.desmos.com/calculator/jpz9ge36zg
 
 USE STREHL FOR RL FIRST
 
