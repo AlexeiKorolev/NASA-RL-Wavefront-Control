@@ -1,0 +1,2 @@
+/var/spool/slurmd/job2717601/slurm_script: line 18: 1884486 Killed                  python train_job.py --datapath data/dataset220K25M.pkl --model_type fc1 --norm zscore --epochs 5000 --batch_size 262144 --lr 1e-3 --val_split 0.2 --seed 42 --train_type slopes --out_dir /scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/jobs/20251116_191750/exp-fc1-zscore-ep5000-bs262144-lr1e-3-s42-h512-256-128-slopes --fc1_hidden 512 256 128
+[2025-11-16T19:18:34.381] error: Detected 1 oom_kill event in StepId=2717601.batch. Some of the step tasks have been OOM Killed.

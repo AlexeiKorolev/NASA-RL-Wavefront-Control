@@ -1,0 +1,40 @@
+Traceback (most recent call last):
+  File "/scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/train_job.py", line 405, in <module>
+    main()
+  File "/scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/train_job.py", line 346, in main
+    history = train(model, train_loader, val_loader, epochs=args.epochs, lr=args.lr, device=device)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/train_job.py", line 176, in train
+    out = model(bx)
+          ^^^^^^^^^
+  File "/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/archs/tf1.py", line 153, in forward
+    x = blk(x)
+        ^^^^^^
+  File "/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/archs/tf1.py", line 33, in forward
+    h = self.ln2(x)
+        ^^^^^^^^^^^
+  File "/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/site-packages/torch/nn/modules/normalization.py", line 217, in forward
+    return F.layer_norm(
+           ^^^^^^^^^^^^^
+  File "/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/site-packages/torch/nn/functional.py", line 2905, in layer_norm
+    return torch.layer_norm(
+           ^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 636.00 MiB. GPU 0 has a total capacity of 31.73 GiB of which 110.25 MiB is free. Including non-PyTorch memory, this process has 31.62 GiB memory in use. Of the allocated memory 30.78 GiB is allocated by PyTorch, and 484.29 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
