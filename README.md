@@ -8,6 +8,10 @@
 
 distribution graph: https://www.desmos.com/calculator/jpz9ge36zg
 
+Slopes 512 model: /scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/jobs/20251116_192105
+Zernike non-random: /scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/jobs/20251116_192016/exp-fc1-zscore-ep10000-bs262144-lr1e-3-s42-h512-256-128-images.slurm
+Zernike random: /scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/jobs/20251116_192023
+
 USE STREHL FOR RL FIRST
 
 # Deformable Mirror Control with Reinforcement Learning and High-Contrast Imaging

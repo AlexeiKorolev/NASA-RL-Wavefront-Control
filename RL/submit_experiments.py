@@ -95,6 +95,17 @@ def main():
         default=["images"],
         help="One or more train input types to sweep: images or slopes"
     )
+    # TF1 (ViT) sweep parameters (only applied when model_type includes 'tf1')
+    ap.add_argument("--tf1_patch_size", nargs="+", type=int, default=[8])
+    ap.add_argument("--tf1_dim", nargs="+", type=int, default=[128])
+    ap.add_argument("--tf1_depth", nargs="+", type=int, default=[4])
+    ap.add_argument("--tf1_heads", nargs="+", type=int, default=[4])
+    ap.add_argument("--tf1_mlp_dim", nargs="+", type=int, default=[256])
+    ap.add_argument("--tf1_attn_dropout", nargs="+", type=float, default=[0.0])
+    ap.add_argument("--tf1_emb_dropout", nargs="+", type=float, default=[0.0])
+    # CLS token control: 'on' to include flag, 'off' to omit flag (mean pool)
+    ap.add_argument("--tf1_use_cls_token", nargs="+", choices=["on", "off"], default=["on"],
+                    help="Sweep whether to use CLS token (on) or mean-pool (off)")
     # FC1 architecture override (can accept multiple specs to grid over)
     # Example: --fc1_hidden 256,128 512,256,128
     ap.add_argument(
@@ -127,6 +138,7 @@ def main():
 
     template = read_template()
 
+    # Build full cartesian product, including TF1 params (ignored for non-tf1 models)
     combos = list(itertools.product(
         args.model_type,
         args.norm,
@@ -135,11 +147,22 @@ def main():
         args.lr,
         args.seed,
         args.train_type,
+        args.tf1_patch_size,
+        args.tf1_dim,
+        args.tf1_depth,
+        args.tf1_heads,
+        args.tf1_mlp_dim,
+        args.tf1_attn_dropout,
+        args.tf1_emb_dropout,
+        args.tf1_use_cls_token,
     ))
 
     generated_files = []
 
-    for model_type, norm, epochs, batch_size, lr, seed, train_type in combos:
+    for (
+        model_type, norm, epochs, batch_size, lr, seed, train_type,
+        tf1_ps, tf1_dim, tf1_depth, tf1_heads, tf1_mlp, tf1_attn_do, tf1_emb_do, tf1_cls_flag
+    ) in combos:
         # Determine FC1 hidden-layer sweep values (only applies to fc1); for others, single None
         fc1_hidden_specs = args.fc1_hidden if (model_type == "fc1" and len(args.fc1_hidden) > 0) else [None]
 
@@ -150,7 +173,12 @@ def main():
             else:
                 clean = ""
             tt_suffix = f"-{train_type}"
-            tag = f"{args.job_prefix}-{model_type}-{norm}-ep{epochs}-bs{batch_size}-lr{lr}-s{seed}{clean}{tt_suffix}"
+            tf_suffix = ""
+            if model_type == "tf1":
+                # concise descriptor for transformer settings
+                cls_suffix = "-cls" if tf1_cls_flag == "on" else "-mean"
+                tf_suffix = f"-ps{tf1_ps}-d{tf1_dim}-L{tf1_depth}-h{tf1_heads}-mlp{tf1_mlp}{cls_suffix}"
+            tag = f"{args.job_prefix}-{model_type}-{norm}-ep{epochs}-bs{batch_size}-lr{lr}-s{seed}{clean}{tt_suffix}{tf_suffix}"
             job_name = tag
             stdout_path = str(out_root / f"{tag}.out")
             stderr_path = str(out_root / f"{tag}.err")
@@ -171,6 +199,19 @@ def main():
                 f"--train_type {train_type}",
                 f"--out_dir {shlex.quote(out_dir)}",
             ]
+            # Optional TF1 passthrough when applicable
+            if model_type == "tf1":
+                exec_parts.extend([
+                    f"--tf1_patch_size {tf1_ps}",
+                    f"--tf1_dim {tf1_dim}",
+                    f"--tf1_depth {tf1_depth}",
+                    f"--tf1_heads {tf1_heads}",
+                    f"--tf1_mlp_dim {tf1_mlp}",
+                    f"--tf1_attn_dropout {tf1_attn_do}",
+                    f"--tf1_emb_dropout {tf1_emb_do}",
+                ])
+                if tf1_cls_flag == "on":
+                    exec_parts.append("--tf1_use_cls_token")
             # Optional FC1 architecture passthrough
             if model_type == "fc1" and fc1_hidden:
                 hidden_spec = fc1_hidden.replace(",", " ").strip()

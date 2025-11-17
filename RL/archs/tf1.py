@@ -160,3 +160,28 @@ class TF1(nn.Module):
 
         out = self.head(x)
         return out
+
+
+if __name__ == "__main__":
+    # Simple test
+    model = TF1(
+        final_output_dim=10,
+        image_input_shape=(3, 20, 20),
+        hidden_layers=[512, 256, 128],
+        activation="relu",
+        final_activation=None,
+        dropout=0.1,
+        patch_size=4,
+        dim=128,
+        depth=4,
+        heads=4,
+        mlp_dim=256,
+        attn_dropout=0.1,
+        emb_dropout=0.1,
+        use_cls_token=True,
+    )
+    dummy_input = torch.randn(2, 20, 20, 3)  # (N, H, W, C)
+    output = model(dummy_input)
+    print("Output shape:", output.shape)  # Expected: (2, 10)
+    print("Model:", model)
+    print(f"Number of parameters: {sum(p.numel() for p in model.parameters())}")
