@@ -220,6 +220,7 @@ def main():
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--val_split", type=float, default=0.2)
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--data_cutoff", type=int, default=None, help="If set, only use the first N samples from the dataset.")
 
     # Architecture params
     ap.add_argument("--fc1_hidden", type=int, nargs="+", default=[128, 64], help="Hidden layer sizes for FC1 (space-separated)")
@@ -252,7 +253,23 @@ def main():
     os.makedirs(args.out_dir, exist_ok=True)
 
     # Load
-    X, y, dataset_meta = load_dataset(args.datapath, type=args.train_type)  # X: (N,3,H,W)
+    X, y, dataset_meta = load_dataset(args.datapath, type=args.train_type)  # X: (N,3,H,W) or slopes
+    original_N = X.shape[0]
+    if args.data_cutoff is not None and args.data_cutoff > 0 and args.data_cutoff < original_N:
+        X = X[:args.data_cutoff]
+        y = y[:args.data_cutoff]
+        if dataset_meta is None:
+            dataset_meta = {}
+        dataset_meta["original_dataset_size"] = int(original_N)
+        dataset_meta["data_cutoff"] = int(args.data_cutoff)
+        dataset_meta["used_dataset_size"] = int(X.shape[0])
+    elif args.data_cutoff is not None and args.data_cutoff >= original_N:
+        # Record intent even if cutoff >= size
+        if dataset_meta is None:
+            dataset_meta = {}
+        dataset_meta["original_dataset_size"] = int(original_N)
+        dataset_meta["data_cutoff"] = int(args.data_cutoff)
+        dataset_meta["used_dataset_size"] = int(original_N)
 
     # Normalization for X
     X_norm, x_meta = NORMALIZERS[args.norm](X)
@@ -265,7 +282,7 @@ def main():
     # Build tensors and dataset according to model
     N, C, H, W = X_norm.shape
 
-    print(f"Dataset loaded: N={N}, C={C}, H={H}, W={W}, y_dim={y.shape[1]}")
+    print(f"Dataset loaded: N={N} (original {original_N}), C={C}, H={H}, W={W}, y_dim={y.shape[1]}")
     output_dim = y.shape[1]
 
     # Model
@@ -365,6 +382,9 @@ def main():
         "num_parameters": int(sum(p.numel() for p in model.parameters())),
         "train_size": len(train_ds),
         "val_size": len(val_ds),
+        "data_cutoff": args.data_cutoff,
+        "original_dataset_size": int(original_N),
+        "used_dataset_size": int(N),
     }
 
     meta = {

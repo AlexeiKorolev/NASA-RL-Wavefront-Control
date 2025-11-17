@@ -95,6 +95,14 @@ def main():
         default=["images"],
         help="One or more train input types to sweep: images or slopes"
     )
+    # Data cutoff sweep (first N samples). Use -1 to indicate full dataset.
+    ap.add_argument(
+        "--data_cutoff",
+        nargs="+",
+        type=int,
+        default=[-1],
+        help="One or more cutoff sizes (first N samples). Use -1 for all samples."
+    )
     # TF1 (ViT) sweep parameters (only applied when model_type includes 'tf1')
     ap.add_argument("--tf1_patch_size", nargs="+", type=int, default=[8])
     ap.add_argument("--tf1_dim", nargs="+", type=int, default=[128])
@@ -147,6 +155,7 @@ def main():
         args.lr,
         args.seed,
         args.train_type,
+        args.data_cutoff,
         args.tf1_patch_size,
         args.tf1_dim,
         args.tf1_depth,
@@ -160,7 +169,7 @@ def main():
     generated_files = []
 
     for (
-        model_type, norm, epochs, batch_size, lr, seed, train_type,
+        model_type, norm, epochs, batch_size, lr, seed, train_type, data_cutoff,
         tf1_ps, tf1_dim, tf1_depth, tf1_heads, tf1_mlp, tf1_attn_do, tf1_emb_do, tf1_cls_flag
     ) in combos:
         # Determine FC1 hidden-layer sweep values (only applies to fc1); for others, single None
@@ -178,7 +187,8 @@ def main():
                 # concise descriptor for transformer settings
                 cls_suffix = "-cls" if tf1_cls_flag == "on" else "-mean"
                 tf_suffix = f"-ps{tf1_ps}-d{tf1_dim}-L{tf1_depth}-h{tf1_heads}-mlp{tf1_mlp}{cls_suffix}"
-            tag = f"{args.job_prefix}-{model_type}-{norm}-ep{epochs}-bs{batch_size}-lr{lr}-s{seed}{clean}{tt_suffix}{tf_suffix}"
+            dc_suffix = f"-dc{data_cutoff}" if (data_cutoff is not None and data_cutoff > 0) else ""
+            tag = f"{args.job_prefix}-{model_type}-{norm}-ep{epochs}-bs{batch_size}-lr{lr}-s{seed}{clean}{tt_suffix}{tf_suffix}{dc_suffix}"
             job_name = tag
             stdout_path = str(out_root / f"{tag}.out")
             stderr_path = str(out_root / f"{tag}.err")
@@ -199,6 +209,8 @@ def main():
                 f"--train_type {train_type}",
                 f"--out_dir {shlex.quote(out_dir)}",
             ]
+            if data_cutoff is not None and data_cutoff > 0:
+                exec_parts.append(f"--data_cutoff {data_cutoff}")
             # Optional TF1 passthrough when applicable
             if model_type == "tf1":
                 exec_parts.extend([
