@@ -1,7 +1,0 @@
-Traceback (most recent call last):
-  File "/scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/data_generator.py", line 246, in <module>
-    main(sys.argv[1:])
-  File "/scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/data_generator.py", line 214, in main
-    ecfg = EnvironmentConfig(
-           ^^^^^^^^^^^^^^^^^^
-TypeError: EnvironmentConfig.__init__() got an unexpected keyword argument 'basis'

@@ -1,2 +1,0 @@
-/var/spool/slurmd/job2715101/slurm_script: line 15: 184892 Killed                  python data_generator.py --N 220000 --output data/dataset220K25M_zernike.pkl --num-modes=25 --basis-type zernike
-[2025-11-15T19:17:25.856] error: Detected 1 oom_kill event in StepId=2715101.batch. Some of the step tasks have been OOM Killed.
