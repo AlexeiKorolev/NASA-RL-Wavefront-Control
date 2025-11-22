@@ -93,6 +93,29 @@ class CoronagraphEnvironment(gym.Env):
             # Normalizing each mode with the peak-to-peak value (max - min)
             self.dm_modes = ModeBasis([mode / np.ptp(mode) for mode in self.dm_modes], self.pupil_grid)
             self.dm_noise_modes = ModeBasis([mode / np.ptp(mode) for mode in self.dm_noise_modes], self.pupil_grid)
+        elif self.basis == 'orthogonal':
+            # Number of orthogonal modes
+            zernike_basis = make_zernike_basis(num_modes=self.num_modes, D=self.telescope_diameter, grid=self.pupil_grid, starting_mode=1, ansi=False, radial_cutoff=True, use_cache=True)
+            zernike_basis_noise = make_zernike_basis(num_modes=self.num_noise_modes, D=self.telescope_diameter, grid=self.pupil_grid, starting_mode=1, ansi=False, radial_cutoff=True, use_cache=True)
+
+            def orthagonalize(surfaces):
+                orthogonal_surfaces = []
+                for i in range(self.num_modes):
+                    v = surfaces[i].flatten()
+                    for j in range(i):
+                        u = orthogonal_surfaces[j]
+                        coef = np.dot(v, u) / np.dot(u, u)
+                        proj = coef * u
+                        v = v - proj
+                    orthogonal_surfaces.append(v)
+
+                orthogonal_surfaces = np.array(orthogonal_surfaces)
+                return orthogonal_surfaces 
+            
+            orthogonal_surfaces = orthagonalize(np.array(zernike_basis))
+            orthogonal_surfaces_noise = orthagonalize(np.array(zernike_basis_noise))
+            self.dm_modes = ModeBasis(Field(orthogonal_surfaces.T, grid=self.pupil_grid))
+            self.dm_noise_modes = ModeBasis(Field(orthogonal_surfaces_noise.T, grid=self.pupil_grid))
         else:
             # Number of harmonic modes
             self.dm_modes = make_disk_harmonic_basis(self.pupil_grid, num_modes, telescope_diameter, 'neumann')
@@ -245,6 +268,10 @@ class CoronagraphEnvironment(gym.Env):
         if self.basis == 'zernike':
             action *= np.sqrt(5.0, dtype=np.float16) # scaling zernike so that it is similar to harmonic noise levels.
         
+        elif self.basis == 'orthogonal':
+            action /= np.sqrt(5.0, dtype=np.float16) # scaling orthogonal so that it is similar to harmonic noise levels.
+
+
         self.noise_gen_mirror.actuators = action
 
 
@@ -267,7 +294,11 @@ class CoronagraphEnvironment(gym.Env):
 
         if self.basis == 'zernike':
             action *= np.sqrt(5.0, dtype=np.float16) # scaling zernike so that it is similar to harmonic noise levels.
-        
+
+        elif self.basis == 'orthogonal':
+            action /= np.sqrt(5.0, dtype=np.float16) # scaling orthogonal so that it is similar to harmonic noise levels.
+
+
         self.deformable_mirror.actuators = action
 
     def set_dm(self, action):
