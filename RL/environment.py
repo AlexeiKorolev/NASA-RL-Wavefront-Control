@@ -100,7 +100,7 @@ class CoronagraphEnvironment(gym.Env):
 
             def orthagonalize(surfaces):
                 orthogonal_surfaces = []
-                for i in range(self.num_modes):
+                for i in range(surfaces.shape[0]):
                     v = surfaces[i].flatten()
                     for j in range(i):
                         u = orthogonal_surfaces[j]
