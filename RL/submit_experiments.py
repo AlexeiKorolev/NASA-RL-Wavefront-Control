@@ -83,8 +83,8 @@ def main():
     ap.add_argument("--datapath", required=True)
     ap.add_argument("--model_type", nargs="+", default=["fc1"])
     ap.add_argument("--norm", nargs="+", default=["minmax"])  # minmax|zscore|log
-    ap.add_argument("--epochs", nargs="+", type=int, default=[200])
-    ap.add_argument("--batch_size", nargs="+", type=int, default=[256])
+    ap.add_argument("--epochs", nargs="+", type=int, default=[10000])
+    ap.add_argument("--batch_size", nargs="+", type=int, default=[2048])
     ap.add_argument("--lr", nargs="+", default=["1e-3"])  # keep as str for readability in names
     ap.add_argument("--val_split", type=float, default=0.2)
     ap.add_argument("--seed", nargs="+", type=int, default=[42])
@@ -122,6 +122,9 @@ def main():
         default=[],
         help="One or more comma-separated hidden layer specs for FC1 (e.g., '256,128' '512,256,128')."
     )
+
+    ap.add_argument("--split_vector", action="store_true", help="Use vector split loss (direction + magnitude)")
+    ap.add_argument("--cpu_only", action="store_true", help="Force CPU-only training (omit GPU resources and add --cpu_only to train_job.py).")
 
     # SLURM overrides
     ap.add_argument("--time", default="08:00:00")
@@ -209,6 +212,8 @@ def main():
                 f"--train_type {train_type}",
                 f"--out_dir {shlex.quote(out_dir)}",
             ]
+            if args.split_vector:
+                exec_parts.append(f"--split_vector")
             if data_cutoff is not None and data_cutoff > 0:
                 exec_parts.append(f"--data_cutoff {data_cutoff}")
             # Optional TF1 passthrough when applicable
@@ -229,6 +234,8 @@ def main():
                 hidden_spec = fc1_hidden.replace(",", " ").strip()
                 if hidden_spec:
                     exec_parts.append(f"--fc1_hidden {hidden_spec}")
+            if args.cpu_only:
+                exec_parts.append("--cpu_only")
             exec_line = " ".join(exec_parts)
 
             # Allow SLURM header overrides (cpus, mem, gres, time, mail)
@@ -251,7 +258,11 @@ def main():
                 lines.insert(2, new_line)
             replace_or_append("#SBATCH --cpus-per-task=", f"#SBATCH --cpus-per-task={args.cpus}")
             replace_or_append("#SBATCH --mem=", f"#SBATCH --mem={args.mem}")
-            replace_or_append("#SBATCH --gres=", f"#SBATCH --gres={args.gres}")
+            if not args.cpu_only:
+                replace_or_append("#SBATCH --gres=", f"#SBATCH --gres={args.gres}")
+            else:
+                # Remove any existing GPU gres line if template had one
+                lines = [l for l in lines if not l.startswith("#SBATCH --gres=")]
             if args.mail_user:
                 replace_or_append("#SBATCH --mail-user=", f"#SBATCH --mail-user={args.mail_user}")
             job_text = "\n".join(lines) + "\n"

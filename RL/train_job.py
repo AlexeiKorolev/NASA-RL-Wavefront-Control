@@ -31,6 +31,7 @@ import numpy as np
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset, random_split
+import torch.nn.functional as F
 
 from archs.fc1 import FC1
 from archs.cnn1 import CNN1
@@ -84,8 +85,9 @@ def load_dataset(pkl_path: str, type: str = "images") -> Tuple[np.ndarray, np.nd
     slopes = np.expand_dims(slopes, -1)  # (N, 2, x, 1) if present
 
     y = np.array(data["dm_settings"], dtype=np.float32)  # (N,num_modes)
-    meta = data.get("meta") if isinstance(data, dict) else None
 
+    meta = data.get("meta") if isinstance(data, dict) else None
+    
     X = images if type == "images" else slopes
     return X, y, meta
 
@@ -157,8 +159,21 @@ def train(model: nn.Module,
           val_loader: DataLoader,
           epochs: int,
           lr: float,
-          device: torch.device) -> Dict[str, List[float]]:
-    criterion = nn.MSELoss()
+          device: torch.device,
+          split_vector: bool = False,
+          mag_cost: float = 1.0) -> Dict[str, List[float]]:
+    cos = torch.nn.CosineSimilarity(dim=1)
+    # criterion = nn.MSELoss()
+    def criterion(out, by):
+        if split_vector:
+            v, m = out[:, :-1], out[:, -1]  # separate direction and magnitude
+            v = F.normalize(v, p=2, dim=1)
+            dir_loss = 1 - cos(v, by[:, :-1]).mean()     # direction loss
+            mag_loss = F.mse_loss(m.squeeze(), by[:, -1])  # magnitude loss
+            return dir_loss + mag_cost * mag_loss
+        else:
+            return nn.MSELoss()(out, by)
+
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     history = {"train_loss": [], "val_loss": []}
@@ -174,7 +189,6 @@ def train(model: nn.Module,
             bx, by = bx.to(device), by.to(device)
             optimizer.zero_grad()
             out = model(bx)
-
             loss = criterion(out, by)
             loss.backward()
             optimizer.step()
@@ -221,12 +235,14 @@ def main():
     ap.add_argument("--val_split", type=float, default=0.2)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--data_cutoff", type=int, default=None, help="If set, only use the first N samples from the dataset.")
+    ap.add_argument("--cpu_only", action="store_true", help="Force CPU-only training even if CUDA is available.")
 
     # Architecture params
     ap.add_argument("--fc1_hidden", type=int, nargs="+", default=[128, 64], help="Hidden layer sizes for FC1 (space-separated)")
     ap.add_argument("--fc1_activation", choices=["leaky_relu", "relu", "gelu", "tanh"], default="leaky_relu")
     ap.add_argument("--fc1_final_activation", choices=["leaky_relu", "relu", "gelu", "tanh", "none"], default="leaky_relu")
     ap.add_argument("--fc1_dropout", type=float, default=0.0)
+    ap.add_argument("--split_vector", action="store_true", help="Whether to split vector input for FC1")
     ap.add_argument("--cnn1_img_out", type=int, default=32)
     ap.add_argument("--cnn1_dm_hidden", type=int, default=32)
 
@@ -254,6 +270,9 @@ def main():
 
     # Load
     X, y, dataset_meta = load_dataset(args.datapath, type=args.train_type)  # X: (N,3,H,W) or slopes
+
+    
+
     original_N = X.shape[0]
     if args.data_cutoff is not None and args.data_cutoff > 0 and args.data_cutoff < original_N:
         X = X[:args.data_cutoff]
@@ -274,10 +293,21 @@ def main():
     # Normalization for X
     X_norm, x_meta = NORMALIZERS[args.norm](X)
 
+    if args.split_vector and args.model_type == "fc1":
+        magnitudes = np.linalg.norm(y, axis=1, keepdims=True)  # (N,1)
+        y = y / (magnitudes + 1e-20)  # normalize to unit vectors
+        # magnitudes = np.log(magnitudes + 1)  # log-scale magnitudes
+        y = np.concatenate([y, magnitudes], axis=1)  # append magnitudes as extra dimension
+        print(f"y: {y}")
     # Normalize y (zscore is common for regressions)
-    y_mu = np.mean(y)
-    y_sd = np.std(y)
-    y_norm = (y - y_mu) / (y_sd + 1e-12)
+    if not args.split_vector:
+        y_mu = np.mean(y)
+        y_sd = np.std(y)
+        y_norm = (y - y_mu) / (y_sd + 1e-20)
+    else:
+        y_mu = 0
+        y_sd = 1
+        y_norm = y
 
     # Build tensors and dataset according to model
     N, C, H, W = X_norm.shape
@@ -356,11 +386,16 @@ def main():
                 if "final" not in name.lower():
                     p.requires_grad = False
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if args.cpu_only:
+        # Optionally mask CUDA visibility for safety in multi-GPU nodes
+        os.environ["CUDA_VISIBLE_DEVICES"] = ""
+        device = torch.device("cpu")
+    else:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     print(f"using device: {device}")
 
-    history = train(model, train_loader, val_loader, epochs=args.epochs, lr=args.lr, device=device)
+    history = train(model, train_loader, val_loader, epochs=args.epochs, lr=args.lr, device=device, split_vector=args.split_vector)
 
     # Save
     model_path = os.path.join(args.out_dir, f"{args.model_type}_best.pth")
@@ -377,7 +412,7 @@ def main():
         "torch_version": torch.__version__,
         "numpy_version": np.__version__,
         "device": str(device),
-        "cuda_available": bool(torch.cuda.is_available()),
+        "cuda_available": (False if args.cpu_only else bool(torch.cuda.is_available())),
         "gpu_name": gpu_name,
         "num_parameters": int(sum(p.numel() for p in model.parameters())),
         "train_size": len(train_ds),
