@@ -295,7 +295,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     p.add_argument("--action-scale", type=float, default=1e-8)
     p.add_argument("--dm-clip", type=float, default=None)
     p.add_argument("--lyot-fraction", type=float, default=0.8)
-    p.add_argument("--basis-type", type=str, default="harmonic", choices=["harmonic", "zernike"], dest="basis_type")
+    p.add_argument("--basis-type", type=str, default="harmonic", choices=["harmonic", "zernike", "orthogonal"], dest="basis_type")
     # Output
     p.add_argument("--output", type=str, default="data/dataset.pkl", help="Path to output pickle file.")
 
