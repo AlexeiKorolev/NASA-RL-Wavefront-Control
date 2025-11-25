@@ -7,9 +7,11 @@
 5. Fine tuning on adverserial noise vs. adding different levels of noise to the data vs. gaussian neural nets.
 6. Generate basis via Gramm Schmidt https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process
 7. Try linear / quadradic reward functions for RL.
-8. Fit a linear model raw to the image (1D NN)
+8. Fit a linear model raw to the image (1D NN) for a baseline
 9. Try different action scales.
 10. Seperate direction and magnitude from the output of the neural network. Possibly split the training too.
+
+11. Train on different fixed levels of noise and use a neural net ensemble.
 
 distribution graph: https://www.desmos.com/calculator/jpz9ge36zg
 
