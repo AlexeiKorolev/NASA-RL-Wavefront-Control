@@ -171,7 +171,7 @@ def generate_dataset(
             noise_level = float(dcfg.dm_random_noise)
 
         if dcfg.generate_ood_noise:
-            env.generate_uncorrected_dm(dm_mag=noise_level, noise_mag=dcfg.ood)
+            env.generate_uncorrected_dm(dm_mag=noise_level, noise_mag=dcfg.ood_noise)
         else:
             env.set_random_dm(noise=noise_level)
         baseline_dm = env.deformable_mirror.actuators.copy()
@@ -253,7 +253,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     p.add_argument("--delta-t", type=float, default=1e-3, dest="delta_t", help="Exposure/integration time for images.")
     p.add_argument("--noise-enabled", action="store_true", dest="noise_enabled", help="Enable camera noise.")
     p.add_argument("--dm-random-noise", type=float, default=1e-7, help="Mean std dev for random DM initialization.")
-    p.add_argument("--ood-noise", type=float, default=1e-7, help="Mean std dev for random DM initialization.")
+    p.add_argument("--ood-noise", type=float, default=1e-7, help="noise level of ood noise")
 
     p.add_argument("--dm-random-noise-std", type=float, default=0.0, help="Std deviation around --dm-random-noise; sampled per sample.")
     p.add_argument("--nudge-amplitude", type=float, default=3e-7, help="Amplitude of single-mode nudge.")

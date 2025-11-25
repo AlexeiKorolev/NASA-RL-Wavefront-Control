@@ -307,6 +307,8 @@ class CoronagraphEnvironment(gym.Env):
         noise_actuators = np.array(self.noise_gen_mirror.actuators.copy())
         noise_actuators[:self.num_modes] = 0.0
 
+        noise_actuators = noise_actuators / (np.linalg.norm(noise_actuators)) * noise_mag
+
         self.noise_gen_mirror.actuators = noise_actuators
 
 
