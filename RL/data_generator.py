@@ -94,7 +94,9 @@ class DatasetConfig:
     dm_random_noise_std: float = 0.0
     nudge_amplitude: float = 3e-7
     nudge_mode_index: int = 0
-    save_checkpoints: Optional[List[int]] = None  # e.g. [1000, 5000, 10000]
+    save_checkpoints: Optional[List[int]] = None,  # e.g. [1000, 5000, 10000]
+    generate_ood_noise: bool = False,
+    ood_noise: float =1e-8,
 
 # ---------------------------------------------------------------------------
 # Core functionality
@@ -168,23 +170,14 @@ def generate_dataset(
         else:
             noise_level = float(dcfg.dm_random_noise)
 
-        env.set_random_dm(noise=noise_level)
+        if dcfg.generate_ood_noise:
+            env.generate_uncorrected_dm(dm_mag=noise_level, noise_mag=dcfg.ood)
+        else:
+            env.set_random_dm(noise=noise_level)
         baseline_dm = env.deformable_mirror.actuators.copy()
         cur_slope = np.array(env.get_slopes())
 
         imgs = env.generate_diversity_images(delta_t=dcfg.delta_t, noise_enabled=dcfg.noise_enabled)
-
-        # image1 = env.get_camera_image(delta_t=dcfg.delta_t, noise_enabled=dcfg.noise_enabled)
-
-        # # + nudge
-        # env.deformable_mirror.flatten()
-        # env.deformable_mirror.actuators = baseline_dm + nudge
-        # image2 = env.get_camera_image(delta_t=dcfg.delta_t, noise_enabled=dcfg.noise_enabled)
-
-        # # - nudge
-        # env.deformable_mirror.flatten()
-        # env.deformable_mirror.actuators = baseline_dm - nudge
-        # image3 = env.get_camera_image(delta_t=dcfg.delta_t, noise_enabled=dcfg.noise_enabled)
 
         images.append(imgs)
         dm_settings.append(baseline_dm)
@@ -260,6 +253,8 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     p.add_argument("--delta-t", type=float, default=1e-3, dest="delta_t", help="Exposure/integration time for images.")
     p.add_argument("--noise-enabled", action="store_true", dest="noise_enabled", help="Enable camera noise.")
     p.add_argument("--dm-random-noise", type=float, default=1e-7, help="Mean std dev for random DM initialization.")
+    p.add_argument("--ood-noise", type=float, default=1e-7, help="Mean std dev for random DM initialization.")
+
     p.add_argument("--dm-random-noise-std", type=float, default=0.0, help="Std deviation around --dm-random-noise; sampled per sample.")
     p.add_argument("--nudge-amplitude", type=float, default=3e-7, help="Amplitude of single-mode nudge.")
     p.add_argument("--nudge-mode-index", type=int, default=0, help="Index of mode to nudge.")
@@ -296,6 +291,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     p.add_argument("--dm-clip", type=float, default=None)
     p.add_argument("--lyot-fraction", type=float, default=0.8)
     p.add_argument("--basis-type", type=str, default="harmonic", choices=["harmonic", "zernike", "orthogonal"], dest="basis_type")
+    p.add_argument("--gen-ood-noise", action="store_true")
     # Output
     p.add_argument("--output", type=str, default="data/dataset.pkl", help="Path to output pickle file.")
 
@@ -339,7 +335,9 @@ def main(argv: List[str]) -> None:
         dm_random_noise_std=args.dm_random_noise_std,
         nudge_amplitude=args.nudge_amplitude,
         nudge_mode_index=args.nudge_mode_index,
-        save_checkpoints=args.checkpoints
+        save_checkpoints=args.checkpoints,
+        generate_ood_noise=args.gen_ood_noise,
+        ood_noise=args.ood_noise,
     )
 
     print("[Info] Building environment...")

@@ -300,6 +300,16 @@ class CoronagraphEnvironment(gym.Env):
 
 
         self.deformable_mirror.actuators = action
+    
+    def generate_uncorrected_dm(self, dm_mag=1e-7, noise_mag=1e-7):
+        self.set_random_dm(noise=dm_mag)
+        self.set_random_noise_dm(noise=noise_mag)
+        noise_actuators = np.array(self.noise_gen_mirror.actuators.copy())
+        noise_actuators[:self.num_modes] = 0.0
+
+        self.noise_gen_mirror.actuators = noise_actuators
+
+
 
     def set_dm(self, action):
         # Additive update relative to current actuators (preserve previous state)
