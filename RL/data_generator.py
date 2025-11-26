@@ -53,7 +53,6 @@ except ImportError as exc:
         "Could not import CoronagraphEnvironment. Ensure environment.py is on PYTHONPATH."
     ) from exc
 
-
 # ---------------------------------------------------------------------------
 # Configuration dataclass
 # ---------------------------------------------------------------------------

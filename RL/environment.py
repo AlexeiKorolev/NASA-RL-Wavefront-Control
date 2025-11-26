@@ -312,7 +312,6 @@ class CoronagraphEnvironment(gym.Env):
         self.noise_gen_mirror.actuators = noise_actuators
 
 
-
     def set_dm(self, action):
         # Additive update relative to current actuators (preserve previous state)
         self.deformable_mirror.actuators = np.asarray(self.deformable_mirror.actuators, dtype=np.float64) + np.asarray(action, dtype=np.float64)
