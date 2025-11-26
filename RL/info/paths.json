@@ -1,6 +1,8 @@
 {
     "minmax og": "jobs\\20251022_171601\\exp-fc1-minmax-ep10000-bs2048-lr1e-3-s42-h512-256-128",
     "zscore std dev 0": "jobs\\20251110_122808\\exp-fc1-zscore-ep10000-bs2048-lr1e-3-s42-h512-256-128",
+    "zscore zernike mean 2e-8": "jobs\\20251125_114823\\exp-fc1-zscore-ep10000-bs2048-lr1e-3-s42-h512-256-128-images-dc100000",
+    "zscore zernike mean 4e-9": "jobs\\20251125_114833\\exp-fc1-zscore-ep10000-bs2048-lr1e-3-s42-h512-256-128-images-dc100000",
     "zscore std dev 1e-8": "jobs\\20251122_150635\\exp-fc1-zscore-ep10000-bs2048-lr1e-3-s42-h512-256-128-images-dc100000",
     "zscore std dev 5e-8": "A:\\Projects\\DM + RL\\RL\\jobs\\20251117_092705\\exp-fc1-zscore-ep10000-bs2048-lr1e-3-s42-h512-256-128-images-dc100000",
     "zscore std dev 1e-7": "A:\\Projects\\DM + RL\\RL\\jobs\\20251117_134444\\exp-fc1-zscore-ep10000-bs2048-lr1e-3-s42-h512-256-128-images-dc100000",
