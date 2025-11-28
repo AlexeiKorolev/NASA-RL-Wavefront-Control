@@ -13,8 +13,4 @@ module load anaconda3/2025.6
 conda activate /scratch/network/ak9088/anaconda3/envs/dmrl2
 
 
-python data_generator.py --N 100000 --output data/dataset100K25M_orth_std1.pkl --num-modes=25 --basis-type orthogonal --dm-random-noise 1e-7 ----dm-random-noise-std 1e-8
-
-python data_generator.py --N 100000 --output data/dataset100K25M_orth_std3.pkl --num-modes=25 --basis-type orthogonal --dm-random-noise 1e-7 ----dm-random-noise-std 3e-8
-
-python data_generator.py --N 100000 --output data/dataset100K25M_orth_std9.pkl --num-modes=25 --basis-type orthogonal --dm-random-noise 1e-7 ----dm-random-noise-std 9e-8
+python data_generator.py --N 100000 --output data/dataset100K100M_25S50E.pkl --num-modes=100 --mode-range-start 25 --mode-range-end 50 --basis-type orthogonal --dm-random-noise 1e-7 --num-airy 7 --pixels-per-spacial-res 2

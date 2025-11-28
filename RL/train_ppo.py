@@ -108,7 +108,7 @@ def parse_args():
     p.add_argument("--total-timesteps", type=int, default=100_000)
     p.add_argument("--num-envs", type=int, default=1)
     p.add_argument("--num-modes", type=int, default=4)
-    p.add_argument("--basis", type=str, default="harmonic")
+    p.add_argument("--basis", type=str, default="orthogonal")
     p.add_argument("--pixels", type=int, default=64)
     p.add_argument("--oversizing-factor", type=float, default=1.0)
     p.add_argument("--num-airy", type=int, default=5)

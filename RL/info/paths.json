@@ -18,6 +18,7 @@
     "orth basis minmax std dev 0": "jobs\\20251124_211638\\exp-fc1-minmax-ep10000-bs2048-lr1e-3-s42-h512-256-128-images-dc100000",
     "orth basis zscore std dev 0": "jobs\\20251124_211638\\exp-fc1-zscore-ep10000-bs2048-lr1e-3-s42-h512-256-128-images-dc100000",
     "large model std dev 1e-8": "jobs\\20251125_003741\\exp-fc1-zscore-ep10000-bs2048-lr1e-3-s42-h1024-512-256-128-images-dc100000",
-    "linear model": "jobs\\20251127_230433\\exp-fc1-minmax-ep10000-bs2048-lr1e-3-s42-h25-images"
-
+    "linear model": "jobs\\20251127_230433\\exp-fc1-minmax-ep10000-bs2048-lr1e-3-s42-h25-images",
+    "small mlp": "jobs\\20251128_011057\\exp-fc1-zscore-ep10000-bs2048-lr1e-3-s42-h256-128-images",
+    "large mlp": "jobs\\20251128_011057\\exp-fc1-zscore-ep10000-bs2048-lr1e-3-s42-h512-256-128-images"
 }

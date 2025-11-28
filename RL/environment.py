@@ -19,7 +19,7 @@ import scipy.ndimage as ndimage
 
 class CoronagraphEnvironment(gym.Env):
     def __init__(self, telescope_diameter = 8., oversizing_factor = 16 / 15, 
-                 wavelength_sci = 2.2e-6, num_modes = 500, zero_magnitude_flux = 3.9e10, #3.9e10 photon/s for a mag 0 star
+                 wavelength_sci = 2.2e-6, num_modes = 25, zero_magnitude_flux = 3.9e10, #3.9e10 photon/s for a mag 0 star
                 stellar_magnitude = 5, delta_t = 1e-3, pixels = 240, # sec, so a loop speed of 1kHz.
                 num_iterations = 10, coronagraph_charge=4, num_airy=7, pixels_per_spacial_res=4,
                 num_noise_modes=500,
@@ -36,7 +36,8 @@ class CoronagraphEnvironment(gym.Env):
                 action_scale: float = 1e-8,
                 dm_clip: float | None = None,
                 lyot_fraction: float = 0.8,
-                # Basis type
+                mode_range: slice | np.ndarray | None = None,
+                # Basis typet
                 basis: str = 'harmonic'
                 ):
         super().__init__()
@@ -54,6 +55,9 @@ class CoronagraphEnvironment(gym.Env):
         self.stellar_magnitude = stellar_magnitude
         self.num_modes = num_modes
         self.num_noise_modes = num_noise_modes
+
+        self.mode_range = mode_range if mode_range is not None else slice(0, self.num_modes)
+
         self.wavelength_sci = wavelength_sci
         # Observation config
         self.diversity_enabled = diversity_enabled
@@ -295,6 +299,11 @@ class CoronagraphEnvironment(gym.Env):
 
         action = np.random.randn(self.num_modes)  / (np.arange(self.num_modes) + 10)
 
+        # cropping action to only use certain modes
+        relevant_values = action[self.mode_range]
+        action = np.zeros_like(action)
+        action[self.mode_range] = relevant_values
+
         self.deformable_mirror.actuators = action
 
         action *= noise * self.wavelength_sci / np.std(self.deformable_mirror.surface)
@@ -323,13 +332,29 @@ class CoronagraphEnvironment(gym.Env):
 
         self.noise_gen_mirror.actuators = noise_actuators
 
-
     def set_dm(self, action):
+        # Directly set the DM actuators
+        self.deformable_mirror.actuators = np.asarray(action, dtype=np.float64)
+        if self.dm_clip is not None:
+            self.deformable_mirror.actuators = np.clip(self.deformable_mirror.actuators, -self.dm_clip, self.dm_clip)
+
+    def set_relevant_dm(self, action):
+        self.deformable_mirror.flatten()
+        # Directly set only the relevant DM actuators (preserve previous state)
+        current_actuators = np.asarray(self.deformable_mirror.actuators, dtype=np.float64)
+        current_actuators[self.mode_range] = np.asarray(action, dtype=np.float64)
+        self.deformable_mirror.actuators = current_actuators
+        if self.dm_clip is not None:
+            self.deformable_mirror.actuators = np.clip(self.deformable_mirror.actuators, -self.dm_clip, self.dm_clip)
+
+    def add_dm(self, action):
         # Additive update relative to current actuators (preserve previous state)
         self.deformable_mirror.actuators = np.asarray(self.deformable_mirror.actuators, dtype=np.float64) + np.asarray(action, dtype=np.float64)
         if self.dm_clip is not None:
             self.deformable_mirror.actuators = np.clip(self.deformable_mirror.actuators, -self.dm_clip, self.dm_clip)
 
+    def get_relevant_dm_actuators(self):
+        return self.deformable_mirror.actuators[self.mode_range]
 
     def get_slopes(self):
         wfs_wf = self.shwfs(self.magnifier(self.deformable_mirror(self.wf)))
@@ -593,7 +618,7 @@ class CoronagraphEnvironment(gym.Env):
         # Guard against NaN/Inf and non-positive values
         c = float(np.nan_to_num(contrast, nan=1e-20, posinf=1e-20, neginf=1e-20))
         c = max(c, 1e-20)
-        return -np.log10(c)  # higher is better
+        return 1 / c # -np.log10(c)  # higher is better
 
     def step(self, action):
         # Update the environment state based on the action

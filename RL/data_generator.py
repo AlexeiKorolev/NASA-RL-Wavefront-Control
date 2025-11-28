@@ -84,6 +84,7 @@ class EnvironmentConfig:
     dm_clip: Optional[float] = None
     lyot_fraction: float = 0.8
     basis: str = "harmonic"  # 'harmonic' or 'zernike'
+    mode_range: Optional[slice] = None  # e.g. slice(0, 10)
 
 @dataclass
 class DatasetConfig:
@@ -129,6 +130,7 @@ def build_environment(ecfg: EnvironmentConfig) -> CoronagraphEnvironment:
         dm_clip=ecfg.dm_clip,
         lyot_fraction=ecfg.lyot_fraction,
         basis=ecfg.basis,
+        mode_range=ecfg.mode_range,
     )
     return env
 
@@ -175,7 +177,8 @@ def generate_dataset(
             env.generate_uncorrected_dm(dm_mag=noise_level, noise_mag=dcfg.ood_noise)
         else:
             env.set_random_dm(noise=noise_level)
-        baseline_dm = env.deformable_mirror.actuators.copy()
+        
+        baseline_dm = env.get_relevant_dm_actuators() # env.deformable_mirror.actuators.copy()
         cur_slope = np.array(env.get_slopes())
 
         imgs = env.generate_diversity_images(delta_t=dcfg.delta_t, noise_enabled=dcfg.noise_enabled)
@@ -234,6 +237,7 @@ def ecfg_from_env(env: CoronagraphEnvironment) -> EnvironmentConfig:
         dm_clip=getattr(env, "dm_clip", None),
         lyot_fraction=getattr(env, "lyot_fraction", 0.8) if hasattr(env, "lyot_fraction") else 0.8,
         basis=getattr(env, "basis", "harmonic"),
+        mode_range=getattr(env, "mode_range", None),
     )
 
 
@@ -267,6 +271,9 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     p.add_argument("--oversizing-factor", type=float, default=16/15)
     p.add_argument("--wavelength-sci", type=float, default=2.2e-6)
     p.add_argument("--num-modes", type=int, default=10)
+    p.add_argument("--mode-range-start", type=int, default=None, help="Start of mode indices to include in the environment.")
+    p.add_argument("--mode-range-end", type=int, default=None, help="End of mode indices to include in the environment.")
+
     p.add_argument("--zero-magnitude-flux", type=float, default=3.9e10)
     p.add_argument("--stellar-magnitude", type=float, default=5.0)
     p.add_argument("--env-delta-t", type=float, default=1e-3, help="Environment internal loop delta_t")
@@ -304,6 +311,8 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
 def main(argv: List[str]) -> None:
     args = parse_args(argv)
 
+    mode_range = None if args.mode_range_start is None or args.mode_range_end is None else slice(args.mode_range_start, args.mode_range_end)
+
     ecfg = EnvironmentConfig(
         telescope_diameter=args.telescope_diameter,
         oversizing_factor=args.oversizing_factor,
@@ -330,6 +339,7 @@ def main(argv: List[str]) -> None:
         dm_clip=args.dm_clip,
         lyot_fraction=args.lyot_fraction,
         basis=args.basis_type,
+        mode_range=mode_range,
     )
     dcfg = DatasetConfig(
         N=args.N,
