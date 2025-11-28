@@ -23,6 +23,8 @@ Transfoermer: /scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/jobs/20251116
 USE STREHL FOR RL FIRST
 Transformer random: /scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/jobs/20251116_195050
 
+Linear model for baseline: 20251127_230433
+
 # Deformable Mirror Control with Reinforcement Learning and High-Contrast Imaging
 
 This project explores the intersection of adaptive optics, high-contrast imaging, and machine learning. It provides a simulation framework for controlling a deformable mirror (DM) in a coronagraphic telescope system using reinforcement learning (RL) and neural networks. The goal is to optimize wavefront correction for exoplanet imaging and other high-contrast astronomical applications.

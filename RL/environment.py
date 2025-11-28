@@ -29,6 +29,7 @@ class CoronagraphEnvironment(gym.Env):
                 nudge_mode_indices: list | None = None,
                 num_diversity_pairs: int = 1,
                 obs_noise_enabled: bool = False,
+                obs_noise_level: float = 0.1,
                 obs_delta_t: float | None = None,
                 include_slopes: bool = True,
                 # RL stability knobs
@@ -59,6 +60,7 @@ class CoronagraphEnvironment(gym.Env):
         self.nudge_magnitude = float(nudge_magnitude)
         self.nudge_mode_indices = list(nudge_mode_indices) if nudge_mode_indices is not None else ([0] if basis.lower() == 'harmonic' else [3])
         self.num_diversity_pairs = int(num_diversity_pairs)
+        self.obs_noise_level = float(obs_noise_level)
         self.obs_noise_enabled = bool(obs_noise_enabled)
         self.include_slopes = bool(include_slopes)
         self.obs_delta_t = delta_t if obs_delta_t is None else obs_delta_t
@@ -360,7 +362,9 @@ class CoronagraphEnvironment(gym.Env):
 
         self.camera.integrate(propagrated_wf, delta_t)
         wfs_image = self.camera.read_out()
-        if noise_enabled: wfs_image = large_poisson(wfs_image).astype('float')
+        if noise_enabled: 
+            wfs_image_noisy = large_poisson(wfs_image).astype('float')
+            wfs_image = self.obs_noise_level * wfs_image_noisy + (1 - self.obs_noise_level) * wfs_image
         wfs_image = wfs_image.reshape(int(np.sqrt(wfs_image.size)), int(np.sqrt(wfs_image.size)))
 
         return crop_image(wfs_image, width=crop_width) if crop else wfs_image

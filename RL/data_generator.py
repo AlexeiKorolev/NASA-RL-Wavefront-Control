@@ -77,6 +77,7 @@ class EnvironmentConfig:
     nudge_mode_indices: Optional[List[int]] = None
     num_diversity_pairs: int = 1
     obs_noise_enabled: bool = False
+    obs_noise_level: float = 0.1
     obs_delta_t: Optional[float] = None
     include_slopes: bool = True
     action_scale: float = 1e-8
@@ -121,6 +122,7 @@ def build_environment(ecfg: EnvironmentConfig) -> CoronagraphEnvironment:
         nudge_mode_indices=ecfg.nudge_mode_indices,
         num_diversity_pairs=ecfg.num_diversity_pairs,
         obs_noise_enabled=ecfg.obs_noise_enabled,
+        obs_noise_level=ecfg.obs_noise_level,
         obs_delta_t=ecfg.obs_delta_t,
         include_slopes=ecfg.include_slopes,
         action_scale=ecfg.action_scale,
@@ -225,6 +227,7 @@ def ecfg_from_env(env: CoronagraphEnvironment) -> EnvironmentConfig:
         nudge_mode_indices=getattr(env, "nudge_mode_indices", None),
         num_diversity_pairs=getattr(env, "num_diversity_pairs", 1),
         obs_noise_enabled=getattr(env, "obs_noise_enabled", False),
+        obs_noise_level=getattr(env, "obs_noise_level", 0.1),
         obs_delta_t=getattr(env, "obs_delta_t", None),
         include_slopes=getattr(env, "include_slopes", True),
         action_scale=getattr(env, "action_scale", 1e-8),
@@ -282,6 +285,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     p.add_argument("--obs-noise-enabled", action="store_true", dest="obs_noise_enabled")
     p.add_argument("--no-obs-noise", action="store_false", dest="obs_noise_enabled")
     p.set_defaults(obs_noise_enabled=False)
+    p.add_argument("--obs-noise-level", type=float, default=0.1)
     p.add_argument("--obs-delta-t", type=float, default=None)
     p.add_argument("--include-slopes", action="store_true", dest="include_slopes")
     p.add_argument("--no-slopes", action="store_false", dest="include_slopes")
@@ -319,6 +323,7 @@ def main(argv: List[str]) -> None:
         nudge_mode_indices=args.nudge_mode_indices,
         num_diversity_pairs=args.num_diversity_pairs,
         obs_noise_enabled=args.obs_noise_enabled,
+        obs_noise_level=args.obs_noise_level,
         obs_delta_t=args.obs_delta_t,
         include_slopes=args.include_slopes,
         action_scale=args.action_scale,
