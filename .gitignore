@@ -7,3 +7,5 @@
 /Pulls/*
 /RL/archs/__pycache__/*
 RL/archs/__pycache__/tf1.cpython-312.pyc
+*.pyc
+
