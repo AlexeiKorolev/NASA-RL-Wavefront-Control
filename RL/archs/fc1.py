@@ -9,8 +9,12 @@ class FC1(nn.Module):
         image_input_shape: tuple = (3, 16, 16),
         hidden_layers: Optional[List[int]] = None,
         activation: str = "leaky_relu",
-        final_activation: Optional[str] = "leaky_relu",
+        final_activation: Optional[str] = "none",
         dropout: float = 0.0,
+        encoder_enabled: bool = False,
+        filter_sizes: Optional[List[int]] = None,
+        filter_channels: Optional[List[int]] = None,
+
     ):
         super(FC1, self).__init__()
         self.image_input_shape = image_input_shape

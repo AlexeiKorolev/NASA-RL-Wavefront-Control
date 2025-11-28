@@ -245,7 +245,7 @@ def main():
     # Architecture params
     ap.add_argument("--fc1_hidden", type=int, nargs="+", default=[128, 64], help="Hidden layer sizes for FC1 (space-separated)")
     ap.add_argument("--fc1_activation", choices=["leaky_relu", "relu", "gelu", "tanh", "none"], default="leaky_relu")
-    ap.add_argument("--fc1_final_activation", choices=["leaky_relu", "relu", "gelu", "tanh", "none"], default="leaky_relu")
+    ap.add_argument("--fc1_final_activation", choices=["leaky_relu", "relu", "gelu", "tanh", "none"], default="none")
     ap.add_argument("--fc1_dropout", type=float, default=0.0)
     
 
