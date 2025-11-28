@@ -77,7 +77,8 @@ class CoronagraphEnvironment(gym.Env):
         self.VLT_aperture = evaluate_supersampled(VLT_aperture_generator, self.pupil_grid, 4)
 
         self.wf = Wavefront(self.VLT_aperture, wavelength_sci)
-        self.wf.total_power = zero_magnitude_flux * 10**(-stellar_magnitude / 2.5)
+        self.zero_magnitude_flux = zero_magnitude_flux
+        self.wf.total_power = self.zero_magnitude_flux * 10**(-stellar_magnitude / 2.5)
 
         self.prop = FraunhoferPropagator(self.pupil_grid, self.focal_grid)
 
@@ -236,8 +237,17 @@ class CoronagraphEnvironment(gym.Env):
         dt = self.obs_delta_t if delta_t is None else delta_t
         nz = self.obs_noise_enabled if noise_enabled is None else noise_enabled
 
+        # print(f"Generating diversity images with delta_t={dt}, noise_enabled={nz}")
+        
+        camera_comparison = self.get_camera_image(delta_t=dt, coronagraph_enabled=True, noise_enabled=nz)
+        # print(f"self.wf.total_power: 10^{np.log10(self.wf.total_power):.2f}")
+        # print(f"zero_magnitude_flux: 10^{np.log10(self.zero_magnitude_flux):.2f}")
+        # print(f"Camera comparison max: {camera_comparison.max()}")
+
         # Baseline
         baseline_img = self._capture_image_with_dm(baseline_dm, dt, coronagraph_enabled=True, noise_enabled=nz)
+
+        # print(f"Baseline image max: {baseline_img.max()}, delta_t={dt}, noise_enabled={nz}")
         stack = [baseline_img]
 
         if self.diversity_enabled and self.nudge_vectors:

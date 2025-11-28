@@ -27,6 +27,8 @@ class FC1(nn.Module):
                 return nn.GELU()
             if name == "tanh":
                 return nn.Tanh()
+            if name == "none":
+                return nn.Identity()
             # default
             return nn.LeakyReLU()
 

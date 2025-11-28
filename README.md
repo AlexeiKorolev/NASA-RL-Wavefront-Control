@@ -12,6 +12,7 @@
 10. Seperate direction and magnitude from the output of the neural network. Possibly split the training too.
 
 11. Train on different fixed levels of noise and use a neural net ensemble.
+12. Investigate different nudge vectors.
 
 distribution graph: https://www.desmos.com/calculator/jpz9ge36zg
 
