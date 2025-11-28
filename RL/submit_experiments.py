@@ -122,8 +122,8 @@ def main():
         default=[],
         help="One or more comma-separated hidden layer specs for FC1 (e.g., '256,128' '512,256,128')."
     )
-    ap.add_argument("--fc1_activation", nargs="+", type=str, default=["leaky_relu"])
-    ap.add_argument("--fc1_final_activation", nargs="+", type=str, default=["leaky_relu"])
+    ap.add_argument("--fc1_activation", nargs="*", type=str, default=["leaky_relu"])
+    ap.add_argument("--fc1_final_activation", nargs="*", type=str, default=["leaky_relu"])
 
     ap.add_argument("--split_vector", action="store_true", help="Use vector split loss (direction + magnitude)")
     ap.add_argument("--cpu_only", action="store_true", help="Force CPU-only training (omit GPU resources and add --cpu_only to train_job.py).")
@@ -169,8 +169,6 @@ def main():
         args.tf1_attn_dropout,
         args.tf1_emb_dropout,
         args.tf1_use_cls_token,
-        args.fc1_activation,
-        args.fc1_final_activation,
     ))
 
     generated_files = []
@@ -178,7 +176,6 @@ def main():
     for (
         model_type, norm, epochs, batch_size, lr, seed, train_type, data_cutoff,
         tf1_ps, tf1_dim, tf1_depth, tf1_heads, tf1_mlp, tf1_attn_do, tf1_emb_do, tf1_cls_flag,
-        fc1_activation, fc1_final_activation,
     ) in combos:
         # Determine FC1 hidden-layer sweep values (only applies to fc1); for others, single None
         fc1_hidden_specs = args.fc1_hidden if (model_type == "fc1" and len(args.fc1_hidden) > 0) else [None]
@@ -241,12 +238,12 @@ def main():
                 if hidden_spec:
                     exec_parts.append(f"--fc1_hidden {hidden_spec}")
 
-            if model_type == "fc1" and fc1_activation:
-                for act in fc1_activation:
+            if model_type == "fc1" and args.fc1_activation:
+                for act in args.fc1_activation:
                     exec_parts.append(f"--fc1_activation {act}")
-                    
-            if model_type == "fc1" and fc1_final_activation:
-                for act in fc1_final_activation:
+
+            if model_type == "fc1" and args.fc1_final_activation:
+                for act in args.fc1_final_activation:
                     exec_parts.append(f"--fc1_final_activation {act}")
             if args.cpu_only:
                 exec_parts.append("--cpu_only")
