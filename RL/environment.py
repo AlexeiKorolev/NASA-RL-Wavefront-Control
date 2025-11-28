@@ -18,9 +18,9 @@ import scipy.ndimage as ndimage
 
 
 class CoronagraphEnvironment(gym.Env):
-    def __init__(self, telescope_diameter = 8., oversizing_factor = 16 / 15, 
+    def __init__(self, telescope_diameter = 8., oversizing_factor = 16/15, 
                  wavelength_sci = 2.2e-6, num_modes = 25, zero_magnitude_flux = 3.9e10, #3.9e10 photon/s for a mag 0 star
-                stellar_magnitude = 5, delta_t = 1e-3, pixels = 240, # sec, so a loop speed of 1kHz.
+                stellar_magnitude = 5, delta_t = 1e-3, pixels = 64, # sec, so a loop speed of 1kHz.
                 num_iterations = 10, coronagraph_charge=4, num_airy=7, pixels_per_spacial_res=4,
                 num_noise_modes=500,
                 # Diversity / observation configuration
