@@ -244,7 +244,7 @@ def main():
 
             if model_type == "fc1" and args.fc1_final_activation:
                 for act in args.fc1_final_activation:
-                    exec_parts.append(f"--fc1_final_activation {act}")
+                    exec_parts.append(f"--fc1_final_activation none")
             if args.cpu_only:
                 exec_parts.append("--cpu_only")
             exec_line = " ".join(exec_parts)
