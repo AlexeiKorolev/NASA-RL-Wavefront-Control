@@ -13,3 +13,5 @@ module load anaconda3/2025.6
 conda activate /scratch/network/ak9088/anaconda3/envs/dmrl2
 
 python data_generator.py --N 100000 --output data/dataset100K25M_z_nz005.pkl --num-modes=25 --basis-type zernike --dm-random-noise 1e-7 --noise-enabled --obs-noise-level 0.05
+
+python data_generator.py --N 100000 --output data/dataset100K25M_z_nz01.pkl --num-modes=25 --basis-type zernike --dm-random-noise 1e-7 --noise-enabled --obs-noise-level 0.1
