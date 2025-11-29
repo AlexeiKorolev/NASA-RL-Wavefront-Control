@@ -226,7 +226,7 @@ def ecfg_from_env(env: CoronagraphEnvironment) -> EnvironmentConfig:
         pixels_per_spacial_res=getattr(env, "pixels_per_spacial_res"),
         num_noise_modes=getattr(env, "num_noise_modes", 0),
         diversity_enabled=getattr(env, "diversity_enabled", True),
-        nudge_magnitude=getattr(env, "nudge_magnitude", 3e-7),
+        nudge_magnitude=getattr(env, "nudge_magnitude", 3e-8),
         nudge_mode_indices=getattr(env, "nudge_mode_indices", None),
         num_diversity_pairs=getattr(env, "num_diversity_pairs", 1),
         obs_noise_enabled=getattr(env, "obs_noise_enabled", False),
