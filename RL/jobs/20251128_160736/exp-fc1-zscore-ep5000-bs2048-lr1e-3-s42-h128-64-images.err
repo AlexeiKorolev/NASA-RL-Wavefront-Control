@@ -1,0 +1,26 @@
+/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/site-packages/torch/utils/data/dataloader.py:666: UserWarning: 'pin_memory' argument is set as true but no accelerator is found, then device pinned memory won't be used.
+  warnings.warn(warn_msg)
+/scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/train_job.py:417: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp": datetime.utcnow().isoformat() + "Z",
+Traceback (most recent call last):
+  File "/scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/train_job.py", line 466, in <module>
+    main()
+  File "/scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/train_job.py", line 460, in main
+    json.dump(meta_safe, f, indent=2)
+  File "/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/json/__init__.py", line 179, in dump
+    for chunk in iterable:
+                 ^^^^^^^^
+  File "/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/json/encoder.py", line 432, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/json/encoder.py", line 439, in _iterencode
+    o = _default(o)
+        ^^^^^^^^^^^
+  File "/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type slice is not JSON serializable
