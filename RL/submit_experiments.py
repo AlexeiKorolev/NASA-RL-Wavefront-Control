@@ -126,6 +126,8 @@ def main():
     ap.add_argument("--fc1_final_activation", nargs="*", type=str, default=["leaky_relu"])
 
     ap.add_argument("--split_vector", action="store_true", help="Use vector split loss (direction + magnitude)")
+    ap.add_argument("--weight_decay", nargs="+", type=float, default=[0.0], help="One or more weight decay values to sweep")
+    ap.add_argument("--mag_cost", nargs="+", type=float, default=[1.0], help="One or more magnitude loss weights when --split_vector is enabled")
     ap.add_argument("--cpu_only", action="store_true", help="Force CPU-only training (omit GPU resources and add --cpu_only to train_job.py).")
     ap.add_argument("--fc1_encoder_enabled", action="store_true", help="Enable FC1 CNN encoder front-end")
     ap.add_argument("--fc1_filter_sizes", default=None, help="Comma/space separated kernel sizes for FC1 encoder")
@@ -166,6 +168,8 @@ def main():
         args.seed,
         args.train_type,
         args.data_cutoff,
+        args.weight_decay,
+        args.mag_cost,
         args.tf1_patch_size,
         args.tf1_dim,
         args.tf1_depth,
@@ -180,6 +184,7 @@ def main():
 
     for (
         model_type, norm, epochs, batch_size, lr, seed, train_type, data_cutoff,
+        weight_decay, mag_cost,
         tf1_ps, tf1_dim, tf1_depth, tf1_heads, tf1_mlp, tf1_attn_do, tf1_emb_do, tf1_cls_flag,
     ) in combos:
         # Determine FC1 hidden-layer sweep values (only applies to fc1); for others, single None
@@ -198,7 +203,9 @@ def main():
                 cls_suffix = "-cls" if tf1_cls_flag == "on" else "-mean"
                 tf_suffix = f"-ps{tf1_ps}-d{tf1_dim}-L{tf1_depth}-h{tf1_heads}-mlp{tf1_mlp}{cls_suffix}"
             dc_suffix = f"-dc{data_cutoff}" if (data_cutoff is not None and data_cutoff > 0) else ""
-            tag = f"{args.job_prefix}-{model_type}-{norm}-ep{epochs}-bs{batch_size}-lr{lr}-s{seed}{clean}{tt_suffix}{tf_suffix}{dc_suffix}"
+            wd_suffix = f"-wd{weight_decay:g}" if weight_decay not in (0.0, 0) else ""
+            mc_suffix = f"-mc{mag_cost:g}" if mag_cost != 1.0 else ""
+            tag = f"{args.job_prefix}-{model_type}-{norm}-ep{epochs}-bs{batch_size}-lr{lr}-s{seed}{clean}{tt_suffix}{tf_suffix}{dc_suffix}{wd_suffix}{mc_suffix}"
             job_name = tag
             stdout_path = str(out_root / f"{tag}.out")
             stderr_path = str(out_root / f"{tag}.err")
@@ -218,6 +225,8 @@ def main():
                 f"--seed {seed}",
                 f"--train_type {train_type}",
                 f"--out_dir {shlex.quote(out_dir)}",
+                f"--weight_decay {weight_decay}",
+                f"--mag_cost {mag_cost}",
                 
             ]
             if args.split_vector:
