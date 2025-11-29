@@ -6,6 +6,8 @@ from typing import List, Optional, Tuple
 
 def _act(name: str) -> nn.Module:
     name = (name or "").lower()
+    if name == "none" or name == "identity" or name is None:
+        return nn.Identity()
     if name == "relu":
         return nn.ReLU()
     if name == "gelu":
@@ -61,7 +63,7 @@ class TF1(nn.Module):
         image_input_shape: Tuple[int, int, int] = (3, 16, 16),
         hidden_layers: Optional[List[int]] = None,
         activation: str = "leaky_relu",
-        final_activation: Optional[str] = "leaky_relu",
+        final_activation: Optional[str] = None,
         dropout: float = 0.0,
         # ViT specifics
         patch_size: int = 8,
@@ -136,6 +138,7 @@ class TF1(nn.Module):
         return imgs.permute(0, 3, 1, 2).contiguous()
 
     def forward(self, imgs: torch.Tensor) -> torch.Tensor:
+        
         x = self._to_nchw(imgs)
         # Patchify and embed: (N, C, H, W) -> (N, dim, H/ps, W/ps)
         x = self.patch_embed(x)
@@ -146,6 +149,7 @@ class TF1(nn.Module):
             cls_tokens = self.cls_token.expand(n, -1, -1)
             x = torch.cat((cls_tokens, x), dim=1)
 
+        assert x.shape[1] == self.pos_embed.shape[1]
         x = x + self.pos_embed
         x = self.emb_dropout(x)
 
@@ -170,14 +174,14 @@ if __name__ == "__main__":
         hidden_layers=[512, 256, 128],
         activation="relu",
         final_activation=None,
-        dropout=0.1,
+        dropout=0,
         patch_size=4,
         dim=128,
         depth=4,
         heads=4,
         mlp_dim=256,
-        attn_dropout=0.1,
-        emb_dropout=0.1,
+        attn_dropout=0,
+        emb_dropout=0,
         use_cls_token=True,
     )
     dummy_input = torch.randn(2, 20, 20, 3)  # (N, H, W, C)
