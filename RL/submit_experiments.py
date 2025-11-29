@@ -127,6 +127,11 @@ def main():
 
     ap.add_argument("--split_vector", action="store_true", help="Use vector split loss (direction + magnitude)")
     ap.add_argument("--cpu_only", action="store_true", help="Force CPU-only training (omit GPU resources and add --cpu_only to train_job.py).")
+    ap.add_argument("--fc1_encoder_enabled", action="store_true", help="Enable FC1 CNN encoder front-end")
+    ap.add_argument("--fc1_filter_sizes", default=None, help="Comma/space separated kernel sizes for FC1 encoder")
+    ap.add_argument("--fc1_filter_channels", default=None, help="Comma/space separated channel sizes for FC1 encoder")
+    ap.add_argument("--fc1_final_embedding_size", type=int, default=None)
+    ap.add_argument("--fc1_final_embedding_channels", type=int, default=None)
 
     # SLURM overrides
     ap.add_argument("--time", default="08:00:00")
@@ -241,6 +246,33 @@ def main():
             if model_type == "fc1" and args.fc1_activation:
                 for act in args.fc1_activation:
                     exec_parts.append(f"--fc1_activation {act}")
+
+            if model_type == "fc1" and args.fc1_encoder_enabled:
+                exec_parts.append("--fc1_encoder_enabled")
+
+            def _append_list_arg(flag: str, raw: str):
+                if not raw:
+                    return
+                tokens = []
+                for chunk in raw.split(','):
+                    chunk = chunk.strip()
+                    if not chunk:
+                        continue
+                    tokens.extend(chunk.split())
+                if tokens:
+                    exec_parts.append(f"{flag} {' '.join(tokens)}")
+
+            if model_type == "fc1" and args.fc1_filter_sizes:
+                _append_list_arg("--fc1_filter_sizes", args.fc1_filter_sizes)
+
+            if model_type == "fc1" and args.fc1_filter_channels:
+                _append_list_arg("--fc1_filter_channels", args.fc1_filter_channels)
+
+            if model_type == "fc1" and args.fc1_final_embedding_size:
+                exec_parts.append(f"--fc1_final_embedding_size {args.fc1_final_embedding_size}")
+
+            if model_type == "fc1" and args.fc1_final_embedding_channels:
+                exec_parts.append(f"--fc1_final_embedding_channels {args.fc1_final_embedding_channels}")
 
             if model_type == "fc1" and args.fc1_final_activation:
                 for act in args.fc1_final_activation:

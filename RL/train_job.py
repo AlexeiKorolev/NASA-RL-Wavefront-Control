@@ -247,6 +247,11 @@ def main():
     ap.add_argument("--fc1_activation", choices=["leaky_relu", "relu", "gelu", "tanh", "none"], default="leaky_relu")
     ap.add_argument("--fc1_final_activation", choices=["leaky_relu", "relu", "gelu", "tanh", "none"], default="none")
     ap.add_argument("--fc1_dropout", type=float, default=0.0)
+    ap.add_argument("--fc1_encoder_enabled", action="store_true", help="Enable optional CNN encoder before FC1 MLP")
+    ap.add_argument("--fc1_filter_sizes", type=int, nargs="+", default=None, help="Kernel sizes for encoder conv layers")
+    ap.add_argument("--fc1_filter_channels", type=int, nargs="+", default=None, help="Channel counts for encoder conv layers")
+    ap.add_argument("--fc1_final_embedding_size", type=int, default=None, help="Spatial size of encoder output feature map")
+    ap.add_argument("--fc1_final_embedding_channels", type=int, default=None, help="Channel size of encoder output feature map")
     
 
     ap.add_argument("--cnn1_img_out", type=int, default=32)
@@ -338,6 +343,11 @@ def main():
             "activation": args.fc1_activation,
             "final_activation": fa,
             "dropout": args.fc1_dropout,
+            "encoder_enabled": args.fc1_encoder_enabled,
+            "filter_sizes": args.fc1_filter_sizes,
+            "filter_channels": args.fc1_filter_channels,
+            "final_embedding_size": args.fc1_final_embedding_size,
+            "final_embedding_channels": args.fc1_final_embedding_channels,
         })
     elif args.model_type == "tf1":
         # TF1 can accept NCHW directly
