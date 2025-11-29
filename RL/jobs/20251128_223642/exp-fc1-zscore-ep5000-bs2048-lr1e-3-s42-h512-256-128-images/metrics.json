@@ -10085,5 +10085,7 @@
       "action_scale": 1e-08,
       "dm_clip": null,
       "lyot_fraction": 0.8,
-      "basis": "orthogonal",
-      "mode_range": 
+      "basis": "orthogonal"
+    }
+  }
+}

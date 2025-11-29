@@ -25,7 +25,7 @@ import json
 import os
 from dataclasses import dataclass, asdict
 from typing import Tuple, List, Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, UTC
 
 import numpy as np
 import torch
@@ -414,7 +414,7 @@ def main():
         gpu_name = None
 
     train_job_meta = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(UTC).isoformat(),
         "torch_version": torch.__version__,
         "numpy_version": np.__version__,
         "device": str(device),
@@ -445,6 +445,13 @@ def main():
             return {k: to_jsonable(v) for k, v in o.items()}
         if isinstance(o, (list, tuple)):
             return [to_jsonable(v) for v in o]
+        if isinstance(o, slice):
+            return {
+                "__type": "slice",
+                "start": to_jsonable(o.start) if o.start is not None else None,
+                "stop": to_jsonable(o.stop) if o.stop is not None else None,
+                "step": to_jsonable(o.step) if o.step is not None else None,
+            }
         if isinstance(o, _np.ndarray):
             return o.tolist()
         if isinstance(o, (_np.floating, _np.integer, _np.bool_)):

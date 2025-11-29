@@ -21,5 +21,25 @@
     "linear model": "jobs\\20251127_230433\\exp-fc1-minmax-ep10000-bs2048-lr1e-3-s42-h25-images",
     "small mlp": "jobs\\20251128_011057\\exp-fc1-zscore-ep10000-bs2048-lr1e-3-s42-h256-128-images",
     "medium mlp": "jobs\\20251128_011057\\exp-fc1-zscore-ep10000-bs2048-lr1e-3-s42-h256-128-64-images",
-    "large mlp": "jobs\\20251128_011057\\exp-fc1-zscore-ep10000-bs2048-lr1e-3-s42-h512-256-128-images"
+    "large mlp": "jobs\\20251128_011057\\exp-fc1-zscore-ep10000-bs2048-lr1e-3-s42-h512-256-128-images",
+
+    "LA linear model": "jobs\\20251128_223441\\exp-fc1-minmax-ep5000-bs2048-lr1e-3-s42-h25-images",
+    "VLA linear model": "jobs\\20251128_223433\\exp-fc1-minmax-ep5000-bs2048-lr1e-3-s42-h25-images",
+    "LA small mlp log-norm": "jobs\\20251128_223347\\exp-fc1-log-ep5000-bs2048-lr1e-3-s42-h128-64-images",
+    "LA large mlp log-norm": "jobs\\20251128_223347\\exp-fc1-log-ep5000-bs2048-lr1e-3-s42-h512-256-128-images",
+    "LA small mlp zscore-norm": "jobs\\20251128_223347\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h128-64-images",
+    "LA large mlp zscore-norm": "jobs\\20251128_223347\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h512-256-128-images",
+    "VLA small mlp log-norm": "jobs\\20251128_223359\\exp-fc1-log-ep5000-bs2048-lr1e-3-s42-h128-64-images",
+    "VLA large mlp log-norm": "jobs\\20251128_223359\\exp-fc1-log-ep5000-bs2048-lr1e-3-s42-h512-256-128-images",
+    "VLA small mlp zscore-norm": "jobs\\20251128_223359\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h128-64-images",
+    "VLA large mlp zscore-norm": "jobs\\20251128_223359\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h512-256-128-images",
+
+    "LA small mlp log-norm split": "jobs\\20251128_223642\\exp-fc1-log-ep5000-bs2048-lr1e-3-s42-h128-64-images",
+    "LA large mlp log-norm split": "jobs\\20251128_223642\\exp-fc1-log-ep5000-bs2048-lr1e-3-s42-h512-256-128-images",
+    "LA small mlp zscore-norm split": "jobs\\20251128_223642\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h128-64-images",
+    "LA large mlp zscore-norm split": "jobs\\20251128_223642\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h512-256-128-images",
+    "VLA small mlp log-norm split": "jobs\\20251128_223656\\exp-fc1-log-ep5000-bs2048-lr1e-3-s42-h128-64-images",
+    "VLA large mlp log-norm split": "jobs\\20251128_223656\\exp-fc1-log-ep5000-bs2048-lr1e-3-s42-h512-256-128-images",
+    "VLA small mlp zscore-norm split": "jobs\\20251128_223656\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h128-64-images",
+    "VLA large mlp zscore-norm split": "jobs\\20251128_223656\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h512-256-128-images"
 }
