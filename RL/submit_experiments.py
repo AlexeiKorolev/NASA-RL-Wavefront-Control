@@ -134,6 +134,7 @@ def main():
     ap.add_argument("--fc1_filter_channels", default=None, help="Comma/space separated channel sizes for FC1 encoder")
     ap.add_argument("--fc1_final_embedding_size", type=int, default=None)
     ap.add_argument("--fc1_final_embedding_channels", type=int, default=None)
+    ap.add_argument("--fc1_dropout", nargs="+", type=float, default=[0.0]) 
 
     # SLURM overrides
     ap.add_argument("--time", default="08:00:00")
@@ -191,145 +192,154 @@ def main():
         fc1_hidden_specs = args.fc1_hidden if (model_type == "fc1" and len(args.fc1_hidden) > 0) else [None]
 
         for fc1_hidden in fc1_hidden_specs:
-            # Tag augmentation for FC1 hidden spec
-            if model_type == "fc1" and fc1_hidden:
-                clean = "-h" + fc1_hidden.replace(",", "-").replace(" ", "")
-            else:
-                clean = ""
-            tt_suffix = f"-{train_type}"
-            tf_suffix = ""
-            if model_type == "tf1":
-                # concise descriptor for transformer settings
-                cls_suffix = "-cls" if tf1_cls_flag == "on" else "-mean"
-                tf_suffix = f"-ps{tf1_ps}-d{tf1_dim}-L{tf1_depth}-h{tf1_heads}-mlp{tf1_mlp}{cls_suffix}"
-            dc_suffix = f"-dc{data_cutoff}" if (data_cutoff is not None and data_cutoff > 0) else ""
-            wd_suffix = f"-wd{weight_decay:g}" if weight_decay not in (0.0, 0) else ""
-            mc_suffix = f"-mc{mag_cost:g}" if mag_cost != 1.0 else ""
-            tag = f"{args.job_prefix}-{model_type}-{norm}-ep{epochs}-bs{batch_size}-lr{lr}-s{seed}{clean}{tt_suffix}{tf_suffix}{dc_suffix}{wd_suffix}{mc_suffix}"
-            job_name = tag
-            stdout_path = str(out_root / f"{tag}.out")
-            stderr_path = str(out_root / f"{tag}.err")
-            out_dir = str(out_root / tag)
-            os.makedirs(out_dir, exist_ok=True)
+            dropout_values = args.fc1_dropout if (model_type == "fc1" and len(args.fc1_dropout) > 0) else [None]
 
-            # Build python exec line
-            exec_parts = [
-                "python train_job.py",
-                f"--datapath {shlex.quote(args.datapath)}",
-                f"--model_type {model_type}",
-                f"--norm {norm}",
-                f"--epochs {epochs}",
-                f"--batch_size {batch_size}",
-                f"--lr {lr}",
-                f"--val_split {args.val_split}",
-                f"--seed {seed}",
-                f"--train_type {train_type}",
-                f"--out_dir {shlex.quote(out_dir)}",
-                f"--weight_decay {weight_decay}",
-                f"--mag_cost {mag_cost}",
-                
-            ]
-            if args.split_vector:
-                exec_parts.append(f"--split_vector")
-            if data_cutoff is not None and data_cutoff > 0:
-                exec_parts.append(f"--data_cutoff {data_cutoff}")
-            # Optional TF1 passthrough when applicable
-            if model_type == "tf1":
-                exec_parts.extend([
-                    f"--tf1_patch_size {tf1_ps}",
-                    f"--tf1_dim {tf1_dim}",
-                    f"--tf1_depth {tf1_depth}",
-                    f"--tf1_heads {tf1_heads}",
-                    f"--tf1_mlp_dim {tf1_mlp}",
-                    f"--tf1_attn_dropout {tf1_attn_do}",
-                    f"--tf1_emb_dropout {tf1_emb_do}",
-                ])
-                if tf1_cls_flag == "on":
-                    exec_parts.append("--tf1_use_cls_token")
-            # Optional FC1 architecture passthrough
-            if model_type == "fc1" and fc1_hidden:
-                hidden_spec = fc1_hidden.replace(",", " ").strip()
-                if hidden_spec:
-                    exec_parts.append(f"--fc1_hidden {hidden_spec}")
+            for fc1_dropout in dropout_values:
+                # Tag augmentation for FC1 hidden spec
+                if model_type == "fc1" and fc1_hidden:
+                    clean = "-h" + fc1_hidden.replace(",", "-").replace(" ", "")
+                else:
+                    clean = ""
+                tt_suffix = f"-{train_type}"
+                tf_suffix = ""
+                if model_type == "tf1":
+                    # concise descriptor for transformer settings
+                    cls_suffix = "-cls" if tf1_cls_flag == "on" else "-mean"
+                    tf_suffix = f"-ps{tf1_ps}-d{tf1_dim}-L{tf1_depth}-h{tf1_heads}-mlp{tf1_mlp}{cls_suffix}"
+                dc_suffix = f"-dc{data_cutoff}" if (data_cutoff is not None and data_cutoff > 0) else ""
+                wd_suffix = f"-wd{weight_decay:g}" if weight_decay not in (0.0, 0) else ""
+                mc_suffix = f"-mc{mag_cost:g}" if mag_cost != 1.0 else ""
+                do_suffix = ""
+                if model_type == "fc1" and fc1_dropout is not None and fc1_dropout > 0:
+                    do_suffix = f"-do{fc1_dropout:g}"
+                tag = f"{args.job_prefix}-{model_type}-{norm}-ep{epochs}-bs{batch_size}-lr{lr}-s{seed}{clean}{tt_suffix}{tf_suffix}{dc_suffix}{wd_suffix}{mc_suffix}{do_suffix}"
+                job_name = tag
+                stdout_path = str(out_root / f"{tag}.out")
+                stderr_path = str(out_root / f"{tag}.err")
+                out_dir = str(out_root / tag)
+                os.makedirs(out_dir, exist_ok=True)
 
-            if model_type == "fc1" and args.fc1_activation:
-                for act in args.fc1_activation:
-                    exec_parts.append(f"--fc1_activation {act}")
+                # Build python exec line
+                exec_parts = [
+                    "python train_job.py",
+                    f"--datapath {shlex.quote(args.datapath)}",
+                    f"--model_type {model_type}",
+                    f"--norm {norm}",
+                    f"--epochs {epochs}",
+                    f"--batch_size {batch_size}",
+                    f"--lr {lr}",
+                    f"--val_split {args.val_split}",
+                    f"--seed {seed}",
+                    f"--train_type {train_type}",
+                    f"--out_dir {shlex.quote(out_dir)}",
+                    f"--weight_decay {weight_decay}",
+                    f"--mag_cost {mag_cost}",
+                    
+                ]
+                if args.split_vector:
+                    exec_parts.append(f"--split_vector")
+                if data_cutoff is not None and data_cutoff > 0:
+                    exec_parts.append(f"--data_cutoff {data_cutoff}")
+                # Optional TF1 passthrough when applicable
+                if model_type == "tf1":
+                    exec_parts.extend([
+                        f"--tf1_patch_size {tf1_ps}",
+                        f"--tf1_dim {tf1_dim}",
+                        f"--tf1_depth {tf1_depth}",
+                        f"--tf1_heads {tf1_heads}",
+                        f"--tf1_mlp_dim {tf1_mlp}",
+                        f"--tf1_attn_dropout {tf1_attn_do}",
+                        f"--tf1_emb_dropout {tf1_emb_do}",
+                    ])
+                    if tf1_cls_flag == "on":
+                        exec_parts.append("--tf1_use_cls_token")
+                # Optional FC1 architecture passthrough
+                if model_type == "fc1" and fc1_hidden:
+                    hidden_spec = fc1_hidden.replace(",", " ").strip()
+                    if hidden_spec:
+                        exec_parts.append(f"--fc1_hidden {hidden_spec}")
 
-            if model_type == "fc1" and args.fc1_encoder_enabled:
-                exec_parts.append("--fc1_encoder_enabled")
+                if model_type == "fc1" and args.fc1_activation:
+                    for act in args.fc1_activation:
+                        exec_parts.append(f"--fc1_activation {act}")
 
-            def _append_list_arg(flag: str, raw: str):
-                if not raw:
-                    return
-                tokens = []
-                for chunk in raw.split(','):
-                    chunk = chunk.strip()
-                    if not chunk:
-                        continue
-                    tokens.extend(chunk.split())
-                if tokens:
-                    exec_parts.append(f"{flag} {' '.join(tokens)}")
+                if model_type == "fc1" and fc1_dropout is not None:
+                    exec_parts.append(f"--fc1_dropout {fc1_dropout}")
 
-            if model_type == "fc1" and args.fc1_filter_sizes:
-                _append_list_arg("--fc1_filter_sizes", args.fc1_filter_sizes)
+                if model_type == "fc1" and args.fc1_encoder_enabled:
+                    exec_parts.append("--fc1_encoder_enabled")
 
-            if model_type == "fc1" and args.fc1_filter_channels:
-                _append_list_arg("--fc1_filter_channels", args.fc1_filter_channels)
-
-            if model_type == "fc1" and args.fc1_final_embedding_size:
-                exec_parts.append(f"--fc1_final_embedding_size {args.fc1_final_embedding_size}")
-
-            if model_type == "fc1" and args.fc1_final_embedding_channels:
-                exec_parts.append(f"--fc1_final_embedding_channels {args.fc1_final_embedding_channels}")
-
-            if model_type == "fc1" and args.fc1_final_activation:
-                for act in args.fc1_final_activation:
-                    exec_parts.append(f"--fc1_final_activation none")
-            if args.cpu_only:
-                exec_parts.append("--cpu_only")
-            exec_line = " ".join(exec_parts)
-
-            # Allow SLURM header overrides (cpus, mem, gres, time, mail)
-            job_text = build_job_text(
-                template=template,
-                job_name=job_name,
-                time_limit=args.time,
-                stdout_path=stdout_path,
-                stderr_path=stderr_path,
-                conda_env_activate_line=args.conda_activate,
-                exec_line=exec_line,
-            )
-            # Patch other sbatch options if present
-            lines = job_text.splitlines()
-            def replace_or_append(prefix: str, new_line: str):
-                for i, ln in enumerate(lines):
-                    if ln.startswith(prefix):
-                        lines[i] = new_line
+                def _append_list_arg(flag: str, raw: str):
+                    if not raw:
                         return
-                lines.insert(2, new_line)
-            replace_or_append("#SBATCH --cpus-per-task=", f"#SBATCH --cpus-per-task={args.cpus}")
-            replace_or_append("#SBATCH --mem=", f"#SBATCH --mem={args.mem}")
-            if not args.cpu_only:
-                replace_or_append("#SBATCH --gres=", f"#SBATCH --gres={args.gres}")
-            else:
-                # Remove any existing GPU gres line if template had one
-                lines = [l for l in lines if not l.startswith("#SBATCH --gres=")]
-            if args.mail_user:
-                replace_or_append("#SBATCH --mail-user=", f"#SBATCH --mail-user={args.mail_user}")
-            job_text = "\n".join(lines) + "\n"
+                    tokens = []
+                    for chunk in raw.split(','):
+                        chunk = chunk.strip()
+                        if not chunk:
+                            continue
+                        tokens.extend(chunk.split())
+                    if tokens:
+                        exec_parts.append(f"{flag} {' '.join(tokens)}")
 
-            job_path = out_root / f"{tag}.slurm"
-            with open(job_path, "w", encoding="utf-8") as f:
-                f.write(job_text)
-            generated_files.append(job_path)
+                if model_type == "fc1" and args.fc1_filter_sizes:
+                    _append_list_arg("--fc1_filter_sizes", args.fc1_filter_sizes)
 
-            if args.submit and not args.dry_run:
-                try:
-                    print(f"Submitting {job_path} ...")
-                    subprocess.run(["sbatch", str(job_path)], check=True)
-                except Exception as e:
-                    print(f"Failed to submit {job_path}: {e}")
+                if model_type == "fc1" and args.fc1_filter_channels:
+                    _append_list_arg("--fc1_filter_channels", args.fc1_filter_channels)
+
+                if model_type == "fc1" and args.fc1_final_embedding_size:
+                    exec_parts.append(f"--fc1_final_embedding_size {args.fc1_final_embedding_size}")
+
+                if model_type == "fc1" and args.fc1_final_embedding_channels:
+                    exec_parts.append(f"--fc1_final_embedding_channels {args.fc1_final_embedding_channels}")
+
+                if model_type == "fc1" and args.fc1_final_activation:
+                    for act in args.fc1_final_activation:
+                        exec_parts.append(f"--fc1_final_activation none")
+                if args.cpu_only:
+                    exec_parts.append("--cpu_only")
+                exec_line = " ".join(exec_parts)
+
+                # Allow SLURM header overrides (cpus, mem, gres, time, mail)
+                job_text = build_job_text(
+                    template=template,
+                    job_name=job_name,
+                    time_limit=args.time,
+                    stdout_path=stdout_path,
+                    stderr_path=stderr_path,
+                    conda_env_activate_line=args.conda_activate,
+                    exec_line=exec_line,
+                )
+                # Patch other sbatch options if present
+                lines = job_text.splitlines()
+                def replace_or_append(prefix: str, new_line: str):
+                    for i, ln in enumerate(lines):
+                        if ln.startswith(prefix):
+                            lines[i] = new_line
+                            return
+                    lines.insert(2, new_line)
+                replace_or_append("#SBATCH --cpus-per-task=", f"#SBATCH --cpus-per-task={args.cpus}")
+                replace_or_append("#SBATCH --mem=", f"#SBATCH --mem={args.mem}")
+                if not args.cpu_only:
+                    replace_or_append("#SBATCH --gres=", f"#SBATCH --gres={args.gres}")
+                else:
+                    # Remove any existing GPU gres line if template had one
+                    lines = [l for l in lines if not l.startswith("#SBATCH --gres=")]
+                if args.mail_user:
+                    replace_or_append("#SBATCH --mail-user=", f"#SBATCH --mail-user={args.mail_user}")
+                job_text = "\n".join(lines) + "\n"
+
+                job_path = out_root / f"{tag}.slurm"
+                with open(job_path, "w", encoding="utf-8") as f:
+                    f.write(job_text)
+                generated_files.append(job_path)
+
+                if args.submit and not args.dry_run:
+                    try:
+                        print(f"Submitting {job_path} ...")
+                        subprocess.run(["sbatch", str(job_path)], check=True)
+                    except Exception as e:
+                        print(f"Failed to submit {job_path}: {e}")
 
     print(f"Generated {len(generated_files)} jobs under {out_root}")
     if not args.submit:

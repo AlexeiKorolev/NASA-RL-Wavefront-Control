@@ -41,5 +41,10 @@
     "VLA small mlp log-norm split": "jobs\\20251128_223656\\exp-fc1-log-ep5000-bs2048-lr1e-3-s42-h128-64-images",
     "VLA large mlp log-norm split": "jobs\\20251128_223656\\exp-fc1-log-ep5000-bs2048-lr1e-3-s42-h512-256-128-images",
     "VLA small mlp zscore-norm split": "jobs\\20251128_223656\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h128-64-images",
-    "VLA large mlp zscore-norm split": "jobs\\20251128_223656\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h512-256-128-images"
+    "VLA large mlp zscore-norm split": "jobs\\20251128_223656\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h512-256-128-images",
+
+    "LA small mlp zscore-norm wd1e-3": "jobs\\20251129_150655\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h128-64-images-wd0.001",
+    "LA large mlp zscore-norm wd1e-3": "jobs\\20251129_150655\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h512-256-128-images-wd0.001",
+    "LA large mlp zscore-norm wd5e-4": "jobs\\20251129_150655\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h512-256-128-images-wd0.0005"
+
 }
