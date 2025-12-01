@@ -1,0 +1,165 @@
+{
+  "args": {
+    "datapath": "data/dataset100K25M_LA.pkl",
+    "model_type": "fc1",
+    "norm": "zscore",
+    "epochs": 1,
+    "batch_size": 2048,
+    "lr": 0.001,
+    "val_split": 0.2,
+    "seed": 42,
+    "data_cutoff": null,
+    "cpu_only": true,
+    "weight_decay": 0.0,
+    "split_vector": false,
+    "mag_cost": 1.0,
+    "fc1_hidden": [
+      32
+    ],
+    "fc1_activation": "leaky_relu",
+    "fc1_final_activation": "none",
+    "fc1_dropout": 0.0,
+    "fc1_encoder_enabled": true,
+    "fc1_filter_sizes": [
+      3,
+      3,
+      3
+    ],
+    "fc1_filter_channels": [
+      8,
+      16,
+      32
+    ],
+    "fc1_final_embedding_size": 16,
+    "fc1_final_embedding_channels": 25,
+    "cnn1_img_out": 32,
+    "cnn1_dm_hidden": 32,
+    "tf1_patch_size": 8,
+    "tf1_dim": 128,
+    "tf1_depth": 4,
+    "tf1_heads": 4,
+    "tf1_mlp_dim": 256,
+    "tf1_attn_dropout": 0.0,
+    "tf1_emb_dropout": 0.0,
+    "tf1_use_cls_token": false,
+    "train_type": "images",
+    "resume": null,
+    "freeze": false,
+    "out_dir": "/scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/jobs/20251201_090151/exp-fc1-zscore-ep1-bs2048-lr1e-3-s42-h32-images"
+  },
+  "x_norm": {
+    "type": "zscore",
+    "mean": 131.22171020507812,
+    "std": 244.23777770996094
+  },
+  "y_norm": {
+    "mean": 2.637221170609383e-12,
+    "std": 8.943230511704314e-08
+  },
+  "history": {
+    "train_loss": [
+      0.8571618634223938
+    ],
+    "val_loss": [
+      0.721389931678772
+    ]
+  },
+  "input_shape": [
+    28,
+    28,
+    3
+  ],
+  "output_dim": 25,
+  "dataset_meta": {
+    "environment_config": {
+      "telescope_diameter": 8.0,
+      "oversizing_factor": 1.0666666666666667,
+      "wavelength_sci": 2.2e-06,
+      "num_modes": 25,
+      "zero_magnitude_flux": 389999999.99999994,
+      "stellar_magnitude": 5.0,
+      "env_delta_t": 0.001,
+      "pixels": 64,
+      "num_iterations": 10,
+      "coronagraph_charge": 6,
+      "num_airy": 7,
+      "pixels_per_spacial_res": 2,
+      "num_noise_modes": 10,
+      "diversity_enabled": true,
+      "nudge_magnitude": 3e-07,
+      "nudge_mode_indices": [
+        3
+      ],
+      "num_diversity_pairs": 1,
+      "obs_noise_enabled": false,
+      "obs_noise_level": 0.1,
+      "obs_delta_t": 0.001,
+      "include_slopes": true,
+      "action_scale": 1e-08,
+      "dm_clip": null,
+      "lyot_fraction": 0.8,
+      "basis": "orthogonal",
+      "mode_range": {
+        "__type": "slice",
+        "start": 0,
+        "stop": 25,
+        "step": null
+      }
+    },
+    "dataset_config": {
+      "N": 100000,
+      "delta_t": 0.001,
+      "noise_enabled": false,
+      "dm_random_noise": 1e-06,
+      "dm_random_noise_std": 0.0,
+      "nudge_amplitude": 3e-07,
+      "nudge_mode_index": 0,
+      "save_checkpoints": null,
+      "generate_ood_noise": false,
+      "ood_noise": 1e-07
+    },
+    "nudge_vector": [
+      3e-07,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "num_samples": 100000,
+    "image_triplet_description": "(baseline, +nudge, -nudge)"
+  },
+  "train_job_meta": {
+    "timestamp": "2025-12-01T14:02:12.661342+00:00",
+    "torch_version": "2.8.0+cu129",
+    "numpy_version": "2.2.6",
+    "device": "cpu",
+    "cuda_available": false,
+    "gpu_name": null,
+    "num_parameters": 76121,
+    "train_size": 80000,
+    "val_size": 20000,
+    "data_cutoff": null,
+    "original_dataset_size": 100000,
+    "used_dataset_size": 100000
+  }
+}
