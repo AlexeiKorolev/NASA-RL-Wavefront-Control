@@ -45,6 +45,14 @@
 
     "LA small mlp zscore-norm wd1e-3": "jobs\\20251129_150655\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h128-64-images-wd0.001",
     "LA large mlp zscore-norm wd1e-3": "jobs\\20251129_150655\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h512-256-128-images-wd0.001",
-    "LA large mlp zscore-norm wd5e-4": "jobs\\20251129_150655\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h512-256-128-images-wd0.0005"
+
+    "LA large mlp zscore-norm wd1e-3 split mc0": "jobs\\20251129_150706\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h128-64-images-wd0.001-mc0",
+
+    "LA large mlp zscore-norm wd5e-4": "jobs\\20251129_150655\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h512-256-128-images-wd0.0005",
+    "LA large mlp zscore-norm wd1e-3 do0.2": "jobs\\20251129_212813\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h512-256-128-images-wd0.001-do0.2",
+    "LA large mlp zscore-norm wd1e-3 do0.4": "jobs\\20251129_212813\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h512-256-128-images-wd0.001-do0.4",
+    
+    "LA tiny mlp zscore-norm": "jobs\\20251129_213544\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h64-32-images",
+    "LA tiny mlp zscore-norm wd5e-4": "jobs\\20251129_213544\\exp-fc1-zscore-ep5000-bs2048-lr1e-3-s42-h64-32-images-wd0.0005"
 
 }

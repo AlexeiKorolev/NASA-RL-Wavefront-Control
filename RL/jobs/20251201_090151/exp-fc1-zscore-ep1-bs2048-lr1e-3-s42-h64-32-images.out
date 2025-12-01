@@ -1,4 +1,0 @@
-Dataset loaded: N=100000 (original 100000), C=3, H=28, W=28, y_dim=25
-using device: cpu
-Epoch 1/1 - train 0.801836 - val 0.670387
-Saved model to /scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/jobs/20251201_090151/exp-fc1-zscore-ep1-bs2048-lr1e-3-s42-h64-32-images/fc1_best.pth
