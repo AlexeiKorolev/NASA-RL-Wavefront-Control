@@ -1,3 +1,3 @@
 /scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/site-packages/torch/utils/data/dataloader.py:666: UserWarning: 'pin_memory' argument is set as true but no accelerator is found, then device pinned memory won't be used.
   warnings.warn(warn_msg)
-[2025-12-02T04:18:47.015] error: *** JOB 2808939 ON adroit-h11n6 CANCELLED AT 2025-12-02T04:18:47 DUE TO TIME LIMIT ***
+[2025-12-01T18:29:48.014] error: *** JOB 2809930 ON adroit-h11n2 CANCELLED AT 2025-12-01T18:29:48 DUE TO TIME LIMIT ***
