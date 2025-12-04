@@ -80,15 +80,18 @@ def load_dataset(pkl_path: str, type: str = "images") -> Tuple[np.ndarray, np.nd
     import pickle
     with open(pkl_path, "rb") as f:
         data = pickle.load(f)
-    images = np.array([np.array(x) for x in data["images"]], dtype=np.float32)  # (N,3,H,W)
-    slopes = np.array([np.array(x) for x in data.get("slopes", [])], dtype=np.float32) # (N, 2, x) if present
-    slopes = np.expand_dims(slopes, -1)  # (N, 2, x, 1) if present
+    if type == "images":
+        images = np.array([np.array(x) for x in data["images"]], dtype=np.float32)  # (N,3,H,W)
+        X = images 
+    else:
+        slopes = np.array([np.array(x) for x in data.get("slopes", [])], dtype=np.float32) # (N, 2, x) if present
+        slopes = np.expand_dims(slopes, -1)  # (N, 2, x, 1) if present
+        X = slopes
 
     y = np.array(data["dm_settings"], dtype=np.float32)  # (N,num_modes)
 
     meta = data.get("meta") if isinstance(data, dict) else None
     
-    X = images if type == "images" else slopes
     return X, y, meta
 
 
@@ -110,6 +113,14 @@ def build_model(model_type: str,
             activation=arch_args.get("activation", "leaky_relu"),
             final_activation=arch_args.get("final_activation", "leaky_relu"),
             dropout=arch_args.get("dropout", 0.0),
+        )
+        return model
+    elif model_type.lower() == "resnet50":
+        from archs.resnet50_fc import ResNet50_FC
+        h, w, c = image_shape
+        model = ResNet50_FC(
+            output_dim=output_dim,
+            input_dim=c
         )
         return model
     elif model_type.lower() == "cnn1":
@@ -228,7 +239,7 @@ def train(model: nn.Module,
 def main():
     ap = argparse.ArgumentParser(description="Train a neural net on coronagraph dataset")
     ap.add_argument("--datapath", required=True, help="Path to dataset .pkl")
-    ap.add_argument("--model_type", choices=["fc1", "cnn1", "tf1"], default="fc1")
+    ap.add_argument("--model_type", choices=["fc1", "cnn1", "tf1", "resnet50"], default="fc1")
     ap.add_argument("--norm", choices=["minmax", "zscore", "log"], default="minmax")
     ap.add_argument("--epochs", type=int, default=100)
     ap.add_argument("--batch_size", type=int, default=128)
@@ -327,7 +338,7 @@ def main():
     output_dim = y.shape[1]
 
     # Model
-    if args.model_type == "fc1":
+    if args.model_type == "fc1" or args.model_type == "resnet50":
         # FC1 expects image_input_shape=(H,W,C) internally stored as (h,w,depth)
         # We'll provide in training a tensor shaped (N, H, W, C) flattened by FC1 via Flatten
         # But FC1's forward expects (N, H, W, C) already. Its code uses nn.Flatten() -> correct.
@@ -371,7 +382,7 @@ def main():
             "use_cls_token": args.tf1_use_cls_token,
         })
     else:
-        pass
+        raise NotImplementedError("Only FC1 and TF1 models are implemented in this training script currently.")
         # CNN1 takes (img1, img2, list) -> We'll map (3,H,W) into two frames and a zero-vector list
         # img1 = torch.tensor(X_norm[:, 0:1, :, :], dtype=torch.float32)
         # img2 = torch.tensor(X_norm[:, 1:2, :, :], dtype=torch.float32)
