@@ -382,7 +382,7 @@ def main():
             "use_cls_token": args.tf1_use_cls_token,
         })
     else:
-        raise NotImplementedError("Only FC1 and TF1 models are implemented in this training script currently.")
+        raise NotImplementedError("Only FC1, TF1, and resnet50 models are implemented in this training script currently.")
         # CNN1 takes (img1, img2, list) -> We'll map (3,H,W) into two frames and a zero-vector list
         # img1 = torch.tensor(X_norm[:, 0:1, :, :], dtype=torch.float32)
         # img2 = torch.tensor(X_norm[:, 1:2, :, :], dtype=torch.float32)

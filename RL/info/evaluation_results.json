@@ -1,0 +1,31 @@
+{
+    "Experiment 1": {
+        "linear model": {
+            "final contrast": -5.9357989,
+            "final contrast std": 0.20733727,
+            "cosine similarity": 0.99079391,
+            "cosine similarity std": 0.00562868
+        },
+        "small mlp": {
+            "final contrast": -6.1340985,
+            "final contrast std": 0.26629905,
+            "cosine similarity": 0.9837508,
+            "cosine similarity std": 0.01643942
+        },
+        "medium mlp": {
+            "final contrast": -6.20311466,
+            "final contrast std": 0.27242382,
+            "cosine similarity": 0.98284285,
+            "cosine similarity std": 0.02522375
+        },
+        "large mlp": {
+            "final contrast": -6.32691573,
+            "final contrast std": 0.27154672,
+            "cosine similarity": 0.97438391,
+            "cosine similarity std": 0.03584333
+        }
+    
+    }
+    
+
+}
