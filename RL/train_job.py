@@ -113,6 +113,11 @@ def build_model(model_type: str,
             activation=arch_args.get("activation", "leaky_relu"),
             final_activation=arch_args.get("final_activation", "leaky_relu"),
             dropout=arch_args.get("dropout", 0.0),
+            encoder_enabled=arch_args.get("encoder_enabled", False),
+            filter_sizes=arch_args.get("filter_sizes"),
+            filter_channels=arch_args.get("filter_channels"),
+            final_embedding_size=arch_args.get("final_embedding_size"),
+            final_embedding_channels=arch_args.get("final_embedding_channels"),
         )
         return model
     elif model_type.lower() == "resnet50":

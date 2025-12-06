@@ -22,6 +22,9 @@
     "small mlp": "jobs\\20251128_011057\\exp-fc1-zscore-ep10000-bs2048-lr1e-3-s42-h256-128-images",
     "medium mlp": "jobs\\20251128_011057\\exp-fc1-zscore-ep10000-bs2048-lr1e-3-s42-h256-128-64-images",
     "large mlp": "jobs\\20251128_011057\\exp-fc1-zscore-ep10000-bs2048-lr1e-3-s42-h512-256-128-images",
+    "small cnn": "jobs\\20251205_105920\\exp-fc1-zscore-ep2500-bs2048-lr1e-3-s42-h128-64-images",
+    "large cnn": "jobs\\20251205_105920\\exp-fc1-zscore-ep2500-bs2048-lr1e-3-s42-h512-256-128-images",
+    "resnet50": "jobs\\20251205_104216\\exp-resnet50-zscore-ep2500-bs2048-lr1e-3-s42-images",
 
     "LA linear model": "jobs\\20251128_223441\\exp-fc1-minmax-ep5000-bs2048-lr1e-3-s42-h25-images",
     "VLA linear model": "jobs\\20251128_223433\\exp-fc1-minmax-ep5000-bs2048-lr1e-3-s42-h25-images",
