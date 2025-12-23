@@ -1,0 +1,13 @@
+Dataset loaded: N=100000 (original 100000), C=3, H=20, W=20, y_dim=25
+using device: cpu
+Epoch 1/10 - train 0.664247 - val 0.496256
+Epoch 2/10 - train 0.453934 - val 0.427376
+Epoch 3/10 - train 0.400100 - val 0.379976
+Epoch 4/10 - train 0.359267 - val 0.346563
+Epoch 5/10 - train 0.326085 - val 0.316449
+Epoch 6/10 - train 0.300200 - val 0.297030
+Epoch 7/10 - train 0.282747 - val 0.282743
+Epoch 8/10 - train 0.269689 - val 0.264842
+Epoch 9/10 - train 0.255898 - val 0.253171
+Epoch 10/10 - train 0.246662 - val 0.253144
+Saved model to /scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/jobs/20251222_231954/exp-resnet50-zscore-ep10-bs2048-lr1e-3-s42-images/resnet50_best.pth
