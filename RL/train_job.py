@@ -121,9 +121,9 @@ def build_model(model_type: str,
         )
         return model
     elif model_type.lower() == "resnet50":
-        from archs.resnet50_fc import ResNet50_FC
+        from archs.resnet50_fc import ResNet50FC
         h, w, c = image_shape
-        model = ResNet50_FC(
+        model = ResNet50FC(
             output_dim=output_dim,
             input_dim=c
         )
@@ -343,11 +343,9 @@ def main():
     output_dim = y.shape[1]
 
     # Model
-    if args.model_type == "fc1" or args.model_type == "resnet50":
+    if args.model_type == "fc1":
         # FC1 expects image_input_shape=(H,W,C) internally stored as (h,w,depth)
         # We'll provide in training a tensor shaped (N, H, W, C) flattened by FC1 via Flatten
-        # But FC1's forward expects (N, H, W, C) already. Its code uses nn.Flatten() -> correct.
-        # Prepare tensor accordingly by permuting to (N, H, W, C)
         X_fc = np.transpose(X_norm, (0, 2, 3, 1)).astype(np.float32)
         X_t = torch.tensor(X_fc, dtype=torch.float32)
         y_t = torch.tensor(y_norm, dtype=torch.float32)
@@ -365,6 +363,13 @@ def main():
             "final_embedding_size": args.fc1_final_embedding_size,
             "final_embedding_channels": args.fc1_final_embedding_channels,
         })
+    elif args.model_type == "resnet50":
+        # ResNet50 expects channel-first tensors; keep X_norm as (N,C,H,W)
+        X_t = torch.tensor(X_norm.astype(np.float32), dtype=torch.float32)
+        y_t = torch.tensor(y_norm, dtype=torch.float32)
+        dataset = TensorDataset(X_t, y_t)
+        input_shape = (H, W, C)
+        model = build_model("resnet50", input_shape, output_dim, arch_args={})
     elif args.model_type == "tf1":
         # TF1 can accept NCHW directly
         X_t = torch.tensor(X_norm.astype(np.float32), dtype=torch.float32)

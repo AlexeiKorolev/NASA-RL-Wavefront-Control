@@ -4,7 +4,17 @@
             "final contrast": -5.9357989,
             "final contrast std": 0.20733727,
             "cosine similarity": 0.99079391,
-            "cosine similarity std": 0.00562868
+            "cosine similarity std": 0.00562868,
+            "null image contrast prev": 1.871114887494686e-08,
+            "null image contrast post": 6.004123096765565e-09
+        },
+        "linear model 2": {
+            "final contrast": -5.71797783,
+            "final contrast std": 0.263733,
+            "cosine similarity": 0.92688046,
+            "cosine similarity std": 0.07608105,
+            "null image contrast prev": 2.134567890123456e-08,
+            "null image contrast post": 7.123456789012345e-09
         },
         "small mlp": {
             "final contrast": -6.1340985,
@@ -22,9 +32,22 @@
             "final contrast": -6.32691573,
             "final contrast std": 0.27154672,
             "cosine similarity": 0.97438391,
-            "cosine similarity std": 0.03584333
+            "cosine similarity std": 0.03584333,
+            "null image contrast prev": 8.456500631267694e-08,
+            "null image contrast post": 4.066799802341044e-08
+        },
+        "small cnn": {
+            "final contrast": -6.06066059,
+            "final contrast std": 0.28705333,
+            "cosine similarity": 0.94788674,
+            "cosine similarity std": 0.06725433
+        },
+        "large cnn": {
+            "final contrast": -6.1455627,
+            "final contrast std": 0.29709931,
+            "cosine similarity": 0.94242592,
+            "cosine similarity std": 0.07930279
         }
-    
     }
     
 
