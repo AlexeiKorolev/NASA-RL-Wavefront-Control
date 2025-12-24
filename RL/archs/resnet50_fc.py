@@ -1,12 +1,22 @@
 import torch
 import torch.nn as nn
 import torchvision.models as models
+from torchvision.models import ResNet50_Weights
+
 
 class ResNet50FC(nn.Module):
-    def __init__(self, input_dim, output_dim):
+    def __init__(self, input_dim: int, output_dim: int, use_pretrained: bool = True):
         super(ResNet50FC, self).__init__()
-        # Load the pre-trained ResNet-50 model
-        self.resnet50 = models.resnet50(pretrained=True)
+        # Optional pretrained weights require internet/day-one cache; fall back silently if unavailable.
+        weights = None
+        if use_pretrained:
+            weights = ResNet50_Weights.DEFAULT
+        try:
+            self.resnet50 = models.resnet50(weights=weights)
+        except Exception as exc:
+            if use_pretrained:
+                print(f"Warning: failed to load pretrained ResNet50 weights ({exc}); continuing with random initialization.")
+            self.resnet50 = models.resnet50(weights=None)
         
         # Replace the final fully connected layer
         self.resnet50.fc = nn.Linear(self.resnet50.fc.in_features, output_dim)
