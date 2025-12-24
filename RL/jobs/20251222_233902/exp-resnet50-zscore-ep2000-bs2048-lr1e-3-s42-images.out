@@ -1,0 +1,2 @@
+Dataset loaded: N=100000 (original 100000), C=3, H=20, W=20, y_dim=25
+Downloading: "https://download.pytorch.org/models/resnet50-0676ba61.pth" to /home/ak9088/.cache/torch/hub/checkpoints/resnet50-0676ba61.pth
