@@ -1,0 +1,4 @@
+Dataset loaded: N=100000 (original 100000), C=3, H=28, W=28, y_dim=25
+Downloading: "https://download.pytorch.org/models/resnet50-11ad3fa6.pth" to /home/ak9088/.cache/torch/hub/checkpoints/resnet50-11ad3fa6.pth
+Warning: failed to load pretrained ResNet50 weights (<urlopen error [Errno -2] Name or service not known>); continuing with random initialization.
+using device: cuda
