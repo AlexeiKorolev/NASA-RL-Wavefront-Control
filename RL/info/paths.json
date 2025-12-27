@@ -30,6 +30,16 @@
     "split large mlp": "jobs\\20251207_102508\\exp-fc1-zscore-ep1500-bs2048-lr1e-3-s42-h512-256-128-images-mc0",
     "resnet50": "jobs\\20251222_231954\\exp-resnet50-zscore-ep10-bs2048-lr1e-3-s42-images",
 
+    "LA small cnn": "jobs\\20251222_203559\\exp-fc1-zscore-ep2000-bs2048-lr1e-3-s42-h128-64-images",
+    "LA small cnn do0.1": "jobs\\20251222_203559\\exp-fc1-zscore-ep2000-bs2048-lr1e-3-s42-h128-64-images-do0.1",
+    "LA small mlp": "jobs\\20251201_095150\\exp-fc1-zscore-ep2500-bs2048-lr1e-3-s42-h128-64-images",
+    "LA small mlp wd5e-4": "jobs\\20251201_095150\\exp-fc1-zscore-ep2500-bs2048-lr1e-3-s42-h128-64-images-wd0.0005",
+    "LA small mlp wd1e-3": "jobs\\20251201_095150\\exp-fc1-zscore-ep2500-bs2048-lr1e-3-s42-h128-64-images-wd0.001",
+
+    "LA small mlp log": "jobs\\20251128_223656\\exp-fc1-log-ep5000-bs2048-lr1e-3-s42-h128-64-images",
+    "LA large mlp": "jobs\\20251201_095150\\exp-fc1-zscore-ep2500-bs2048-lr1e-3-s42-h512-256-128-images",
+    "LA large mlp wd5e-4": "jobs\\20251201_095150\\exp-fc1-zscore-ep2500-bs2048-lr1e-3-s42-h512-256-128-images-wd0.0005",
+    "LA large mlp wd1e-3": "jobs\\20251201_095150\\exp-fc1-zscore-ep2500-bs2048-lr1e-3-s42-h512-256-128-images-wd0.001",
 
     "LA linear model": "jobs\\20251128_223441\\exp-fc1-minmax-ep5000-bs2048-lr1e-3-s42-h25-images",
     "VLA linear model": "jobs\\20251128_223433\\exp-fc1-minmax-ep5000-bs2048-lr1e-3-s42-h25-images",

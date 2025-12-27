@@ -48,7 +48,97 @@
             "cosine similarity": 0.94242592,
             "cosine similarity std": 0.07930279
         }
+    },
+    "Experiment 2": {
+        "LA small cnn d0.1": {
+            "final contrast": -2.59211779,
+            "final contrast std": 0.25883034,
+            "cosine similarity": 0.76859879,
+            "cosine similarity std": 0.1382028
+        },
+        "LA small cnn": {
+            "final contrast": -2.65586431,
+            "final contrast std": 0.25612408,
+            "cosine similarity": 0.69629179,
+            "cosine similarity std": 0.20512129
+        },
+        "LA small mlp": {
+            "final contrast": -2.51946055,
+            "final contrast std": 0.29175988,
+            "cosine similarity": 0.71393498,
+            "cosine similarity std": 0.18376481
+        },
+        "LA small mlp wd5e-4": {
+            "final contrast": -2.56753622,
+            "final contrast std": 0.28870517,
+            "cosine similarity": 0.78570761,
+            "cosine similarity std": 0.1008728
+        },
+        "LA large mlp": {
+            "final contrast": -2.58670899,
+            "final contrast std": 0.28407758,
+            "cosine similarity": 0.68642699,
+            "cosine similarity std": 0.18555001
+        },
+        "LA large mlp wd5e-4": {
+            "final contrast": -2.66408308,
+            "final contrast std": 0.27987571,
+            "cosine similarity": 0.77665059,
+            "cosine similarity std": 0.15663077
+        },
+        "LA large mlp wd1e-3": {
+            "final contrast": -2.65204251,
+            "final contrast std": 0.28657073,
+            "cosine similarity": 0.77966705,
+            "cosine similarity std": 0.1347323
+        },
+        "LA linear model": {
+            "final contrast": -2.38992524,
+            "final contrast std": 0.27526195,
+            "cosine similarity": 0.71038037,
+            "cosine similarity std": 0.11648471
+        }
+    },
+    "Experiment 3": {
+        "linear model": {
+            "min validation loss": 0.5005416036,
+            "min training loss": 0.4881824291
+        },
+        "small mlp": {
+            "min validation loss": 0.4310294628,
+            "min training loss": 0.2639085397
+        },
+        "small mlp wd5e-4": {
+            "min validation loss": 0.3800682134,
+            "min training loss": 0.3454314598
+        },
+        "small mlp wd1e-3": {
+            "min validation loss": 0.3877305479,
+            "min training loss": 0.3706172605
+        },
+        "large mlp": {
+            "min validation loss": 0.4285383803,
+            "min training loss": 0.0675965494
+        },
+        "large mlp wd5e-4": {
+            "min validation loss": 0.3762587625,
+            "min training loss": 0.1897689013
+        },
+        "large mlp wd1e-3": {
+            "min validation loss": 0.3502566268,
+            "min training loss": 0.2575614191
+        }
+    },
+    "Experiment 4": {
+        "linear model": {
+            "min validation loss": 0.07847630426883698,
+            "min training loss": 0.0799968680858612
+        },
+        "small mlp": {
+
+            "min validation loss": 0.03362231486439705,
+            "min training loss": 0.008643859553337097
+        }
     }
-    
 
 }
