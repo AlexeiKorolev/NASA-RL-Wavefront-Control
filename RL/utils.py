@@ -108,12 +108,14 @@ def get_model_history(metrics_data: dict):
 
     return train, val
 
-def test_noise_levels(model: torch.nn.Module, env: CoronagraphEnvironment, metrics_data: dict, noise_levels: list, noise_mode_amounts: list, delta_t: float = 1e-3, repetitions: int = 100, loops: int = 1):
-    print(f"env.num_noise_modes: {env.num_noise_modes}")
+def test_noise_levels(model: torch.nn.Module, env: CoronagraphEnvironment, 
+                      metrics_data: dict, noise_levels: list, noise_mode_amounts: list, delta_t: float = 1e-3, 
+                      repetitions: int = 100, loops: int = 1, bias = None, alpha_lookup = None):
+    # print(f"env.num_noise_modes: {env.num_noise_modes}")
     from train_job import NORMALIZERS
     model.eval()
     split_vector = metrics_data['args'].get('split_vector', False)
-    print(f"Using split vector: {split_vector}")
+    # print(f"Using split vector: {split_vector}")
 
     norm_func_name = metrics_data['x_norm']['type']
     if norm_func_name == "log+zscore": norm_func_name = "log"
@@ -136,7 +138,7 @@ def test_noise_levels(model: torch.nn.Module, env: CoronagraphEnvironment, metri
     
     cos_history = np.zeros((samples, mode_choices, repetitions, loops))
     contrast_history = np.zeros((samples, mode_choices, repetitions, loops + 1))
-    predictions = np.zeros((samples, mode_choices, repetitions, num_modes))
+    convergence = np.zeros((samples, mode_choices, repetitions, num_modes))
     truths = np.zeros((samples, mode_choices, repetitions, num_modes))
     
     model_device = next(model.parameters()).device
@@ -156,7 +158,7 @@ def test_noise_levels(model: torch.nn.Module, env: CoronagraphEnvironment, metri
             y_pred = y_pred.squeeze(0).detach().cpu().numpy()
             if split_vector:
                 vec_part = y_pred[:-1]
-                work_pred = vec_part / (np.linalg.norm(vec_part) + 1e-12)
+                work_pred = vec_part / (np.linalg.norm(vec_part) + 1e-40)
             else:
                 work_pred = y_pred
         return work_pred * y_std + y_mean
@@ -167,14 +169,15 @@ def test_noise_levels(model: torch.nn.Module, env: CoronagraphEnvironment, metri
                 env.deformable_mirror.flatten()
                 env.noise_gen_mirror.flatten()
                 env.set_random_noise_dm(noise=noise, num_modes=num_noise_modes)
+                initial_dm = np.array(env.noise_gen_mirror.actuators.copy())[:num_modes]
 
-                initial_dm = np.array(env.deformable_mirror.actuators.copy())
+                # print(f"initial_dm (first 10 modes): {initial_dm[:10]}")
+
                 initial_contrast = env.get_contrast(delta_t=1e15)
                 contrast_history[i, m_idx, j, 0] = np.log10(initial_contrast)
                 
                 for loop_idx in range(loops):
-                    original = np.array(env.noise_gen_mirror.actuators.copy())[:num_modes]
-                    state_before = np.array(env.deformable_mirror.actuators.copy())
+                    state_before = np.array(env.noise_gen_mirror.actuators.copy())
                     imgs = env.generate_diversity_images(delta_t=delta_t, noise_enabled=False)
                     work_pred = get_model_output(imgs)
                     
@@ -182,19 +185,44 @@ def test_noise_levels(model: torch.nn.Module, env: CoronagraphEnvironment, metri
                     #     alpha_value = np.squeeze(alpha_lookup[i]) if alpha_lookup.ndim > 1 else alpha_lookup[i]
                     #     work_pred = work_pred * alpha_value
                     
-                    net_action = state_before - work_pred
-                    env.deformable_mirror.flatten()
-                    env.deformable_mirror.actuators = net_action
+                    extended_action = np.zeros(env.num_noise_modes)
+                    extended_action[:num_modes] = work_pred
 
-                    cos_num = np.dot(-net_action, original)
-                    cos_den = (np.linalg.norm(net_action) * np.linalg.norm(original)) + 1e-40
+                    if alpha_lookup is not None:
+                        alpha_value = np.squeeze(alpha_lookup[i]) if alpha_lookup.ndim > 1 else alpha_lookup[i]
+                        extended_action *= alpha_value
+
+                    net_action = state_before - extended_action
+
+                    if bias is not None:
+                        extended_bias = np.zeros(env.num_noise_modes)
+                        extended_bias[:num_modes] = bias
+                        net_action -= extended_bias
+
+                    env.noise_gen_mirror.flatten()
+                    env.noise_gen_mirror.actuators = net_action
+
+                    # net_action = state_before[:num_modes] - work_pred
+                    # env.deformable_mirror.flatten()
+                    # env.deformable_mirror.actuators = net_action
+
+                    # print(f"net_action (first 10 modes): {net_action[:10]}")
+
+                    net_prediction = initial_dm - net_action[:num_modes]
+
+                    cos_num = np.dot(net_prediction, initial_dm)
+                    cos_den = (np.linalg.norm(net_prediction) * np.linalg.norm(initial_dm)) + 1e-40
                     cos_history[i, m_idx, j, loop_idx] = cos_num / cos_den
                     
                     updated_contrast = env.get_contrast(delta_t=1e15)
                     contrast_history[i, m_idx, j, loop_idx + 1] = np.log10(updated_contrast)
                 
-                truths[i, m_idx, j, :] = initial_dm
-                predictions[i, m_idx, j, :] = initial_dm - env.deformable_mirror.actuators
+                truths[i, m_idx, j, :] = initial_dm[:num_modes]
+                convergence[i, m_idx, j, :] = net_action[:num_modes]
+
+                # print(f"noise_gen_mirror actuators: {env.noise_gen_mirror.actuators[:num_modes]}")
+                # print(f"deformable_mirror actuators: {env.deformable_mirror.actuators}")
+
             
     cos_similarities_raw = cos_history[:, :, :, -1]
     cos_similarities = np.mean(cos_similarities_raw, axis=2)
@@ -208,6 +236,15 @@ def test_noise_levels(model: torch.nn.Module, env: CoronagraphEnvironment, metri
     initial_contrasts_std = np.std(initial_contrasts_raw, axis=2)
     final_contrasts = np.mean(final_contrasts_raw, axis=2)
     final_contrasts_std = np.std(final_contrasts_raw, axis=2)
+
+    final_contrasts = final_contrasts.reshape(-1)
+    final_contrasts_std = final_contrasts_std.reshape(-1)
+    initial_contrasts_std = initial_contrasts_std.reshape(-1)
+    initial_contrasts = initial_contrasts.reshape(-1)
+    cos_similarities = cos_similarities.reshape(-1)
+    cos_similarities_std = cos_similarities_std.reshape(-1)
+    cos_similarities_25 = cos_similarities_25.reshape(-1)
+    cos_similarities_75 = cos_similarities_75.reshape(-1)
     
     evaluation_stats = {
         "noise_levels": noise_levels.tolist(),
@@ -230,4 +267,49 @@ def test_noise_levels(model: torch.nn.Module, env: CoronagraphEnvironment, metri
         }
     }
 
-    return evaluation_stats, predictions, truths
+    return evaluation_stats, convergence, truths
+
+
+
+def compute_optimal_scalings(predictions: np.ndarray, truths: np.ndarray, noise_levels: np.ndarray):
+    """
+    Compute optimal scaling factors for predictions to best match truths
+    under different noise levels.
+
+    Args:
+        predictions (np.ndarray): Predicted values, shape (samples, num_modes).
+        truths (np.ndarray): True values, shape (samples, num_modes).
+        noise_levels (np.ndarray): Noise levels to consider, shape (num_levels,).
+    Returns:
+        np.ndarray: Optimal scaling factors for each noise level, shape (num_levels,).
+    num_levels = noise_levels.shape[0]
+    """
+    num_levels = noise_levels.shape[0]
+    optimal_scalings = np.zeros(num_levels)
+
+    for i in range(num_levels):
+        # noise_var = noise_levels[i]
+
+        A = 0.0
+        B = 0.0
+        
+        # $$ \alpha = \frac{\sum_{i=1}^{p} y_i x_i}{\sum_{i=1}^{p} x_i^2} $$
+
+        for pred, true in zip(predictions[i].squeeze(), truths[i].squeeze()):
+            pred = pred
+            true = true
+
+            A += np.dot(pred, true)
+            B += np.dot(pred, pred)
+
+            # A += np.mean(np.matmul(pred, true.T))
+            # B += np.mean(np.matmul(pred, pred.T))
+
+        if B > 0:
+            optimal_scalings[i] = A / B
+        else:
+            optimal_scalings[i] = 0.0
+
+    return optimal_scalings
+
+
