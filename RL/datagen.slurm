@@ -14,4 +14,3 @@ conda activate /scratch/network/ak9088/anaconda3/envs/dmrl2
 
 
 python data_generator.py --N 100000 --output data/dataset100K25M_orth_ood_noise1.pkl --num-modes=25 --num-noise-modes 50 --gen-ood-noise --ood-noise 1e-8 --basis-type orthogonal --dm-random-noise 1e-7 --num-airy 5 --pixels-per-spacial-res 2
-python data_generator.py --N 100000 --output data/dataset100K25M_orth_ood_noise2.pkl --num-modes=25 --num-noise-modes 50 --gen-ood-noise --ood-noise 1e-7 --basis-type orthogonal --dm-random-noise 1e-7 --num-airy 5 --pixels-per-spacial-res 2
