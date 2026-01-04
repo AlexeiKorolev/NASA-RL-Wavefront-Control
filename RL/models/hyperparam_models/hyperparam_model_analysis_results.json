@@ -1,0 +1,170 @@
+{
+  "orth cnn large WD 0.0, Drop 0.0": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-07
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.9545692997955476
+        ],
+        "std": [
+          0.03722097330434657
+        ],
+        "p25": [
+          0.9309563647120341
+        ],
+        "p75": [
+          0.9848435062188992
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -3.657829192488614
+        ],
+        "std": [
+          0.1599788434994352
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -5.785539019845218
+        ],
+        "std": [
+          0.3808061067857844
+        ]
+      }
+    }
+  },
+  "orth cnn large WD 0.0, Drop 0.1": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-07
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.9279642045436342
+        ],
+        "std": [
+          0.07888386033887183
+        ],
+        "p25": [
+          0.9186216978860924
+        ],
+        "p75": [
+          0.9701091474885777
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -3.55928138072377
+        ],
+        "std": [
+          0.15651378081160616
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -5.004255995610463
+        ],
+        "std": [
+          0.34527957966638373
+        ]
+      }
+    }
+  },
+  "orth cnn large WD 0.0005, Drop 0.0": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-07
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.9452979711382165
+        ],
+        "std": [
+          0.055144541544413464
+        ],
+        "p25": [
+          0.9398027172566303
+        ],
+        "p75": [
+          0.9749206071824807
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -3.6632276450669177
+        ],
+        "std": [
+          0.19664149276864615
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -5.4409097254621495
+        ],
+        "std": [
+          0.3118175442264628
+        ]
+      }
+    }
+  },
+  "orth cnn large WD 0.0005, Drop 0.1": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-07
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.9378860037743907
+        ],
+        "std": [
+          0.03419189468838206
+        ],
+        "p25": [
+          0.9174554045600993
+        ],
+        "p75": [
+          0.9651756561650952
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -3.5778840045707403
+        ],
+        "std": [
+          0.15862827568379287
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -5.034332557648769
+        ],
+        "std": [
+          0.23346742274993068
+        ]
+      }
+    }
+  }
+}
