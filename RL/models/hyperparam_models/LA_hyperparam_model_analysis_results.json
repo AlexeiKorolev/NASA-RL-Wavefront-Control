@@ -1,0 +1,1178 @@
+{
+  "LA cnn large WD 0.0, Drop 0.1": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.555763297773008
+        ],
+        "std": [
+          0.16676856117434607
+        ],
+        "p25": [
+          0.4914496290319179
+        ],
+        "p75": [
+          0.668998527729909
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.133438096155225
+        ],
+        "std": [
+          0.19576722158122264
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -1.6672150444919998
+        ],
+        "std": [
+          0.3238381299906688
+        ]
+      }
+    }
+  },
+  "LA cnn large WD 0.0005, Drop 0.0": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.7824881676006739
+        ],
+        "std": [
+          0.09818456149005003
+        ],
+        "p25": [
+          0.7540352568470724
+        ],
+        "p75": [
+          0.8497568088126632
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.154480645424782
+        ],
+        "std": [
+          0.18545834219033938
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -2.2356223877351478
+        ],
+        "std": [
+          0.3472572912686172
+        ]
+      }
+    }
+  },
+  "LA cnn large WD 0.0005, Drop 0.1": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.818646664488935
+        ],
+        "std": [
+          0.07999952133850338
+        ],
+        "p25": [
+          0.7779364950782361
+        ],
+        "p75": [
+          0.8765583494722236
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.147146312632843
+        ],
+        "std": [
+          0.16167289856196068
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -2.175327162268673
+        ],
+        "std": [
+          0.340909303200557
+        ]
+      }
+    }
+  },
+  "LA cnn small WD 0.0005, Drop 0.1": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.7239892809565501
+        ],
+        "std": [
+          0.09656269321214073
+        ],
+        "p25": [
+          0.6681040525130738
+        ],
+        "p75": [
+          0.8025226893231321
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.1931456867416208
+        ],
+        "std": [
+          0.22790048442502367
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -1.9629414409613477
+        ],
+        "std": [
+          0.3410432984751691
+        ]
+      }
+    }
+  },
+  "LA cnn large WD 0.0005, Drop 0.2": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.7976771084056984
+        ],
+        "std": [
+          0.07663394431294056
+        ],
+        "p25": [
+          0.7583055052234813
+        ],
+        "p75": [
+          0.8550008652289248
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.2094861779782164
+        ],
+        "std": [
+          0.21233313160832187
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -2.1531873680305846
+        ],
+        "std": [
+          0.382025051065408
+        ]
+      }
+    }
+  },
+  "LA cnn small WD 0.0005, Drop 0.2": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.7127548272711742
+        ],
+        "std": [
+          0.1263466404386164
+        ],
+        "p25": [
+          0.619909495158627
+        ],
+        "p75": [
+          0.8024237407722546
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.1896250103457162
+        ],
+        "std": [
+          0.2073806844795171
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -1.916640901138483
+        ],
+        "std": [
+          0.34704655027005105
+        ]
+      }
+    }
+  },
+  "LA cnn large WD 0.001, Drop 0.1": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.7681938266751951
+        ],
+        "std": [
+          0.10129644080913956
+        ],
+        "p25": [
+          0.7148098208718355
+        ],
+        "p75": [
+          0.8426102873267165
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.1266894298726537
+        ],
+        "std": [
+          0.19060175378086947
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -2.1195240720586472
+        ],
+        "std": [
+          0.39063669015424585
+        ]
+      }
+    }
+  },
+  "LA cnn small WD 0.001, Drop 0.1": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.7084594478329902
+        ],
+        "std": [
+          0.10669631766345107
+        ],
+        "p25": [
+          0.6427527960881799
+        ],
+        "p75": [
+          0.7861602956526579
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.124333417725336
+        ],
+        "std": [
+          0.18406493097569313
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -1.9660705988339422
+        ],
+        "std": [
+          0.38661811497986914
+        ]
+      }
+    }
+  },
+  "LA cnn large WD 0.001, Drop 0.2": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.773471552019603
+        ],
+        "std": [
+          0.08677261799155939
+        ],
+        "p25": [
+          0.7335177492114452
+        ],
+        "p75": [
+          0.8344019356119777
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.172557334628439
+        ],
+        "std": [
+          0.19828341117592896
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -2.0441403854218114
+        ],
+        "std": [
+          0.3040840342533525
+        ]
+      }
+    }
+  },
+  "LA cnn small WD 0.001, Drop 0.2": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.7024358868746099
+        ],
+        "std": [
+          0.08409133730502556
+        ],
+        "p25": [
+          0.6379019048077627
+        ],
+        "p75": [
+          0.771869615280144
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.157815326241563
+        ],
+        "std": [
+          0.18699307169295087
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -1.9236624980206807
+        ],
+        "std": [
+          0.34936623472553496
+        ]
+      }
+    }
+  },
+  "LA mlp small WD 0.0, Drop 0.0": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.6636839599943316
+        ],
+        "std": [
+          0.12778079504019976
+        ],
+        "p25": [
+          0.6067480476443434
+        ],
+        "p75": [
+          0.7366803526248132
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.1698326101086192
+        ],
+        "std": [
+          0.18881165800159344
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -2.012685043402368
+        ],
+        "std": [
+          0.36083959600661114
+        ]
+      }
+    }
+  },
+  "LA mlp small WD 0.0, Drop 0.1": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.6642520718890368
+        ],
+        "std": [
+          0.12893044964804654
+        ],
+        "p25": [
+          0.5620378134998554
+        ],
+        "p75": [
+          0.749946133179702
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.1628270039866355
+        ],
+        "std": [
+          0.20571360174200187
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -1.9649755108647584
+        ],
+        "std": [
+          0.36016301852841803
+        ]
+      }
+    }
+  },
+  "LA mlp small WD 0.0, Drop 0.2": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.6651696974404367
+        ],
+        "std": [
+          0.1408111751331355
+        ],
+        "p25": [
+          0.6122416374982153
+        ],
+        "p75": [
+          0.7609192938457462
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.1948145738758562
+        ],
+        "std": [
+          0.1999929297245955
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -1.9222799397511212
+        ],
+        "std": [
+          0.37524240424553446
+        ]
+      }
+    }
+  },
+  "LA mlp small WD 0.0005, Drop 0.0": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.6735491917828859
+        ],
+        "std": [
+          0.11117927878622164
+        ],
+        "p25": [
+          0.6204266321273482
+        ],
+        "p75": [
+          0.7513365563931488
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.1800463806362236
+        ],
+        "std": [
+          0.2351270887020073
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -1.9865786725457553
+        ],
+        "std": [
+          0.3971949089212912
+        ]
+      }
+    }
+  },
+  "LA mlp small WD 0.0005, Drop 0.1": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.6494323184044094
+        ],
+        "std": [
+          0.11757830485387949
+        ],
+        "p25": [
+          0.5941872815202562
+        ],
+        "p75": [
+          0.7302254901490028
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.1420809634495521
+        ],
+        "std": [
+          0.16942374594507562
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -1.8627164004259535
+        ],
+        "std": [
+          0.40137995985992975
+        ]
+      }
+    }
+  },
+  "LA mlp small WD 0.0005, Drop 0.2": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.6056959434152495
+        ],
+        "std": [
+          0.12492550500099175
+        ],
+        "p25": [
+          0.534060795890194
+        ],
+        "p75": [
+          0.7054095195809943
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.1472934312482108
+        ],
+        "std": [
+          0.18554351881144357
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -1.8053698373394442
+        ],
+        "std": [
+          0.3946816331028402
+        ]
+      }
+    }
+  },
+  "LA mlp small WD 0.001, Drop 0.0": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.6865714019463179
+        ],
+        "std": [
+          0.09349837194392331
+        ],
+        "p25": [
+          0.6301891365281461
+        ],
+        "p75": [
+          0.7429899756669565
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.2232231386091343
+        ],
+        "std": [
+          0.20531698521533376
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -2.0878263195063047
+        ],
+        "std": [
+          0.3028787133850183
+        ]
+      }
+    }
+  },
+  "LA mlp small WD 0.001, Drop 0.1": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.6085705012718088
+        ],
+        "std": [
+          0.13574700372621962
+        ],
+        "p25": [
+          0.5449143908536926
+        ],
+        "p75": [
+          0.6995934904475754
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.1456256007178274
+        ],
+        "std": [
+          0.19421593312724034
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -1.8457742913202047
+        ],
+        "std": [
+          0.40636527264723915
+        ]
+      }
+    }
+  },
+  "LA mlp small WD 0.001, Drop 0.2": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.5805718371318517
+        ],
+        "std": [
+          0.11514437953914763
+        ],
+        "p25": [
+          0.5158910349329584
+        ],
+        "p75": [
+          0.6481670889320169
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.1975998806796162
+        ],
+        "std": [
+          0.19091345055959294
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -1.874527734687098
+        ],
+        "std": [
+          0.3123807895223175
+        ]
+      }
+    }
+  },
+  "LA mlp large WD 0.0, Drop 0.0": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.6598531838655478
+        ],
+        "std": [
+          0.1601385956136457
+        ],
+        "p25": [
+          0.5585502289591009
+        ],
+        "p75": [
+          0.7881286813352681
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.1740657136493775
+        ],
+        "std": [
+          0.22368260657577127
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -2.1541144084041375
+        ],
+        "std": [
+          0.4280886791655806
+        ]
+      }
+    }
+  },
+  "LA mlp large WD 0.0, Drop 0.1": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.710626163167541
+        ],
+        "std": [
+          0.12550093709463997
+        ],
+        "p25": [
+          0.6284624359015192
+        ],
+        "p75": [
+          0.8030000950874083
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.143029537387662
+        ],
+        "std": [
+          0.1995446334488055
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -2.0513063377366496
+        ],
+        "std": [
+          0.3807612816542611
+        ]
+      }
+    }
+  },
+  "LA mlp large WD 0.0, Drop 0.2": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.6836447644471637
+        ],
+        "std": [
+          0.1722542547809937
+        ],
+        "p25": [
+          0.6212043268495995
+        ],
+        "p75": [
+          0.8118517405322987
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.1537185393933966
+        ],
+        "std": [
+          0.18279721482919287
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -1.9735472343988838
+        ],
+        "std": [
+          0.3329822418574579
+        ]
+      }
+    }
+  },
+  "LA mlp large WD 0.0005, Drop 0.0": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.7217855676629533
+        ],
+        "std": [
+          0.09763165744576342
+        ],
+        "p25": [
+          0.6733366895125469
+        ],
+        "p75": [
+          0.7885047679340835
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.1421973363710682
+        ],
+        "std": [
+          0.19799023837678242
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -2.1023200339605337
+        ],
+        "std": [
+          0.37589883062878876
+        ]
+      }
+    }
+  },
+  "LA mlp large WD 0.0005, Drop 0.1": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.6727501790038041
+        ],
+        "std": [
+          0.09409626188748313
+        ],
+        "p25": [
+          0.6123724780619586
+        ],
+        "p75": [
+          0.752189852027498
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.1478157247115224
+        ],
+        "std": [
+          0.218503979837721
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -1.9922270107332085
+        ],
+        "std": [
+          0.3514842055904522
+        ]
+      }
+    }
+  },
+  "LA mlp large WD 0.0005, Drop 0.2": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.6664706868489634
+        ],
+        "std": [
+          0.11372948815268463
+        ],
+        "p25": [
+          0.6206616775452194
+        ],
+        "p75": [
+          0.7324214378846955
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.1068306000316261
+        ],
+        "std": [
+          0.18793796103251925
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -1.83961440954169
+        ],
+        "std": [
+          0.36274353619644206
+        ]
+      }
+    }
+  },
+  "LA mlp large WD 0.001, Drop 0.0": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.7085006910631416
+        ],
+        "std": [
+          0.10075400987724269
+        ],
+        "p25": [
+          0.6500096636966203
+        ],
+        "p75": [
+          0.7841488446211324
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.197196453547593
+        ],
+        "std": [
+          0.24123398385627984
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -2.150465232023712
+        ],
+        "std": [
+          0.3693286860796496
+        ]
+      }
+    }
+  },
+  "LA mlp large WD 0.001, Drop 0.1": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.6493639149608793
+        ],
+        "std": [
+          0.10493332807042655
+        ],
+        "p25": [
+          0.5688843005310744
+        ],
+        "p75": [
+          0.7185370969571935
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.1541197729405845
+        ],
+        "std": [
+          0.18244703463327636
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -1.978620402632795
+        ],
+        "std": [
+          0.3052034950353045
+        ]
+      }
+    }
+  },
+  "LA mlp large WD 0.001, Drop 0.2": {
+    "exp1 evaluation stats": {
+      "noise_levels": [
+        1e-06
+      ],
+      "noise_mode_amounts": [
+        25
+      ],
+      "loops": 1,
+      "repetitions": 50,
+      "cosine_similarity": {
+        "mean": [
+          0.5824860681034807
+        ],
+        "std": [
+          0.13221682458701986
+        ],
+        "p25": [
+          0.5038481167471258
+        ],
+        "p75": [
+          0.6785406748074532
+        ]
+      },
+      "initial_contrast_log10": {
+        "mean": [
+          -1.2434368733136771
+        ],
+        "std": [
+          0.1673477825153625
+        ]
+      },
+      "final_contrast_log10": {
+        "mean": [
+          -1.951228559951265
+        ],
+        "std": [
+          0.2793803144899254
+        ]
+      }
+    }
+  }
+}
