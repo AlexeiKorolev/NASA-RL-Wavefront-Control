@@ -1,0 +1,5 @@
+[po4ncpa] device=cuda image=33x33 modes=20 coronagraph=True
+[po4ncpa] ideal-image residual ref: max=6.395e-10 sum=1.659e-07
+ep   100 | dynL 0.232 polR 0.000e+00 | train C 1.39e-02 S 0.133 | EVAL C 5.476e-04 S 0.9184 | buf 2000 | 244s
+ep   200 | dynL 0.227 polR 0.000e+00 | train C 1.37e-02 S 0.159 | EVAL C 5.476e-04 S 0.9184 | buf 4000 | 480s
+[2026-06-21T19:49:25.938] error: *** JOB 3281003 ON adroit-h11g3 CANCELLED AT 2026-06-21T19:49:25 DUE to SIGNAL Terminated ***

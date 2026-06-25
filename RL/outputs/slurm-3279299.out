@@ -1,0 +1,9 @@
+start contrast       median 6.719e-03
+  after step 1: median contrast 3.123e-04
+  after step 2: median contrast 3.123e-04
+  after step 3: median contrast 3.123e-04
+  after step 4: median contrast 3.123e-04
+POLICY final contrast: median 3.123e-04  best 2.440e-04  worst 3.732e-04
+EXPERT floor (flatten): median 1.285e-10
+policy/expert gap: 2431420x above the achievable floor
+CORONA EVAL DONE

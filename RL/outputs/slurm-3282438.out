@@ -1,0 +1,31 @@
+cuda True NVIDIA A100 80GB PCIe
+[po4ncpa] per-mode action scale: min 2.52e-09 max 4.65e-08 (headroom 5.0, 55 modes)
+[po4ncpa] device=cuda image=33x33 modes=55 coronagraph=False
+[po4ncpa] ideal-image residual ref: max=1.000e+00 sum=1.107e+01
+ep   100 | dynL 0.328 polR 0.000e+00 | train C 4.45e-03 S 0.697 | EVAL C 3.115e-03 S 0.9736 | buf 2000 | 128s
+ep   200 | dynL 0.314 polR 0.000e+00 | train C 4.75e-03 S 0.804 | EVAL C 3.115e-03 S 0.9736 | buf 4000 | 278s
+ep   300 | dynL 0.317 polR 0.000e+00 | train C 4.75e-03 S 0.801 | EVAL C 3.115e-03 S 0.9736 | buf 6000 | 408s
+ep   400 | dynL 0.323 polR 0.000e+00 | train C 4.68e-03 S 0.826 | EVAL C 3.115e-03 S 0.9736 | buf 8000 | 534s
+ep   500 | dynL 0.322 polR 0.000e+00 | train C 4.72e-03 S 0.693 | EVAL C 3.115e-03 S 0.9736 | buf 10000 | 651s
+ep   600 | dynL 0.327 polR 0.000e+00 | train C 4.79e-03 S 0.733 | EVAL C 3.115e-03 S 0.9736 | buf 12000 | 785s
+ep   700 | dynL 0.340 polR -3.102e+00 | train C 3.04e-03 S 0.985 | EVAL C 3.008e-03 S 0.9805 | buf 14000 | 923s
+ep   800 | dynL 0.345 polR -3.219e+00 | train C 3.02e-03 S 0.988 | EVAL C 3.005e-03 S 0.9823 | buf 16000 | 1044s
+ep   900 | dynL 0.339 polR -3.175e+00 | train C 3.13e-03 S 0.970 | EVAL C 2.992e-03 S 0.9819 | buf 18000 | 1173s
+ep  1000 | dynL 0.347 polR -3.131e+00 | train C 3.14e-03 S 0.979 | EVAL C 2.990e-03 S 0.9817 | buf 20000 | 1310s
+ep  1100 | dynL 0.346 polR -3.025e+00 | train C 3.08e-03 S 0.975 | EVAL C 2.984e-03 S 0.9827 | buf 22000 | 1431s
+ep  1200 | dynL 0.350 polR -2.620e+00 | train C 3.01e-03 S 0.956 | EVAL C 2.982e-03 S 0.9844 | buf 24000 | 1565s
+ep  1300 | dynL 0.348 polR -2.501e+00 | train C 3.03e-03 S 0.977 | EVAL C 2.978e-03 S 0.9847 | buf 26000 | 1692s
+ep  1400 | dynL 0.350 polR -3.001e+00 | train C 3.02e-03 S 0.985 | EVAL C 2.987e-03 S 0.9861 | buf 28000 | 1826s
+ep  1500 | dynL 0.349 polR -2.335e+00 | train C 3.04e-03 S 0.966 | EVAL C 2.986e-03 S 0.9863 | buf 30000 | 1947s
+ep  1600 | dynL 0.352 polR -2.217e+00 | train C 3.08e-03 S 0.975 | EVAL C 2.972e-03 S 0.9881 | buf 32000 | 2069s
+ep  1700 | dynL 0.349 polR -2.046e+00 | train C 3.02e-03 S 0.977 | EVAL C 2.968e-03 S 0.9900 | buf 34000 | 2203s
+ep  1800 | dynL 0.350 polR -2.194e+00 | train C 2.96e-03 S 0.993 | EVAL C 2.960e-03 S 0.9912 | buf 36000 | 2314s
+ep  1900 | dynL 0.345 polR -2.141e+00 | train C 2.98e-03 S 0.984 | EVAL C 2.957e-03 S 0.9907 | buf 38000 | 2436s
+ep  2000 | dynL 0.347 polR -1.931e+00 | train C 2.99e-03 S 0.973 | EVAL C 2.957e-03 S 0.9918 | buf 40000 | 2557s
+ep  2100 | dynL 0.345 polR -1.980e+00 | train C 2.96e-03 S 0.987 | EVAL C 2.955e-03 S 0.9918 | buf 42000 | 2696s
+ep  2200 | dynL 0.346 polR -1.744e+00 | train C 2.99e-03 S 0.977 | EVAL C 2.950e-03 S 0.9931 | buf 44000 | 2844s
+ep  2300 | dynL 0.344 polR -1.531e+00 | train C 3.02e-03 S 0.985 | EVAL C 2.947e-03 S 0.9928 | buf 46000 | 2973s
+ep  2400 | dynL 0.343 polR -1.727e+00 | train C 2.99e-03 S 0.981 | EVAL C 2.949e-03 S 0.9931 | buf 48000 | 3095s
+ep  2500 | dynL 0.337 polR -1.558e+00 | train C 3.03e-03 S 0.988 | EVAL C 2.943e-03 S 0.9935 | buf 50000 | 3220s
+[po4ncpa] done in 3220s
+=== PO4NCPA SANITY DONE ===

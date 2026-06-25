@@ -1,0 +1,40 @@
+[expert] mean start contrast 2.873e-05 -> mean final 3.487e-06 (median 8.1x improvement)
+[data] generating 800 episodes on 8 workers ...
+[data] 16000 pairs  obs=(16000, 2, 56, 56)  act=(16000, 20)  |action| mean=0.036 sat=0.02
+/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/site-packages/stable_baselines3/ppo/ppo.py:155: UserWarning: You have specified a mini-batch size of 256, but because the `RolloutBuffer` is of size `n_steps * n_envs = 160`, after every 0 untruncated mini-batches, there will be a truncated mini-batch of size 160
+We recommend using a `batch_size` that is a factor of `n_steps * n_envs`.
+Info: (n_steps=160 and n_envs=1)
+  warnings.warn(
+[eval] pre-BC : start 2.621e-05 -> final 2.895e-05  return -0.060
+[bc] epoch   1/30  mse=0.027890
+[bc] epoch   2/30  mse=0.027183
+[bc] epoch   3/30  mse=0.025503
+[bc] epoch   4/30  mse=0.021520
+[bc] epoch   5/30  mse=0.017853
+[bc] epoch   6/30  mse=0.015279
+[bc] epoch   7/30  mse=0.012874
+[bc] epoch   8/30  mse=0.010863
+[bc] epoch   9/30  mse=0.009469
+[bc] epoch  10/30  mse=0.008372
+[bc] epoch  11/30  mse=0.007691
+[bc] epoch  12/30  mse=0.007173
+[bc] epoch  13/30  mse=0.006834
+[bc] epoch  14/30  mse=0.006450
+[bc] epoch  15/30  mse=0.006125
+[bc] epoch  16/30  mse=0.005903
+[bc] epoch  17/30  mse=0.005641
+[bc] epoch  18/30  mse=0.005130
+[bc] epoch  19/30  mse=0.005003
+[bc] epoch  20/30  mse=0.004840
+[bc] epoch  21/30  mse=0.004579
+[bc] epoch  22/30  mse=0.004406
+[bc] epoch  23/30  mse=0.004176
+[bc] epoch  24/30  mse=0.003959
+[bc] epoch  25/30  mse=0.003820
+[bc] epoch  26/30  mse=0.003642
+[bc] epoch  27/30  mse=0.003467
+[bc] epoch  28/30  mse=0.003405
+[bc] epoch  29/30  mse=0.003152
+[bc] epoch  30/30  mse=0.003118
+[eval] post-BC: start 2.621e-05 -> final 3.544e-06  return +0.830 (7.4x)
+[save] cloned model -> logs/bc_modal20/bc_policy.zip

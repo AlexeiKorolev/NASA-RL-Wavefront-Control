@@ -1,0 +1,33 @@
+unaberrated bare-PSF annulus floor: 1.671e-03
+
+### logc  (model logs/creward_logc/models/best_model.zip)
+  start: contrast median 9.110e-03   Strehl mean 0.3438
+  step 1: contrast median 3.626e-04   Strehl mean 0.0021
+  step 2: contrast median 5.152e-04   Strehl mean 0.0027
+  step 3: contrast median 5.586e-04   Strehl mean 0.0032
+  step 4: contrast median 7.192e-04   Strehl mean 0.0038
+  FINAL contrast: median 7.192e-04  best 3.544e-04  worst 1.025e-03
+  FINAL Strehl:   mean 0.0038  median 0.0037  frac>0.99 0.00
+  contrast/floor: 0.4x
+
+### negc  (model logs/creward_negc/models/best_model.zip)
+  start: contrast median 9.110e-03   Strehl mean 0.3438
+  step 1: contrast median 4.074e-04   Strehl mean 0.0023
+  step 2: contrast median 9.209e-04   Strehl mean 0.0053
+  step 3: contrast median 6.306e-04   Strehl mean 0.0034
+  step 4: contrast median 5.940e-04   Strehl mean 0.0033
+  FINAL contrast: median 5.940e-04  best 3.179e-04  worst 1.144e-03
+  FINAL Strehl:   mean 0.0033  median 0.0033  frac>0.99 0.00
+  contrast/floor: 0.4x
+
+### diffc  (model logs/creward_diffc/models/best_model.zip)
+  start: contrast median 9.110e-03   Strehl mean 0.3438
+  step 1: contrast median 4.226e-04   Strehl mean 0.0022
+  step 2: contrast median 4.291e-04   Strehl mean 0.0023
+  step 3: contrast median 6.945e-04   Strehl mean 0.0036
+  step 4: contrast median 6.194e-04   Strehl mean 0.0033
+  FINAL contrast: median 6.194e-04  best 3.483e-04  worst 1.230e-03
+  FINAL Strehl:   mean 0.0033  median 0.0032  frac>0.99 0.00
+  contrast/floor: 0.4x
+
+CONTRAST REWARD EVAL DONE

@@ -1,0 +1,42 @@
+[eval] checkpoint logs/po4ncpa_sanity/po4ncpa_best.pt
+[eval] run=po4ncpa_sanity coronagraph=False modes=55 start_mode=4 rms=0.026-0.026 device=cpu
+
+=== PO4NCPA eval: 100 held-out episodes, 20 steps ===
+
+-- Strehl (higher better) --
+  start    median 0.9739
+  FINAL    median 0.9941  best 0.9970  worst 0.9777
+  ideal    median 1.0000  (exact modal correction floor)
+  frac final Strehl > 0.99: 0.90
+
+-- Dark-hole contrast (lower better) --
+  start    median 3.110e-03
+  FINAL    median 2.948e-03  best 2.910e-03  worst 3.149e-03
+  ideal    median 2.891e-03  (exact modal correction floor)
+  policy/ideal contrast ratio (median): 1.0x
+
+-- Per-step median trajectory (refinement check) --
+  step  0: contrast 3.110e-03  strehl 0.9739
+  step  1: contrast 3.030e-03  strehl 0.9780
+  step  2: contrast 2.960e-03  strehl 0.9934
+  step  3: contrast 2.943e-03  strehl 0.9941
+  step  4: contrast 2.950e-03  strehl 0.9927
+  step  5: contrast 2.951e-03  strehl 0.9938
+  step  6: contrast 2.948e-03  strehl 0.9939
+  step  7: contrast 2.950e-03  strehl 0.9939
+  step  8: contrast 2.949e-03  strehl 0.9940
+  step  9: contrast 2.947e-03  strehl 0.9941
+  step 10: contrast 2.949e-03  strehl 0.9941
+  step 11: contrast 2.949e-03  strehl 0.9941
+  step 12: contrast 2.947e-03  strehl 0.9941
+  step 13: contrast 2.949e-03  strehl 0.9941
+  step 14: contrast 2.949e-03  strehl 0.9943
+  step 15: contrast 2.949e-03  strehl 0.9941
+  step 16: contrast 2.948e-03  strehl 0.9941
+  step 17: contrast 2.949e-03  strehl 0.9942
+  step 18: contrast 2.949e-03  strehl 0.9940
+  step 19: contrast 2.948e-03  strehl 0.9942
+  step 20: contrast 2.948e-03  strehl 0.9941
+
+[eval] done.
+=== PO4NCPA EVAL DONE (po4ncpa_sanity/best) ===

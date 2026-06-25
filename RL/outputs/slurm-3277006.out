@@ -1,0 +1,61 @@
+[expert] start Strehl 0.3663 -> expert Strehl 1.0000
+[data] generating 20000 episodes on 8 workers ...
+[data] 20000 pairs  obs=(20000, 6272)  act=(20000, 21)  |action| mean=0.123 sat=0.00
+/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/site-packages/stable_baselines3/ppo/ppo.py:155: UserWarning: You have specified a mini-batch size of 256, but because the `RolloutBuffer` is of size `n_steps * n_envs = 64`, after every 0 untruncated mini-batches, there will be a truncated mini-batch of size 64
+We recommend using a `batch_size` that is a factor of `n_steps * n_envs`.
+Info: (n_steps=64 and n_envs=1)
+  warnings.warn(
+[eval] pre-BC : start Strehl 0.3533 -> final Strehl 0.3534  return -0.834
+[bc] epoch   1/50  mse=0.014530
+[bc] epoch   2/50  mse=0.007227
+[bc] epoch   3/50  mse=0.005313
+[bc] epoch   4/50  mse=0.004463
+[bc] epoch   5/50  mse=0.004091
+[bc] epoch   6/50  mse=0.003884
+[bc] epoch   7/50  mse=0.003756
+[bc] epoch   8/50  mse=0.003682
+[bc] epoch   9/50  mse=0.003615
+[bc] epoch  10/50  mse=0.003580
+[bc] epoch  11/50  mse=0.003535
+[bc] epoch  12/50  mse=0.003475
+[bc] epoch  13/50  mse=0.003429
+[bc] epoch  14/50  mse=0.003418
+[bc] epoch  15/50  mse=0.003364
+[bc] epoch  16/50  mse=0.003320
+[bc] epoch  17/50  mse=0.003290
+[bc] epoch  18/50  mse=0.003272
+[bc] epoch  19/50  mse=0.003252
+[bc] epoch  20/50  mse=0.003230
+[bc] epoch  21/50  mse=0.003218
+[bc] epoch  22/50  mse=0.003163
+[bc] epoch  23/50  mse=0.003144
+[bc] epoch  24/50  mse=0.003133
+[bc] epoch  25/50  mse=0.003100
+[bc] epoch  26/50  mse=0.003073
+[bc] epoch  27/50  mse=0.003055
+[bc] epoch  28/50  mse=0.003026
+[bc] epoch  29/50  mse=0.003020
+[bc] epoch  30/50  mse=0.003001
+[bc] epoch  31/50  mse=0.002970
+[bc] epoch  32/50  mse=0.002926
+[bc] epoch  33/50  mse=0.002899
+[bc] epoch  34/50  mse=0.002883
+[bc] epoch  35/50  mse=0.002868
+[bc] epoch  36/50  mse=0.002833
+[bc] epoch  37/50  mse=0.002816
+[bc] epoch  38/50  mse=0.002788
+[bc] epoch  39/50  mse=0.002759
+[bc] epoch  40/50  mse=0.002729
+[bc] epoch  41/50  mse=0.002720
+[bc] epoch  42/50  mse=0.002696
+[bc] epoch  43/50  mse=0.002657
+[bc] epoch  44/50  mse=0.002641
+[bc] epoch  45/50  mse=0.002634
+[bc] epoch  46/50  mse=0.002594
+[bc] epoch  47/50  mse=0.002582
+[bc] epoch  48/50  mse=0.002548
+[bc] epoch  49/50  mse=0.002537
+[bc] epoch  50/50  mse=0.002511
+[eval] post-BC: start Strehl 0.3533 -> final Strehl 0.7941  return -0.507
+[save] cloned model -> logs/single_bc/bc_policy.zip
+=== SINGLE-STEP BC DONE ===

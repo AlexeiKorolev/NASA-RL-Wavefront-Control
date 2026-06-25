@@ -1,0 +1,34 @@
+### rms02  (rms=0.02 waves, model logs/corona_lowab_rms02/models/best_model.zip)
+  start: contrast median 6.037e-05   Strehl mean 0.9844
+  step 1: contrast median 2.384e-04   Strehl mean 0.0018
+  step 2: contrast median 2.384e-04   Strehl mean 0.0018
+  step 3: contrast median 2.384e-04   Strehl mean 0.0018
+  step 4: contrast median 2.384e-04   Strehl mean 0.0018
+  FINAL contrast: median 2.384e-04  best 2.306e-04  worst 2.499e-04
+  FINAL Strehl:   mean 0.0018  median 0.0018  frac>0.99 0.00
+  EXPERT floor (flatten): median 1.285e-10
+  policy/expert gap: 1856033x above floor
+
+### rms05  (rms=0.05 waves, model logs/corona_lowab_rms05/models/best_model.zip)
+  start: contrast median 3.698e-04   Strehl mean 0.9068
+  step 1: contrast median 2.825e-04   Strehl mean 0.0024
+  step 2: contrast median 2.825e-04   Strehl mean 0.0024
+  step 3: contrast median 2.825e-04   Strehl mean 0.0024
+  step 4: contrast median 2.825e-04   Strehl mean 0.0024
+  FINAL contrast: median 2.825e-04  best 2.555e-04  worst 3.024e-04
+  FINAL Strehl:   mean 0.0024  median 0.0024  frac>0.99 0.00
+  EXPERT floor (flatten): median 1.285e-10
+  policy/expert gap: 2198756x above floor
+
+### rms10  (rms=0.1 waves, model logs/corona_lowab_rms10/models/best_model.zip)
+  start: contrast median 1.436e-03   Strehl mean 0.7177
+  step 1: contrast median 2.415e-04   Strehl mean 0.0023
+  step 2: contrast median 2.415e-04   Strehl mean 0.0023
+  step 3: contrast median 2.415e-04   Strehl mean 0.0023
+  step 4: contrast median 2.415e-04   Strehl mean 0.0023
+  FINAL contrast: median 2.415e-04  best 2.049e-04  worst 3.075e-04
+  FINAL Strehl:   mean 0.0023  median 0.0023  frac>0.99 0.00
+  EXPERT floor (flatten): median 1.285e-10
+  policy/expert gap: 1880149x above floor
+
+CORONA LOW-AB EVAL DONE

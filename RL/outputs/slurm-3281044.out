@@ -1,0 +1,19 @@
+cuda True Tesla V100-PCIE-32GB
+[po4ncpa] device=cuda image=33x33 modes=55 coronagraph=False
+[po4ncpa] ideal-image residual ref: max=1.000e+00 sum=1.107e+01
+ep    50 | dynL 0.361 polR 0.000e+00 | train C 3.12e-03 S 0.018 | EVAL C 3.666e-03 S 0.9168 | buf 1000 | 83s
+ep   100 | dynL 0.341 polR 0.000e+00 | train C 6.40e-03 S 0.028 | EVAL C 3.666e-03 S 0.9168 | buf 2000 | 153s
+ep   150 | dynL 0.343 polR 0.000e+00 | train C 6.21e-03 S 0.028 | EVAL C 3.666e-03 S 0.9168 | buf 3000 | 216s
+ep   200 | dynL 0.344 polR 0.000e+00 | train C 6.33e-03 S 0.046 | EVAL C 3.666e-03 S 0.9168 | buf 4000 | 288s
+ep   250 | dynL 0.351 polR 0.000e+00 | train C 4.93e-03 S 0.024 | EVAL C 3.666e-03 S 0.9168 | buf 5000 | 367s
+ep   300 | dynL 0.384 polR -1.801e+01 | train C 6.18e-03 S 0.711 | EVAL C 4.825e-03 S 0.7958 | buf 6000 | 438s
+ep   350 | dynL 0.407 polR -1.788e+01 | train C 6.18e-03 S 0.627 | EVAL C 5.633e-03 S 0.6705 | buf 7000 | 515s
+ep   400 | dynL 0.421 polR -1.750e+01 | train C 6.91e-03 S 0.638 | EVAL C 5.124e-03 S 0.7061 | buf 8000 | 587s
+ep   450 | dynL 0.435 polR -1.747e+01 | train C 6.80e-03 S 0.568 | EVAL C 6.091e-03 S 0.7042 | buf 9000 | 657s
+ep   500 | dynL 0.443 polR -1.700e+01 | train C 6.97e-03 S 0.615 | EVAL C 5.847e-03 S 0.7779 | buf 10000 | 740s
+ep   550 | dynL 0.442 polR -1.697e+01 | train C 8.69e-03 S 0.430 | EVAL C 5.039e-03 S 0.7634 | buf 11000 | 814s
+ep   600 | dynL 0.453 polR -1.574e+01 | train C 9.11e-03 S 0.419 | EVAL C 5.076e-03 S 0.7367 | buf 12000 | 883s
+ep   650 | dynL 0.459 polR -1.582e+01 | train C 8.06e-03 S 0.595 | EVAL C 4.946e-03 S 0.7377 | buf 13000 | 952s
+ep   700 | dynL 0.463 polR -1.544e+01 | train C 6.55e-03 S 0.555 | EVAL C 4.124e-03 S 0.7928 | buf 14000 | 1031s
+[po4ncpa] done in 1031s
+=== PO4NCPA SANITY DONE ===

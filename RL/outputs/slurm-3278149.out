@@ -1,0 +1,9 @@
+start Strehl       mean 0.3438
+  after step 1: mean Strehl 0.6016
+  after step 2: mean Strehl 0.8636
+  after step 3: mean Strehl 0.9627
+  after step 4: mean Strehl 0.9877
+FINAL (step 4) Strehl: mean 0.9877  median 0.9993  min 0.4735
+fraction of episodes with final Strehl > 0.99: 0.90
+fraction > 0.95: 0.95
+PAPER EVAL DONE

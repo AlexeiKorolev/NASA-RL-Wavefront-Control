@@ -1,0 +1,120 @@
+image_shape: (16, 16)  dark-hole pixels: 150
+obs dim: (533,)  action: (21,)
+CORONA ENV CHECK PASSED
+unaberrated dark-hole floor: 1.285e-10
+obs image range [0.519, 1.000]  start contrast 2.905e-03
+expert: start contrast median 6.505e-03 -> corrected 1.285e-10 (50638564x)
+max|expert coeff|/action_scale median 0.37, worst 0.58
+Using cpu device
+Logging to logs/corona_sanity/corona_sanity_1
+/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/site-packages/stable_baselines3/common/callbacks.py:418: UserWarning: Training and eval env are not of the same type<stable_baselines3.common.vec_env.subproc_vec_env.SubprocVecEnv object at 0x14cacbdfd2b0> != <stable_baselines3.common.vec_env.dummy_vec_env.DummyVecEnv object at 0x14cacb31da30>
+  warnings.warn("Training and eval env are not of the same type" f"{self.training_env} != {self.eval_env}")
+Eval num_timesteps=4000, episode_reward=0.89 +/- 0.08
+Episode length: 4.00 +/- 0.00
+---------------------------------
+| env/               |          |
+|    contrast        | 0.00195  |
+|    log10_contrast  | -2.73    |
+|    strehl          | 0.0129   |
+| eval/              |          |
+|    mean_ep_length  | 4        |
+|    mean_reward     | 0.894    |
+| time/              |          |
+|    total_timesteps | 4000     |
+---------------------------------
+New best mean reward!
+---------------------------------
+| env/               |          |
+|    contrast        | 0.00156  |
+|    log10_contrast  | -2.82    |
+|    strehl          | 0.0112   |
+| rollout/           |          |
+|    ep_len_mean     | 4        |
+|    ep_rew_mean     | 1.09     |
+| time/              |          |
+|    fps             | 67       |
+|    iterations      | 1        |
+|    time_elapsed    | 58       |
+|    total_timesteps | 4000     |
+---------------------------------
+Eval num_timesteps=8000, episode_reward=0.86 +/- 0.04
+Episode length: 4.00 +/- 0.00
+-----------------------------------------
+| env/                    |             |
+|    contrast             | 0.00207     |
+|    log10_contrast       | -2.7        |
+|    strehl               | 0.0133      |
+| eval/                   |             |
+|    mean_ep_length       | 4           |
+|    mean_reward          | 0.862       |
+| time/                   |             |
+|    total_timesteps      | 8000        |
+| train/                  |             |
+|    approx_kl            | 0.008633562 |
+|    clip_fraction        | 0.109       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -29.9       |
+|    explained_variance   | -27         |
+|    learning_rate        | 0.000667    |
+|    loss                 | -0.0108     |
+|    n_updates            | 10          |
+|    policy_gradient_loss | -0.0085     |
+|    std                  | 1.01        |
+|    value_loss           | 0.027       |
+-----------------------------------------
+---------------------------------
+| env/               |          |
+|    contrast        | 0.00224  |
+|    log10_contrast  | -2.71    |
+|    strehl          | 0.0122   |
+| rollout/           |          |
+|    ep_len_mean     | 4        |
+|    ep_rew_mean     | 1.09     |
+| time/              |          |
+|    fps             | 67       |
+|    iterations      | 2        |
+|    time_elapsed    | 118      |
+|    total_timesteps | 8000     |
+---------------------------------
+Eval num_timesteps=12000, episode_reward=0.86 +/- 0.04
+Episode length: 4.00 +/- 0.00
+-----------------------------------------
+| env/                    |             |
+|    contrast             | 0.00218     |
+|    log10_contrast       | -2.71       |
+|    strehl               | 0.011       |
+| eval/                   |             |
+|    mean_ep_length       | 4           |
+|    mean_reward          | 0.859       |
+| time/                   |             |
+|    total_timesteps      | 12000       |
+| train/                  |             |
+|    approx_kl            | 0.010752631 |
+|    clip_fraction        | 0.0995      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -30.1       |
+|    explained_variance   | -0.457      |
+|    learning_rate        | 0.000333    |
+|    loss                 | -0.0374     |
+|    n_updates            | 20          |
+|    policy_gradient_loss | -0.0219     |
+|    std                  | 1.02        |
+|    value_loss           | 0.000458    |
+-----------------------------------------
+---------------------------------
+| env/               |          |
+|    contrast        | 0.00155  |
+|    log10_contrast  | -2.84    |
+|    strehl          | 0.00917  |
+| rollout/           |          |
+|    ep_len_mean     | 4        |
+|    ep_rew_mean     | 1.09     |
+| time/              |          |
+|    fps             | 68       |
+|    iterations      | 3        |
+|    time_elapsed    | 176      |
+|    total_timesteps | 12000    |
+---------------------------------
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12,000/12,000  [ 0:02:55 < 0:00:00 , 66 it/s ]
+Saved final model to: logs/corona_sanity/corona_sanity_final.zip
+CORONA SANITY DONE

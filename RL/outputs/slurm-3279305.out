@@ -1,0 +1,382 @@
+dark-hole pixels: 150
+START bare-PSF annulus contrast: median 9.086e-03  min 4.633e-03  max 1.298e-02
+FLAT (unaberrated) annulus floor: median 1.671e-03
+=== SMOKE objective=log_contrast ===
+Using cpu device
+Logging to logs/creward_sanity_log_contrast/smoke_1
+/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/site-packages/stable_baselines3/common/callbacks.py:418: UserWarning: Training and eval env are not of the same type<stable_baselines3.common.vec_env.subproc_vec_env.SubprocVecEnv object at 0x14df3ec8e330> != <stable_baselines3.common.vec_env.dummy_vec_env.DummyVecEnv object at 0x14df4017ade0>
+  warnings.warn("Training and eval env are not of the same type" f"{self.training_env} != {self.eval_env}")
+---------------------------------
+| env/               |          |
+|    contrast        | 0.00179  |
+|    log10_contrast  | -2.78    |
+|    strehl          | 0.00998  |
+| rollout/           |          |
+|    ep_len_mean     | 4        |
+|    ep_rew_mean     | 1.07     |
+| time/              |          |
+|    fps             | 255      |
+|    iterations      | 1        |
+|    time_elapsed    | 3        |
+|    total_timesteps | 1000     |
+---------------------------------
+Eval num_timesteps=2000, episode_reward=0.79 +/- 0.02
+Episode length: 4.00 +/- 0.00
+-----------------------------------------
+| env/                    |             |
+|    contrast             | 0.00146     |
+|    log10_contrast       | -2.85       |
+|    strehl               | 0.00843     |
+| eval/                   |             |
+|    mean_ep_length       | 4           |
+|    mean_reward          | 0.794       |
+| time/                   |             |
+|    total_timesteps      | 2000        |
+| train/                  |             |
+|    approx_kl            | 0.030888684 |
+|    clip_fraction        | 0.251       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -29.8       |
+|    explained_variance   | -298        |
+|    learning_rate        | 0.00075     |
+|    loss                 | -0.127      |
+|    n_updates            | 10          |
+|    policy_gradient_loss | -0.0753     |
+|    std                  | 1           |
+|    value_loss           | 0.0423      |
+-----------------------------------------
+New best mean reward!
+---------------------------------
+| env/               |          |
+|    contrast        | 0.00196  |
+|    log10_contrast  | -2.72    |
+|    strehl          | 0.011    |
+| rollout/           |          |
+|    ep_len_mean     | 4        |
+|    ep_rew_mean     | 1.08     |
+| time/              |          |
+|    fps             | 238      |
+|    iterations      | 2        |
+|    time_elapsed    | 8        |
+|    total_timesteps | 2000     |
+---------------------------------
+-----------------------------------------
+| env/                    |             |
+|    contrast             | 0.00138     |
+|    log10_contrast       | -2.87       |
+|    strehl               | 0.00899     |
+| rollout/                |             |
+|    ep_len_mean          | 4           |
+|    ep_rew_mean          | 1.08        |
+| time/                   |             |
+|    fps                  | 240         |
+|    iterations           | 3           |
+|    time_elapsed         | 12          |
+|    total_timesteps      | 3000        |
+| train/                  |             |
+|    approx_kl            | 0.024985662 |
+|    clip_fraction        | 0.217       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -29.8       |
+|    explained_variance   | -28.3       |
+|    learning_rate        | 0.0005      |
+|    loss                 | -0.121      |
+|    n_updates            | 20          |
+|    policy_gradient_loss | -0.0672     |
+|    std                  | 1           |
+|    value_loss           | 0.0057      |
+-----------------------------------------
+Eval num_timesteps=4000, episode_reward=0.76 +/- 0.02
+Episode length: 4.00 +/- 0.00
+-----------------------------------------
+| env/                    |             |
+|    contrast             | 0.00177     |
+|    log10_contrast       | -2.76       |
+|    strehl               | 0.00838     |
+| eval/                   |             |
+|    mean_ep_length       | 4           |
+|    mean_reward          | 0.763       |
+| time/                   |             |
+|    total_timesteps      | 4000        |
+| train/                  |             |
+|    approx_kl            | 0.013630904 |
+|    clip_fraction        | 0.129       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -29.9       |
+|    explained_variance   | -10.3       |
+|    learning_rate        | 0.00025     |
+|    loss                 | -0.0955     |
+|    n_updates            | 30          |
+|    policy_gradient_loss | -0.0484     |
+|    std                  | 1           |
+|    value_loss           | 0.00303     |
+-----------------------------------------
+---------------------------------
+| env/               |          |
+|    contrast        | 0.00279  |
+|    log10_contrast  | -2.57    |
+|    strehl          | 0.0121   |
+| rollout/           |          |
+|    ep_len_mean     | 4        |
+|    ep_rew_mean     | 1.07     |
+| time/              |          |
+|    fps             | 236      |
+|    iterations      | 4        |
+|    time_elapsed    | 16       |
+|    total_timesteps | 4000     |
+---------------------------------
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4,000/4,000  [ 0:00:16 < 0:00:00 , 237 it/s ]
+Saved final model to: logs/creward_sanity_log_contrast/smoke_final.zip
+=== SMOKE objective=neg_contrast ===
+Using cpu device
+Logging to logs/creward_sanity_neg_contrast/smoke_1
+/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/site-packages/stable_baselines3/common/callbacks.py:418: UserWarning: Training and eval env are not of the same type<stable_baselines3.common.vec_env.subproc_vec_env.SubprocVecEnv object at 0x14b91b3f8230> != <stable_baselines3.common.vec_env.dummy_vec_env.DummyVecEnv object at 0x14b91b786330>
+  warnings.warn("Training and eval env are not of the same type" f"{self.training_env} != {self.eval_env}")
+---------------------------------
+| env/               |          |
+|    contrast        | 0.00179  |
+|    log10_contrast  | -2.78    |
+|    strehl          | 0.00998  |
+| rollout/           |          |
+|    ep_len_mean     | 4        |
+|    ep_rew_mean     | -0.915   |
+| time/              |          |
+|    fps             | 242      |
+|    iterations      | 1        |
+|    time_elapsed    | 4        |
+|    total_timesteps | 1000     |
+---------------------------------
+Eval num_timesteps=2000, episode_reward=-3.77 +/- 0.68
+Episode length: 4.00 +/- 0.00
+-----------------------------------------
+| env/                    |             |
+|    contrast             | 0.00145     |
+|    log10_contrast       | -2.85       |
+|    strehl               | 0.00817     |
+| eval/                   |             |
+|    mean_ep_length       | 4           |
+|    mean_reward          | -3.77       |
+| time/                   |             |
+|    total_timesteps      | 2000        |
+| train/                  |             |
+|    approx_kl            | 0.032754466 |
+|    clip_fraction        | 0.256       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -29.9       |
+|    explained_variance   | -9.33       |
+|    learning_rate        | 0.00075     |
+|    loss                 | -0.124      |
+|    n_updates            | 10          |
+|    policy_gradient_loss | -0.0752     |
+|    std                  | 1           |
+|    value_loss           | 0.0491      |
+-----------------------------------------
+New best mean reward!
+---------------------------------
+| env/               |          |
+|    contrast        | 0.00197  |
+|    log10_contrast  | -2.72    |
+|    strehl          | 0.0106   |
+| rollout/           |          |
+|    ep_len_mean     | 4        |
+|    ep_rew_mean     | -0.859   |
+| time/              |          |
+|    fps             | 229      |
+|    iterations      | 2        |
+|    time_elapsed    | 8        |
+|    total_timesteps | 2000     |
+---------------------------------
+-----------------------------------------
+| env/                    |             |
+|    contrast             | 0.00143     |
+|    log10_contrast       | -2.85       |
+|    strehl               | 0.00926     |
+| rollout/                |             |
+|    ep_len_mean          | 4           |
+|    ep_rew_mean          | -0.873      |
+| time/                   |             |
+|    fps                  | 241         |
+|    iterations           | 3           |
+|    time_elapsed         | 12          |
+|    total_timesteps      | 3000        |
+| train/                  |             |
+|    approx_kl            | 0.024710208 |
+|    clip_fraction        | 0.227       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -30         |
+|    explained_variance   | -0.998      |
+|    learning_rate        | 0.0005      |
+|    loss                 | -0.123      |
+|    n_updates            | 20          |
+|    policy_gradient_loss | -0.071      |
+|    std                  | 1.01        |
+|    value_loss           | 0.0126      |
+-----------------------------------------
+Eval num_timesteps=4000, episode_reward=-4.37 +/- 0.78
+Episode length: 4.00 +/- 0.00
+-----------------------------------------
+| env/                    |             |
+|    contrast             | 0.00173     |
+|    log10_contrast       | -2.77       |
+|    strehl               | 0.00797     |
+| eval/                   |             |
+|    mean_ep_length       | 4           |
+|    mean_reward          | -4.37       |
+| time/                   |             |
+|    total_timesteps      | 4000        |
+| train/                  |             |
+|    approx_kl            | 0.012637022 |
+|    clip_fraction        | 0.137       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -30.1       |
+|    explained_variance   | -0.345      |
+|    learning_rate        | 0.00025     |
+|    loss                 | -0.0864     |
+|    n_updates            | 30          |
+|    policy_gradient_loss | -0.0492     |
+|    std                  | 1.02        |
+|    value_loss           | 0.0119      |
+-----------------------------------------
+---------------------------------
+| env/               |          |
+|    contrast        | 0.00277  |
+|    log10_contrast  | -2.57    |
+|    strehl          | 0.013    |
+| rollout/           |          |
+|    ep_len_mean     | 4        |
+|    ep_rew_mean     | -0.906   |
+| time/              |          |
+|    fps             | 244      |
+|    iterations      | 4        |
+|    time_elapsed    | 16       |
+|    total_timesteps | 4000     |
+---------------------------------
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4,000/4,000  [ 0:00:16 < 0:00:00 , 245 it/s ]
+Saved final model to: logs/creward_sanity_neg_contrast/smoke_final.zip
+=== SMOKE objective=contrast ===
+Using cpu device
+Logging to logs/creward_sanity_contrast/smoke_1
+/scratch/network/ak9088/anaconda3/envs/dmrl2/lib/python3.12/site-packages/stable_baselines3/common/callbacks.py:418: UserWarning: Training and eval env are not of the same type<stable_baselines3.common.vec_env.subproc_vec_env.SubprocVecEnv object at 0x14a601161460> != <stable_baselines3.common.vec_env.dummy_vec_env.DummyVecEnv object at 0x14a4c1d35d60>
+  warnings.warn("Training and eval env are not of the same type" f"{self.training_env} != {self.eval_env}")
+---------------------------------
+| env/               |          |
+|    contrast        | 0.00179  |
+|    log10_contrast  | -2.78    |
+|    strehl          | 0.00998  |
+| rollout/           |          |
+|    ep_len_mean     | 4        |
+|    ep_rew_mean     | 0.631    |
+| time/              |          |
+|    fps             | 242      |
+|    iterations      | 1        |
+|    time_elapsed    | 4        |
+|    total_timesteps | 1000     |
+---------------------------------
+Eval num_timesteps=2000, episode_reward=-0.05 +/- 0.03
+Episode length: 4.00 +/- 0.00
+-----------------------------------------
+| env/                    |             |
+|    contrast             | 0.00151     |
+|    log10_contrast       | -2.84       |
+|    strehl               | 0.00782     |
+| eval/                   |             |
+|    mean_ep_length       | 4           |
+|    mean_reward          | -0.055      |
+| time/                   |             |
+|    total_timesteps      | 2000        |
+| train/                  |             |
+|    approx_kl            | 0.032250382 |
+|    clip_fraction        | 0.235       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -29.9       |
+|    explained_variance   | -0.655      |
+|    learning_rate        | 0.00075     |
+|    loss                 | -0.113      |
+|    n_updates            | 10          |
+|    policy_gradient_loss | -0.0752     |
+|    std                  | 1.01        |
+|    value_loss           | 0.0795      |
+-----------------------------------------
+New best mean reward!
+---------------------------------
+| env/               |          |
+|    contrast        | 0.00198  |
+|    log10_contrast  | -2.72    |
+|    strehl          | 0.0115   |
+| rollout/           |          |
+|    ep_len_mean     | 4        |
+|    ep_rew_mean     | 0.67     |
+| time/              |          |
+|    fps             | 234      |
+|    iterations      | 2        |
+|    time_elapsed    | 8        |
+|    total_timesteps | 2000     |
+---------------------------------
+-----------------------------------------
+| env/                    |             |
+|    contrast             | 0.00139     |
+|    log10_contrast       | -2.87       |
+|    strehl               | 0.00838     |
+| rollout/                |             |
+|    ep_len_mean          | 4           |
+|    ep_rew_mean          | 0.629       |
+| time/                   |             |
+|    fps                  | 235         |
+|    iterations           | 3           |
+|    time_elapsed         | 12          |
+|    total_timesteps      | 3000        |
+| train/                  |             |
+|    approx_kl            | 0.026337031 |
+|    clip_fraction        | 0.228       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -30         |
+|    explained_variance   | 0.644       |
+|    learning_rate        | 0.0005      |
+|    loss                 | -0.107      |
+|    n_updates            | 20          |
+|    policy_gradient_loss | -0.0725     |
+|    std                  | 1.01        |
+|    value_loss           | 0.0371      |
+-----------------------------------------
+Eval num_timesteps=4000, episode_reward=-0.06 +/- 0.11
+Episode length: 4.00 +/- 0.00
+-----------------------------------------
+| env/                    |             |
+|    contrast             | 0.00165     |
+|    log10_contrast       | -2.79       |
+|    strehl               | 0.00862     |
+| eval/                   |             |
+|    mean_ep_length       | 4           |
+|    mean_reward          | -0.0614     |
+| time/                   |             |
+|    total_timesteps      | 4000        |
+| train/                  |             |
+|    approx_kl            | 0.013189332 |
+|    clip_fraction        | 0.129       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -30.1       |
+|    explained_variance   | 0.698       |
+|    learning_rate        | 0.00025     |
+|    loss                 | -0.0822     |
+|    n_updates            | 30          |
+|    policy_gradient_loss | -0.053      |
+|    std                  | 1.02        |
+|    value_loss           | 0.0377      |
+-----------------------------------------
+---------------------------------
+| env/               |          |
+|    contrast        | 0.00285  |
+|    log10_contrast  | -2.57    |
+|    strehl          | 0.0128   |
+| rollout/           |          |
+|    ep_len_mean     | 4        |
+|    ep_rew_mean     | 0.605    |
+| time/              |          |
+|    fps             | 232      |
+|    iterations      | 4        |
+|    time_elapsed    | 17       |
+|    total_timesteps | 4000     |
+---------------------------------
+ 100% ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4,000/4,000  [ 0:00:17 < 0:00:00 , 233 it/s ]
+Saved final model to: logs/creward_sanity_contrast/smoke_final.zip
+=== CONTRAST REWARD SANITY DONE ===

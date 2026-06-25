@@ -1,0 +1,53 @@
+
+===== DM 16x16 =====
+  actuators=256  controllable<= 8 lambda/D (OWA=12)  unaberrated floor=6.628e-11 (log10 -10.18)
+  building Jacobian ...
+    jacobian col 128/256
+    jacobian col 256/256
+  ab 0 (rms=0.051w): 3.09e-05 -> 8.11e-08 (log10 -7.09, 381x, max|act|=5.0e-07)
+  ab 1 (rms=0.057w): 3.56e-05 -> 7.27e-08 (log10 -7.14, 490x, max|act|=4.6e-07)
+  ab 2 (rms=0.043w): 2.21e-05 -> 7.84e-08 (log10 -7.11, 282x, max|act|=5.0e-07)
+  ab 3 (rms=0.031w): 7.29e-06 -> 3.33e-08 (log10 -7.48, 219x, max|act|=5.0e-07)
+  ab 4 (rms=0.020w): 3.62e-06 -> 4.04e-09 (log10 -8.39, 897x, max|act|=4.0e-07)
+  ab 5 (rms=0.025w): 6.09e-06 -> 1.98e-08 (log10 -7.70, 308x, max|act|=5.0e-07)
+  MEDIAN: start 1.47e-05 (log10 -4.83) -> EFC floor 5.30e-08 (log10 -7.28), 277x  max|act| median 5.0e-07
+
+===== DM 24x24 =====
+  actuators=576  controllable<= 12 lambda/D (OWA=12)  unaberrated floor=6.628e-11 (log10 -10.18)
+  building Jacobian ...
+    jacobian col 128/576
+    jacobian col 256/576
+    jacobian col 384/576
+    jacobian col 512/576
+  ab 0 (rms=0.051w): 3.09e-05 -> 3.63e-09 (log10 -8.44, 8526x, max|act|=1.5e-07)
+  ab 1 (rms=0.057w): 3.56e-05 -> 3.41e-09 (log10 -8.47, 10454x, max|act|=9.6e-08)
+  ab 2 (rms=0.043w): 2.21e-05 -> 3.48e-09 (log10 -8.46, 6363x, max|act|=1.6e-07)
+  ab 3 (rms=0.031w): 7.29e-06 -> 9.45e-10 (log10 -9.02, 7713x, max|act|=8.2e-08)
+  ab 4 (rms=0.020w): 3.62e-06 -> 1.48e-10 (log10 -9.83, 24415x, max|act|=3.0e-08)
+  ab 5 (rms=0.025w): 6.09e-06 -> 8.29e-10 (log10 -9.08, 7345x, max|act|=8.4e-08)
+  MEDIAN: start 1.47e-05 (log10 -4.83) -> EFC floor 2.18e-09 (log10 -8.66), 6763x  max|act| median 9.0e-08
+
+===== DM 32x32 =====
+  actuators=1024  controllable<= 16 lambda/D (OWA=12)  unaberrated floor=6.628e-11 (log10 -10.18)
+  building Jacobian ...
+    jacobian col 128/1024
+    jacobian col 256/1024
+    jacobian col 384/1024
+    jacobian col 512/1024
+    jacobian col 640/1024
+    jacobian col 768/1024
+    jacobian col 896/1024
+    jacobian col 1024/1024
+  ab 0 (rms=0.051w): 3.09e-05 -> 7.29e-10 (log10 -9.14, 42398x, max|act|=1.5e-07)
+  ab 1 (rms=0.057w): 3.56e-05 -> 2.71e-10 (log10 -9.57, 131300x, max|act|=9.7e-08)
+  ab 2 (rms=0.043w): 2.21e-05 -> 3.26e-10 (log10 -9.49, 67893x, max|act|=1.1e-07)
+  ab 3 (rms=0.031w): 7.29e-06 -> 1.77e-11 (log10 -10.75, 413044x, max|act|=5.2e-08)
+  ab 4 (rms=0.020w): 3.62e-06 -> 3.22e-12 (log10 -11.49, 1125532x, max|act|=3.1e-08)
+  ab 5 (rms=0.025w): 6.09e-06 -> 6.53e-11 (log10 -10.19, 93256x, max|act|=6.7e-08)
+  MEDIAN: start 1.47e-05 (log10 -4.83) -> EFC floor 1.68e-10 (log10 -9.77), 87462x  max|act| median 8.2e-08
+
+===== SUMMARY =====
+    DM  n_act  ctrl(l/D)      floor      start   EFC floor   log10  max|act|
+  16x16    256          8   6.63e-11   1.47e-05    5.30e-08   -7.28   5.0e-07
+  24x24    576         12   6.63e-11   1.47e-05    2.18e-09   -8.66   9.0e-08
+  32x32   1024         16   6.63e-11   1.47e-05    1.68e-10   -9.77   8.2e-08

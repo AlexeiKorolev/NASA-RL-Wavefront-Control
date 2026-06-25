@@ -1,0 +1,11 @@
+cuda True Tesla V100-PCIE-32GB
+[po4ncpa] device=cuda image=33x33 modes=20 coronagraph=False
+[po4ncpa] ideal-image residual ref: max=1.000e+00 sum=1.107e+01
+ep    20 | dynL 0.485 polR 0.000e+00 | train C 3.38e-03 S 0.017 | EVAL C 4.688e-03 S 0.8483 | buf 400 | 26s
+ep    40 | dynL 0.463 polR 0.000e+00 | train C 3.68e-03 S 0.023 | EVAL C 4.688e-03 S 0.8483 | buf 800 | 58s
+ep    60 | dynL 0.449 polR -2.368e+01 | train C 1.03e-02 S 0.073 | EVAL C 1.061e-02 S 0.0565 | buf 1200 | 91s
+ep    80 | dynL 0.422 polR -2.339e+01 | train C 3.06e-03 S 0.020 | EVAL C 4.137e-03 S 0.0188 | buf 1600 | 128s
+ep   100 | dynL 0.402 polR -2.311e+01 | train C 6.24e-03 S 0.035 | EVAL C 6.836e-03 S 0.0412 | buf 2000 | 161s
+ep   120 | dynL 0.396 polR -2.547e+01 | train C 6.14e-03 S 0.030 | EVAL C 6.867e-03 S 0.0369 | buf 2400 | 196s
+[po4ncpa] done in 196s
+=== PO4NCPA SANITY DONE ===
