@@ -9,12 +9,21 @@
 #SBATCH --time=48:00:00
 #SBATCH --output=outputs/slurm-%j.out
 
-# Usage: sbatch slurm/po4ncpa_reward_screen.slurm REWARD_SHAPE
+# Usage: sbatch slurm/po4ncpa_reward_screen.slurm REWARD_SHAPE [RUN_TAG] [EPISODES]
 # Five 30k-episode screens. All settings match the passive PO4NCPA rerun.
 REWARD_SHAPE=$1
+RUN_TAG=${2:-$(date +%Y%m%d_%H%M%S)}
+TARGET_EPISODES=${3:-30000}
 case "$REWARD_SHAPE" in
     log_energy|sqrt_energy|masked_log_energy|masked_log_cubic|masked_tail_log_cubic) ;;
     *) echo "Unknown reward shape: $REWARD_SHAPE" >&2; exit 2 ;;
+esac
+case "$RUN_TAG" in
+    *[!A-Za-z0-9._-]*) echo "RUN_TAG may contain only letters, numbers, dot, underscore, and dash" >&2; exit 2 ;;
+esac
+case "$TARGET_EPISODES" in
+    ''|*[!0-9]*) echo "EPISODES must be a positive integer" >&2; exit 2 ;;
+    0) echo "EPISODES must be a positive integer" >&2; exit 2 ;;
 esac
 
 module purge
@@ -30,7 +39,7 @@ export NUMEXPR_MAX_THREADS=4
 set -eo pipefail
 
 python src/po4ncpa.py \
-    --run-name "po4ncpa_reward_${REWARD_SHAPE}_20260922" \
+    --run-name "po4ncpa_reward_${REWARD_SHAPE}_${RUN_TAG}" \
     --reward-shape "$REWARD_SHAPE" \
     --use-coronagraph true \
     --num-modes 55 --aberration-start-mode 4 --q 3 --num-airy 5.5 \
@@ -38,7 +47,7 @@ python src/po4ncpa.py \
     --rms-min 0.026 --rms-max 0.026 \
     --aberration-spectrum power_law --psd-exponent 3.667 \
     --per-mode-scale true --action-headroom 5.0 \
-    --total-episodes 30000 --warmup-episodes 4000 \
+    --total-episodes "$TARGET_EPISODES" --warmup-episodes 4000 \
     --eval-every 250 --eval-episodes 30 \
     --ensemble 5 --ch 64 --dyn-iters 8 --pol-iters 5 --batch 64 \
     --dyn-lr 1e-3 --pol-lr 1e-4 --explore-std 0.1 \

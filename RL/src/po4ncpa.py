@@ -35,7 +35,10 @@ from __future__ import annotations
 
 import os
 import argparse
+import json
+import shutil
 import time
+import uuid
 from dataclasses import dataclass
 
 import numpy as np
@@ -112,6 +115,9 @@ class PolicyNet(nn.Module):
 # Replay buffer (one-step transitions in preprocessed-image space)
 # ---------------------------------------------------------------------------
 class Buffer:
+    ARRAYS = ("op", "oc", "on", "ap", "ac")
+    IO_CHUNK = 4096
+
     def __init__(self, capacity: int, h: int, w: int, action_dim: int):
         self.cap = capacity
         self.op = np.zeros((capacity, h, w), np.float32)   # o_{t-1}
@@ -133,6 +139,46 @@ class Buffer:
         idx = np.random.randint(0, self.size, size=n)
         t = lambda a: torch.as_tensor(a[idx], device=device)
         return t(self.op), t(self.oc), t(self.on), t(self.ap), t(self.ac)
+
+    def save(self, path: str):
+        """Write only occupied slots, in bounded chunks, to a new directory."""
+        os.mkdir(path)
+        for name in self.ARRAYS:
+            source = getattr(self, name)
+            target = np.lib.format.open_memmap(
+                os.path.join(path, f"{name}.npy"), mode="w+", dtype=source.dtype,
+                shape=(self.size, *source.shape[1:]))
+            for start in range(0, self.size, self.IO_CHUNK):
+                stop = min(start + self.IO_CHUNK, self.size)
+                target[start:stop] = source[start:stop]
+            target.flush()
+            del target
+        with open(os.path.join(path, "metadata.json"), "w", encoding="utf-8") as f:
+            json.dump({"version": 1, "capacity": self.cap,
+                       "size": self.size, "ptr": self.ptr}, f)
+
+    def load(self, path: str):
+        """Restore a replay snapshot without materializing another whole array."""
+        with open(os.path.join(path, "metadata.json"), encoding="utf-8") as f:
+            metadata = json.load(f)
+        if metadata.get("version") != 1 or metadata.get("capacity") != self.cap:
+            raise ValueError(f"Incompatible replay buffer metadata at {path}")
+        size, ptr = metadata["size"], metadata["ptr"]
+        if not (isinstance(size, int) and 0 <= size <= self.cap and
+                isinstance(ptr, int) and 0 <= ptr < self.cap and
+                (size == self.cap or ptr == size)):
+            raise ValueError(f"Invalid replay buffer size or pointer at {path}")
+        for name in self.ARRAYS:
+            target = getattr(self, name)
+            source = np.load(os.path.join(path, f"{name}.npy"), mmap_mode="r",
+                             allow_pickle=False)
+            if source.shape != (size, *target.shape[1:]) or source.dtype != target.dtype:
+                raise ValueError(f"Incompatible replay array {name} at {path}")
+            for start in range(0, size, self.IO_CHUNK):
+                stop = min(start + self.IO_CHUNK, size)
+                target[start:stop] = source[start:stop]
+            del source
+        self.size, self.ptr = size, ptr
 
 
 # ---------------------------------------------------------------------------
@@ -180,8 +226,8 @@ class Config:
     eval_episodes: int = 30
     seed: int = 0
     device: str = "cuda"
-    resume_state: str = ""          # full training state for a continued run
-    save_full_state: bool = False
+    resume_state: str = ""          # training_state.pt; keep its replay_buffer_* directory beside it
+    save_full_state: bool = False   # persist optimizer/RNG state plus a separate replay snapshot
     reward_shape: str = "raw"        # policy loss only; evaluation always uses true contrast
 
 
@@ -257,6 +303,16 @@ class PO4NCPA:
         self.best_metric = -np.inf
         if cfg.resume_state:
             state = torch.load(cfg.resume_state, map_location=self.device, weights_only=False)
+            if "buffer_file" in state:
+                buffer_path = os.path.join(os.path.dirname(os.path.abspath(cfg.resume_state)),
+                                           state["buffer_file"])
+                self.buf.load(buffer_path)
+            elif "buffer" in state:  # checkpoints written before replay was split out
+                for name in Buffer.ARRAYS:
+                    getattr(self.buf, name)[:] = state["buffer"][name]
+                self.buf.size, self.buf.ptr = state["buffer"]["size"], state["buffer"]["ptr"]
+            else:
+                raise ValueError(f"No replay buffer reference in {cfg.resume_state}")
             self.start_episode = state["episode"]
             self.best_metric = state["best_metric"]
             self.policy.load_state_dict(state["policy"])
@@ -265,9 +321,6 @@ class PO4NCPA:
                 model.load_state_dict(weights)
             for opt, weights in zip(self.dyn_opt, state["dyn_opt"]):
                 opt.load_state_dict(weights)
-            for name in ("op", "oc", "on", "ap", "ac"):
-                getattr(self.buf, name)[:] = state["buffer"][name]
-            self.buf.size, self.buf.ptr = state["buffer"]["size"], state["buffer"]["ptr"]
             np.random.set_state(state["numpy_rng"])
             torch.set_rng_state(state["torch_rng"])
             torch.cuda.set_rng_state_all(state["cuda_rng"])
@@ -452,18 +505,36 @@ class PO4NCPA:
                     "cfg": vars(self.cfg)}, path)
 
     def save_training_state(self, episode: int, best_metric: float):
+        """Publish replay first, then atomically point the small state file at it."""
         path = os.path.join(self.log_dir, "training_state.pt")
-        buffer = {name: getattr(self.buf, name) for name in ("op", "oc", "on", "ap", "ac")}
-        buffer.update(size=self.buf.size, ptr=self.buf.ptr)
+        # A unique replay snapshot keeps any previous training_state.pt resumable
+        # if this save is interrupted before the new state is atomically replaced.
+        snapshot = f"replay_buffer_{episode}_{uuid.uuid4().hex}"
+        replay_path = os.path.join(self.log_dir, snapshot)
+        temp_replay_path = replay_path + ".tmp"
+        try:
+            self.buf.save(temp_replay_path)
+            os.replace(temp_replay_path, replay_path)
+        except Exception:
+            shutil.rmtree(temp_replay_path, ignore_errors=True)
+            raise
         state = {"episode": episode, "best_metric": best_metric,
                  "policy": self.policy.state_dict(), "pol_opt": self.pol_opt.state_dict(),
                  "dynamics": [m.state_dict() for m in self.dyn],
                  "dyn_opt": [o.state_dict() for o in self.dyn_opt],
-                 "buffer": buffer, "numpy_rng": np.random.get_state(),
+                 "buffer_file": snapshot, "numpy_rng": np.random.get_state(),
                  "torch_rng": torch.get_rng_state(), "cuda_rng": torch.cuda.get_rng_state_all(),
                  "env_rng": self.env.np_random.bit_generator.state}
-        torch.save(state, path + ".tmp")
-        os.replace(path + ".tmp", path)
+        temp_path = path + f".{uuid.uuid4().hex}.tmp"
+        try:
+            torch.save(state, temp_path)
+            os.replace(temp_path, path)
+        except Exception:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+            raise
+        print(f"[po4ncpa] saved training state: {path} (replay: {snapshot}, "
+              f"{self.buf.size} transitions)", flush=True)
 
 
 # ---------------------------------------------------------------------------
