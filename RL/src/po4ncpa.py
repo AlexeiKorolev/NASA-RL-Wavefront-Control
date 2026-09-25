@@ -180,6 +180,9 @@ class Config:
     eval_episodes: int = 30
     seed: int = 0
     device: str = "cuda"
+    resume_state: str = ""          # full training state for a continued run
+    save_full_state: bool = False
+    reward_shape: str = "raw"        # policy loss only; evaluation always uses true contrast
 
 
 def calibrate_per_mode_scale(optics, cfg) -> np.ndarray:
@@ -234,6 +237,11 @@ class PO4NCPA:
             self._apply_per_mode_scale()
         # ideal reference image for the cube-root residual preprocessing (Eq. 7)
         self.ideal = self.env.ideal_image().astype(np.float32)   # (H, W), raw norm. intensity
+        self.dark_hole_mask = torch.as_tensor(
+            self.env.optics.dark_hole_mask.reshape(self.h, self.w), device=self.device)
+        if cfg.reward_shape not in ("raw", "log_energy", "sqrt_energy", "masked_log_energy",
+                                    "masked_log_cubic", "masked_tail_log_cubic"):
+            raise ValueError(f"Unknown reward_shape: {cfg.reward_shape}")
 
         self.dyn = [DynamicsNet(self.h, self.w, self.action_dim, ch=cfg.ch).to(self.device)
                     for _ in range(cfg.ensemble)]
@@ -245,8 +253,28 @@ class PO4NCPA:
 
         self.log_dir = os.path.join("logs", cfg.run_name)
         os.makedirs(self.log_dir, exist_ok=True)
-        self._csv = open(os.path.join(self.log_dir, "train.csv"), "w")
-        self._csv.write("episode,train_contrast,train_strehl,eval_contrast,eval_strehl\n")
+        self.start_episode = 0
+        self.best_metric = -np.inf
+        if cfg.resume_state:
+            state = torch.load(cfg.resume_state, map_location=self.device, weights_only=False)
+            self.start_episode = state["episode"]
+            self.best_metric = state["best_metric"]
+            self.policy.load_state_dict(state["policy"])
+            self.pol_opt.load_state_dict(state["pol_opt"])
+            for model, weights in zip(self.dyn, state["dynamics"]):
+                model.load_state_dict(weights)
+            for opt, weights in zip(self.dyn_opt, state["dyn_opt"]):
+                opt.load_state_dict(weights)
+            for name in ("op", "oc", "on", "ap", "ac"):
+                getattr(self.buf, name)[:] = state["buffer"][name]
+            self.buf.size, self.buf.ptr = state["buffer"]["size"], state["buffer"]["ptr"]
+            np.random.set_state(state["numpy_rng"])
+            torch.set_rng_state(state["torch_rng"])
+            torch.cuda.set_rng_state_all(state["cuda_rng"])
+            self.env.np_random.bit_generator.state = state["env_rng"]
+        self._csv = open(os.path.join(self.log_dir, "train.csv"), "a" if cfg.resume_state else "w")
+        if not cfg.resume_state:
+            self._csv.write("episode,train_contrast,train_strehl,eval_contrast,eval_strehl\n")
         self._csv.flush()
 
     # --- per-mode action scaling -------------------------------------------
@@ -343,7 +371,7 @@ class PO4NCPA:
                 pair = torch.stack([o_t, o_tm1], dim=1)
                 a = self.policy(pair, a_tm1)
                 pred = self._dyn_predict_rand(pair, a_tm1, a)  # o_{t+1}, (B,1,H,W)
-                total_r = total_r + (-(pred ** 2).sum(dim=[1, 2, 3]))
+                total_r = total_r + self.policy_reward(pred)
                 o_tm1, o_t = o_t, pred.squeeze(1)
                 a_tm1 = a
             loss = -total_r.mean()
@@ -352,6 +380,26 @@ class PO4NCPA:
         for p in (q for m in self.dyn for q in m.parameters()):
             p.requires_grad_(True)
         return float(np.mean(rewards)) if rewards else 0.0
+
+    def policy_reward(self, pred):
+        """Alternative rewards on imagined next images; never uses hidden field labels."""
+        shape = self.cfg.reward_shape
+        energy = pred.square()
+        if shape == "raw":
+            return -energy.sum(dim=[1, 2, 3])
+        if shape == "log_energy":
+            return -torch.log10(energy.sum(dim=[1, 2, 3]) + 1e-12)
+        if shape == "sqrt_energy":
+            return -torch.sqrt(energy.sum(dim=[1, 2, 3]) + 1e-12)
+        masked = energy[:, 0, self.dark_hole_mask]
+        if shape == "masked_log_energy":
+            return -torch.log10(masked.mean(dim=1) + 1e-12)
+        # Cube-root preprocessing makes |o|^3 a proxy for absolute intensity residual.
+        cubic = pred[:, 0, self.dark_hole_mask].abs().pow(3)
+        if shape == "masked_log_cubic":
+            return -torch.log10(cubic.mean(dim=1) + 1e-12)
+        k = max(1, cubic.shape[1] // 10)
+        return -torch.log10(cubic.topk(k, dim=1).values.mean(dim=1) + 1e-12)
 
     # --- evaluation --------------------------------------------------------
     def evaluate(self):
@@ -370,8 +418,8 @@ class PO4NCPA:
         print(f"[po4ncpa] ideal-image residual ref: max={self.ideal.max():.3e} "
               f"sum={self.ideal.sum():.3e}", flush=True)
         t0 = time.time()
-        best = -np.inf
-        for ep in range(cfg.total_episodes):
+        best = self.best_metric
+        for ep in range(self.start_episode, cfg.total_episodes):
             c_tr, s_tr = self.collect_episode(ep, deterministic=False, env=self.env)
             dyn_loss = pol_r = 0.0
             if self.buf.size >= cfg.batch:
@@ -392,6 +440,8 @@ class PO4NCPA:
                     best = metric
                     self.save("best")
         self.save("final")
+        if cfg.save_full_state:
+            self.save_training_state(cfg.total_episodes, best)
         self._csv.close()
         print(f"[po4ncpa] done in {time.time()-t0:.0f}s", flush=True)
 
@@ -400,6 +450,20 @@ class PO4NCPA:
         torch.save({"policy": self.policy.state_dict(),
                     "dynamics": [m.state_dict() for m in self.dyn],
                     "cfg": vars(self.cfg)}, path)
+
+    def save_training_state(self, episode: int, best_metric: float):
+        path = os.path.join(self.log_dir, "training_state.pt")
+        buffer = {name: getattr(self.buf, name) for name in ("op", "oc", "on", "ap", "ac")}
+        buffer.update(size=self.buf.size, ptr=self.buf.ptr)
+        state = {"episode": episode, "best_metric": best_metric,
+                 "policy": self.policy.state_dict(), "pol_opt": self.pol_opt.state_dict(),
+                 "dynamics": [m.state_dict() for m in self.dyn],
+                 "dyn_opt": [o.state_dict() for o in self.dyn_opt],
+                 "buffer": buffer, "numpy_rng": np.random.get_state(),
+                 "torch_rng": torch.get_rng_state(), "cuda_rng": torch.cuda.get_rng_state_all(),
+                 "env_rng": self.env.np_random.bit_generator.state}
+        torch.save(state, path + ".tmp")
+        os.replace(path + ".tmp", path)
 
 
 # ---------------------------------------------------------------------------

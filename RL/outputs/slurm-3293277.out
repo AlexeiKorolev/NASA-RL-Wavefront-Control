@@ -1,0 +1,16 @@
+[m0] run=po4ncpa_corona corona=True modes=55 probes=8 dark-hole pixels=372 draws=20
+[m0] residual_frac=0.1  amp sweep (x per-mode scale)=[0.05, 0.1, 0.2, 0.4]
+
+[m0] test-state dark-hole contrast: median 4.030e-05 (min 2.207e-05, max 7.495e-05)  <- plateau regime
+
+  amp(xscale) | linear-identity corr | field reconstruction rel-err
+  ------------+----------------------+------------------------------
+      0.050   |       0.9999        |     0.677%  (median)
+      0.100   |       0.9998        |     1.394%  (median)
+      0.200   |       0.9988        |     3.131%  (median)
+      0.400   |       0.9914        |     8.147%  (median)
+
+[m0] best amplitude 0.05x: reconstruction rel-err 0.677%, linear corr 0.9999
+[m0] GATE (rel-err < 5% and corr > 0.99): PASS
+[m0] done.
+=== PROBE M0 DONE ===

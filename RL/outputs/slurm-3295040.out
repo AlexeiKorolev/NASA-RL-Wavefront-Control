@@ -1,0 +1,16 @@
+# benchmark: 28 episodes/config, 14 workers for parallel
+
+[infogain] correction scale min 2.52e-09 max 4.65e-08 | probe scale (x0.1) min 2.52e-10 max 4.65e-09 | modes=55 action=110
+A serial  max20 | workers  1 | max_steps 20 | collect  1.854 s/ep | update    nan s/ep
+[infogain] correction scale min 2.52e-09 max 4.65e-08 | probe scale (x0.1) min 2.52e-10 max 4.65e-09 | modes=55 action=110
+B serial  max8  | workers  1 | max_steps  8 | collect  0.809 s/ep | update    nan s/ep
+[infogain] correction scale min 2.52e-09 max 4.65e-08 | probe scale (x0.1) min 2.52e-10 max 4.65e-09 | modes=55 action=110
+C par     max20 | workers 14 | max_steps 20 | collect  0.220 s/ep | update    nan s/ep
+[infogain] correction scale min 2.52e-09 max 4.65e-08 | probe scale (x0.1) min 2.52e-10 max 4.65e-09 | modes=55 action=110
+D par     max8  | workers 14 | max_steps  8 | collect  0.100 s/ep | update    nan s/ep
+
+# summary
+collection speedup A->D:  18.54x (1.854 -> 0.100 s/ep)
+total (collect+update) A->D:  18.54x (1.854 -> 0.100 s/ep)
+episodes/hour A:     1941   D:    35995
+=== PO4NCPA BENCH DONE ===

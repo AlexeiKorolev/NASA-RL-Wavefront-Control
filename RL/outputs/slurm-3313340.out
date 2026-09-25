@@ -1,0 +1,14 @@
+name, memory.total [MiB]
+NVIDIA A100-PCIE-40GB, 40960 MiB
+=== SMOKE: dynamic NCPA tau=10 ===
+[infogain] correction scale min 2.60e-09 max 4.56e-08 | probe scale (x0.1) min 2.60e-10 max 4.56e-09 | modes=55 action=110
+[infogain] RESUMED from logs/po4ncpa_probe_logdeep3/po4ncpa_infogain_best.pt
+[infogain] no replay buffer at logs/_force_fresh_buffer_does_not_exist.npz -> refilling (resume_refill=800); expect the usual resume transient
+[infogain] device=cuda image=33x33 modes=55 action=110 workers=8 max_steps=8 lambda_info=0.0 reward=log lr_final_frac=1.0 explore_std_final=0.06
+ep   200 | dynL 0.512 polR 5.479e-01 info 1.579e-01 | train C 4.08e-05 S 0.995 | EVAL C 4.223e-05 S 0.9934 | buf 1600 | 86s
+ep   400 | dynL 0.507 polR 4.668e-01 info 1.348e-01 | train C 5.74e-05 S 0.993 | EVAL C 4.223e-05 S 0.9939 | buf 3200 | 214s
+ep   600 | dynL 0.508 polR 4.198e-01 info 1.994e-01 | train C 1.19e-04 S 0.986 | EVAL C 4.123e-05 S 0.9936 | buf 4800 | 340s
+ep   800 | dynL 0.510 polR 4.525e-01 info 1.330e-01 | train C 1.17e-04 S 0.986 | EVAL C 4.341e-05 S 0.9936 | buf 6400 | 464s
+[infogain] saved replay buffer (6400 transitions) -> logs/po4ncpa_dynsmoke_t10/replay_buffer.npz (0.2s)
+[infogain] done in 465s
+=== SMOKE (dynamic tau=10) DONE ===

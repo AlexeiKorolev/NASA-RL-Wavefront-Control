@@ -1,0 +1,112 @@
+name, memory.total [MiB]
+NVIDIA A100 80GB PCIe, 81920 MiB
+=== hybrid EFC-warmstart + residual RL: sigma=0.20, episodes=25000 ===
+[infogain] correction scale min 5.21e-10 max 9.12e-09 | probe scale (x0.1) min 5.21e-11 max 9.12e-10 | modes=55 action=110
+[infogain] RESUMED from logs/po4ncpa_probe_logdeep3/po4ncpa_infogain_best.pt
+[infogain] no replay buffer at logs/_force_fresh_buffer_does_not_exist.npz -> refilling (resume_refill=20000); expect the usual resume transient
+[infogain] device=cuda image=33x33 modes=55 action=110 workers=14 max_steps=8 lambda_info=0.0 reward=log lr_final_frac=0.3 explore_std_final=0.005
+ep   252 | dynL 0.000 polR 0.000e+00 info 0.000e+00 | train C 3.37e-07 S 0.997 | EVAL C 4.264e-07 S 0.9953 | buf 2016 | 125s
+ep   504 | dynL 0.000 polR 0.000e+00 info 0.000e+00 | train C 6.80e-07 S 0.993 | EVAL C 4.264e-07 S 0.9953 | buf 4032 | 215s
+ep   756 | dynL 0.000 polR 0.000e+00 info 0.000e+00 | train C 4.43e-07 S 0.997 | EVAL C 4.264e-07 S 0.9953 | buf 6048 | 305s
+ep  1008 | dynL 0.000 polR 0.000e+00 info 0.000e+00 | train C 6.11e-07 S 0.997 | EVAL C 4.264e-07 S 0.9953 | buf 8064 | 395s
+ep  1260 | dynL 0.000 polR 0.000e+00 info 0.000e+00 | train C 5.87e-07 S 0.994 | EVAL C 4.264e-07 S 0.9953 | buf 10080 | 485s
+ep  1512 | dynL 0.000 polR 0.000e+00 info 0.000e+00 | train C 5.25e-07 S 0.998 | EVAL C 4.264e-07 S 0.9953 | buf 12096 | 578s
+ep  1764 | dynL 0.000 polR 0.000e+00 info 0.000e+00 | train C 8.72e-07 S 0.994 | EVAL C 4.264e-07 S 0.9953 | buf 14112 | 670s
+ep  2016 | dynL 0.000 polR 0.000e+00 info 0.000e+00 | train C 9.47e-08 S 0.995 | EVAL C 4.264e-07 S 0.9953 | buf 16128 | 759s
+ep  2268 | dynL 0.000 polR 0.000e+00 info 0.000e+00 | train C 3.44e-07 S 0.998 | EVAL C 4.264e-07 S 0.9953 | buf 18144 | 848s
+ep  2520 | dynL 0.363 polR 1.175e+00 info 4.881e-03 | train C 1.22e-07 S 1.000 | EVAL C 5.677e-07 S 0.9951 | buf 20160 | 942s
+ep  2772 | dynL 0.193 polR 1.114e+00 info 1.584e-03 | train C 1.04e-06 S 0.995 | EVAL C 7.342e-07 S 0.9963 | buf 22176 | 1064s
+ep  3024 | dynL 0.185 polR 1.154e+00 info 7.138e-04 | train C 4.18e-07 S 0.994 | EVAL C 6.184e-07 S 0.9964 | buf 24192 | 1186s
+ep  3276 | dynL 0.182 polR 1.065e+00 info 1.400e-03 | train C 5.74e-07 S 0.994 | EVAL C 7.107e-07 S 0.9961 | buf 26208 | 1308s
+ep  3528 | dynL 0.175 polR 1.137e+00 info 6.896e-04 | train C 1.95e-07 S 0.997 | EVAL C 5.599e-07 S 0.9963 | buf 28224 | 1431s
+ep  3780 | dynL 0.173 polR 1.107e+00 info 9.090e-04 | train C 2.08e-06 S 0.995 | EVAL C 4.597e-07 S 0.9965 | buf 30240 | 1555s
+ep  4032 | dynL 0.173 polR 1.197e+00 info 8.358e-04 | train C 2.44e-07 S 0.995 | EVAL C 4.385e-07 S 0.9965 | buf 32256 | 1678s
+ep  4284 | dynL 0.168 polR 1.191e+00 info 8.557e-04 | train C 1.53e-07 S 0.997 | EVAL C 4.205e-07 S 0.9965 | buf 34272 | 1802s
+ep  4536 | dynL 0.169 polR 1.083e+00 info 1.600e-03 | train C 2.42e-07 S 0.997 | EVAL C 3.755e-07 S 0.9965 | buf 36288 | 1923s
+ep  4788 | dynL 0.173 polR 1.170e+00 info 1.191e-03 | train C 8.57e-08 S 0.993 | EVAL C 3.512e-07 S 0.9964 | buf 38304 | 2044s
+ep  5040 | dynL 0.172 polR 1.261e+00 info 9.833e-04 | train C 1.51e-07 S 0.996 | EVAL C 3.407e-07 S 0.9964 | buf 40320 | 2167s
+ep  5292 | dynL 0.171 polR 1.187e+00 info 1.390e-03 | train C 1.63e-07 S 0.998 | EVAL C 3.595e-07 S 0.9964 | buf 42336 | 2291s
+ep  5544 | dynL 0.176 polR 1.231e+00 info 1.297e-03 | train C 5.86e-07 S 0.995 | EVAL C 4.409e-07 S 0.9967 | buf 44352 | 2414s
+ep  5796 | dynL 0.169 polR 1.195e+00 info 1.303e-03 | train C 2.43e-07 S 0.994 | EVAL C 4.332e-07 S 0.9966 | buf 46368 | 2535s
+ep  6048 | dynL 0.172 polR 1.242e+00 info 1.331e-03 | train C 4.96e-07 S 0.994 | EVAL C 3.319e-07 S 0.9967 | buf 48384 | 2657s
+ep  6300 | dynL 0.170 polR 1.204e+00 info 1.589e-03 | train C 3.15e-07 S 0.997 | EVAL C 2.687e-07 S 0.9968 | buf 50400 | 2778s
+ep  6552 | dynL 0.171 polR 1.147e+00 info 2.462e-03 | train C 9.83e-07 S 0.996 | EVAL C 3.194e-07 S 0.9970 | buf 52416 | 2902s
+ep  6804 | dynL 0.169 polR 1.166e+00 info 2.485e-03 | train C 1.72e-07 S 1.000 | EVAL C 3.087e-07 S 0.9970 | buf 54432 | 3025s
+ep  7056 | dynL 0.174 polR 1.175e+00 info 2.142e-03 | train C 1.62e-07 S 0.999 | EVAL C 3.264e-07 S 0.9970 | buf 56448 | 3147s
+ep  7308 | dynL 0.171 polR 1.234e+00 info 1.534e-03 | train C 7.19e-08 S 0.998 | EVAL C 3.728e-07 S 0.9970 | buf 58464 | 3271s
+ep  7560 | dynL 0.175 polR 1.289e+00 info 1.114e-03 | train C 8.92e-08 S 1.000 | EVAL C 4.011e-07 S 0.9970 | buf 60480 | 3394s
+ep  7812 | dynL 0.177 polR 1.207e+00 info 2.089e-03 | train C 9.89e-07 S 0.991 | EVAL C 3.470e-07 S 0.9969 | buf 62496 | 3519s
+ep  8064 | dynL 0.174 polR 1.300e+00 info 1.324e-03 | train C 3.90e-07 S 0.997 | EVAL C 2.836e-07 S 0.9969 | buf 64512 | 3643s
+ep  8316 | dynL 0.176 polR 1.275e+00 info 1.816e-03 | train C 8.18e-07 S 0.997 | EVAL C 2.475e-07 S 0.9968 | buf 66528 | 3766s
+ep  8568 | dynL 0.176 polR 1.255e+00 info 1.862e-03 | train C 4.47e-07 S 0.994 | EVAL C 2.538e-07 S 0.9968 | buf 68544 | 3890s
+ep  8820 | dynL 0.176 polR 1.212e+00 info 2.234e-03 | train C 5.73e-07 S 0.995 | EVAL C 2.890e-07 S 0.9967 | buf 70560 | 4015s
+ep  9072 | dynL 0.175 polR 1.181e+00 info 2.317e-03 | train C 1.33e-07 S 0.994 | EVAL C 2.776e-07 S 0.9968 | buf 72576 | 4137s
+ep  9324 | dynL 0.179 polR 1.181e+00 info 3.502e-03 | train C 9.24e-07 S 0.994 | EVAL C 2.887e-07 S 0.9968 | buf 74592 | 4261s
+ep  9576 | dynL 0.176 polR 1.184e+00 info 2.420e-03 | train C 5.04e-07 S 0.997 | EVAL C 2.914e-07 S 0.9968 | buf 76608 | 4383s
+ep  9828 | dynL 0.178 polR 1.273e+00 info 2.420e-03 | train C 6.78e-07 S 0.998 | EVAL C 2.680e-07 S 0.9967 | buf 78624 | 4507s
+[infogain] saved replay buffer (80080 transitions) -> logs/po4ncpa_hybrid_s0.20/replay_buffer.npz (1.7s)
+ep 10080 | dynL 0.179 polR 1.160e+00 info 3.671e-03 | train C 1.02e-07 S 0.995 | EVAL C 2.424e-07 S 0.9967 | buf 80640 | 4631s
+ep 10332 | dynL 0.183 polR 1.188e+00 info 2.813e-03 | train C 2.81e-07 S 0.998 | EVAL C 2.581e-07 S 0.9968 | buf 82656 | 4753s
+ep 10584 | dynL 0.179 polR 1.231e+00 info 2.263e-03 | train C 2.99e-07 S 0.999 | EVAL C 3.100e-07 S 0.9968 | buf 84672 | 4875s
+ep 10836 | dynL 0.183 polR 1.208e+00 info 3.142e-03 | train C 1.94e-07 S 0.994 | EVAL C 2.957e-07 S 0.9967 | buf 86688 | 4998s
+ep 11088 | dynL 0.181 polR 1.290e+00 info 1.858e-03 | train C 8.79e-07 S 0.997 | EVAL C 2.792e-07 S 0.9967 | buf 88704 | 5121s
+ep 11340 | dynL 0.181 polR 1.274e+00 info 2.127e-03 | train C 1.10e-06 S 0.992 | EVAL C 2.747e-07 S 0.9965 | buf 90720 | 5244s
+ep 11592 | dynL 0.181 polR 1.245e+00 info 2.551e-03 | train C 1.35e-07 S 0.999 | EVAL C 2.460e-07 S 0.9965 | buf 92736 | 5365s
+ep 11844 | dynL 0.184 polR 1.288e+00 info 2.125e-03 | train C 2.26e-07 S 1.000 | EVAL C 2.381e-07 S 0.9966 | buf 94752 | 5486s
+ep 12096 | dynL 0.183 polR 1.317e+00 info 2.075e-03 | train C 1.60e-07 S 0.998 | EVAL C 2.579e-07 S 0.9965 | buf 96768 | 5608s
+ep 12348 | dynL 0.183 polR 1.302e+00 info 1.794e-03 | train C 3.51e-07 S 0.998 | EVAL C 2.296e-07 S 0.9965 | buf 98784 | 5728s
+ep 12600 | dynL 0.184 polR 1.298e+00 info 2.597e-03 | train C 2.22e-07 S 0.998 | EVAL C 2.412e-07 S 0.9965 | buf 100800 | 5848s
+ep 12852 | dynL 0.186 polR 1.290e+00 info 2.183e-03 | train C 1.68e-07 S 0.998 | EVAL C 2.259e-07 S 0.9966 | buf 102816 | 5966s
+ep 13104 | dynL 0.186 polR 1.268e+00 info 2.107e-03 | train C 4.08e-07 S 0.996 | EVAL C 2.370e-07 S 0.9966 | buf 104832 | 6085s
+ep 13356 | dynL 0.188 polR 1.259e+00 info 2.519e-03 | train C 6.15e-07 S 0.997 | EVAL C 2.140e-07 S 0.9966 | buf 106848 | 6204s
+ep 13608 | dynL 0.187 polR 1.220e+00 info 3.046e-03 | train C 1.66e-07 S 0.997 | EVAL C 2.188e-07 S 0.9966 | buf 108864 | 6321s
+ep 13860 | dynL 0.186 polR 1.181e+00 info 3.628e-03 | train C 4.57e-08 S 0.999 | EVAL C 2.092e-07 S 0.9967 | buf 110880 | 6441s
+ep 14112 | dynL 0.190 polR 1.232e+00 info 2.937e-03 | train C 1.45e-07 S 0.996 | EVAL C 2.625e-07 S 0.9967 | buf 112896 | 6563s
+ep 14364 | dynL 0.188 polR 1.368e+00 info 2.017e-03 | train C 7.13e-07 S 0.997 | EVAL C 2.680e-07 S 0.9966 | buf 114912 | 6686s
+ep 14616 | dynL 0.187 polR 1.299e+00 info 2.345e-03 | train C 1.24e-08 S 1.000 | EVAL C 2.834e-07 S 0.9966 | buf 116928 | 6805s
+ep 14868 | dynL 0.189 polR 1.308e+00 info 2.203e-03 | train C 8.00e-08 S 0.994 | EVAL C 2.274e-07 S 0.9966 | buf 118944 | 6927s
+ep 15120 | dynL 0.189 polR 1.238e+00 info 2.977e-03 | train C 1.96e-07 S 0.995 | EVAL C 2.339e-07 S 0.9965 | buf 120960 | 7048s
+ep 15372 | dynL 0.192 polR 1.251e+00 info 3.570e-03 | train C 1.67e-07 S 0.999 | EVAL C 2.147e-07 S 0.9967 | buf 122976 | 7169s
+ep 15624 | dynL 0.187 polR 1.253e+00 info 2.720e-03 | train C 7.88e-08 S 1.000 | EVAL C 2.249e-07 S 0.9966 | buf 124992 | 7290s
+ep 15876 | dynL 0.187 polR 1.209e+00 info 2.877e-03 | train C 3.60e-07 S 0.997 | EVAL C 2.277e-07 S 0.9967 | buf 127008 | 7409s
+ep 16128 | dynL 0.189 polR 1.221e+00 info 3.427e-03 | train C 1.21e-07 S 0.998 | EVAL C 2.536e-07 S 0.9967 | buf 129024 | 7530s
+ep 16380 | dynL 0.189 polR 1.282e+00 info 2.376e-03 | train C 1.47e-06 S 0.996 | EVAL C 2.829e-07 S 0.9966 | buf 131040 | 7650s
+ep 16632 | dynL 0.192 polR 1.367e+00 info 1.704e-03 | train C 4.65e-07 S 0.995 | EVAL C 2.774e-07 S 0.9965 | buf 133056 | 7770s
+ep 16884 | dynL 0.192 polR 1.244e+00 info 3.432e-03 | train C 4.22e-07 S 0.995 | EVAL C 3.003e-07 S 0.9965 | buf 135072 | 7889s
+ep 17136 | dynL 0.190 polR 1.301e+00 info 2.524e-03 | train C 2.15e-07 S 0.996 | EVAL C 2.907e-07 S 0.9965 | buf 137088 | 8008s
+ep 17388 | dynL 0.191 polR 1.242e+00 info 2.701e-03 | train C 3.37e-07 S 0.998 | EVAL C 2.880e-07 S 0.9964 | buf 139104 | 8128s
+ep 17640 | dynL 0.192 polR 1.336e+00 info 1.741e-03 | train C 3.25e-07 S 0.995 | EVAL C 2.623e-07 S 0.9964 | buf 141120 | 8249s
+ep 17892 | dynL 0.191 polR 1.263e+00 info 3.125e-03 | train C 9.82e-08 S 0.999 | EVAL C 2.493e-07 S 0.9966 | buf 143136 | 8368s
+ep 18144 | dynL 0.193 polR 1.292e+00 info 2.619e-03 | train C 8.89e-08 S 0.993 | EVAL C 2.253e-07 S 0.9967 | buf 145152 | 8487s
+ep 18396 | dynL 0.191 polR 1.312e+00 info 2.592e-03 | train C 1.14e-07 S 0.995 | EVAL C 2.602e-07 S 0.9967 | buf 147168 | 8606s
+ep 18648 | dynL 0.195 polR 1.282e+00 info 3.295e-03 | train C 6.68e-08 S 0.998 | EVAL C 3.098e-07 S 0.9967 | buf 149184 | 8726s
+ep 18900 | dynL 0.192 polR 1.242e+00 info 3.130e-03 | train C 3.82e-07 S 0.999 | EVAL C 2.803e-07 S 0.9967 | buf 151200 | 8844s
+ep 19152 | dynL 0.193 polR 1.249e+00 info 3.201e-03 | train C 2.70e-07 S 0.995 | EVAL C 2.802e-07 S 0.9967 | buf 153216 | 8964s
+ep 19404 | dynL 0.192 polR 1.268e+00 info 3.310e-03 | train C 2.77e-07 S 0.996 | EVAL C 2.647e-07 S 0.9966 | buf 155232 | 9085s
+ep 19656 | dynL 0.193 polR 1.266e+00 info 3.016e-03 | train C 1.92e-07 S 0.997 | EVAL C 2.617e-07 S 0.9966 | buf 157248 | 9205s
+ep 19908 | dynL 0.194 polR 1.239e+00 info 3.773e-03 | train C 5.18e-07 S 0.993 | EVAL C 2.318e-07 S 0.9966 | buf 159264 | 9325s
+[infogain] saved replay buffer (160160 transitions) -> logs/po4ncpa_hybrid_s0.20/replay_buffer.npz (3.6s)
+ep 20160 | dynL 0.194 polR 1.243e+00 info 3.156e-03 | train C 1.61e-07 S 0.994 | EVAL C 2.324e-07 S 0.9966 | buf 161280 | 9448s
+ep 20412 | dynL 0.196 polR 1.297e+00 info 2.988e-03 | train C 5.00e-07 S 0.997 | EVAL C 2.566e-07 S 0.9966 | buf 163296 | 9569s
+ep 20664 | dynL 0.195 polR 1.267e+00 info 2.820e-03 | train C 4.61e-07 S 0.995 | EVAL C 2.491e-07 S 0.9967 | buf 165312 | 9690s
+ep 20916 | dynL 0.195 polR 1.316e+00 info 2.472e-03 | train C 3.58e-07 S 0.995 | EVAL C 2.566e-07 S 0.9967 | buf 167328 | 9810s
+ep 21168 | dynL 0.195 polR 1.339e+00 info 2.282e-03 | train C 1.62e-07 S 0.997 | EVAL C 2.600e-07 S 0.9967 | buf 169344 | 9931s
+ep 21420 | dynL 0.197 polR 1.316e+00 info 2.422e-03 | train C 3.55e-07 S 0.996 | EVAL C 2.887e-07 S 0.9967 | buf 171360 | 10050s
+ep 21672 | dynL 0.197 polR 1.294e+00 info 2.800e-03 | train C 3.37e-07 S 0.992 | EVAL C 2.823e-07 S 0.9967 | buf 173376 | 10170s
+ep 21924 | dynL 0.198 polR 1.272e+00 info 3.626e-03 | train C 1.93e-07 S 0.999 | EVAL C 3.025e-07 S 0.9966 | buf 175392 | 10291s
+ep 22176 | dynL 0.197 polR 1.237e+00 info 3.636e-03 | train C 3.86e-07 S 1.000 | EVAL C 2.979e-07 S 0.9965 | buf 177408 | 10413s
+ep 22428 | dynL 0.196 polR 1.334e+00 info 2.747e-03 | train C 4.03e-07 S 0.996 | EVAL C 2.817e-07 S 0.9965 | buf 179424 | 10534s
+ep 22680 | dynL 0.195 polR 1.275e+00 info 3.270e-03 | train C 2.78e-07 S 0.999 | EVAL C 2.659e-07 S 0.9965 | buf 181440 | 10653s
+ep 22932 | dynL 0.198 polR 1.176e+00 info 4.568e-03 | train C 3.99e-07 S 0.994 | EVAL C 2.601e-07 S 0.9966 | buf 183456 | 10772s
+ep 23184 | dynL 0.199 polR 1.270e+00 info 3.159e-03 | train C 7.36e-07 S 0.995 | EVAL C 2.567e-07 S 0.9966 | buf 185472 | 10895s
+ep 23436 | dynL 0.198 polR 1.258e+00 info 4.015e-03 | train C 1.23e-07 S 0.998 | EVAL C 2.389e-07 S 0.9966 | buf 187488 | 11014s
+ep 23688 | dynL 0.198 polR 1.319e+00 info 2.467e-03 | train C 1.38e-07 S 0.999 | EVAL C 2.817e-07 S 0.9965 | buf 189504 | 11134s
+ep 23940 | dynL 0.197 polR 1.299e+00 info 2.433e-03 | train C 1.06e-07 S 0.999 | EVAL C 2.844e-07 S 0.9964 | buf 191520 | 11254s
+ep 24192 | dynL 0.198 polR 1.239e+00 info 2.950e-03 | train C 2.06e-07 S 0.997 | EVAL C 2.677e-07 S 0.9964 | buf 193536 | 11374s
+ep 24444 | dynL 0.198 polR 1.145e+00 info 4.999e-03 | train C 2.65e-07 S 0.996 | EVAL C 2.686e-07 S 0.9965 | buf 195552 | 11494s
+ep 24696 | dynL 0.197 polR 1.228e+00 info 3.765e-03 | train C 4.37e-08 S 1.000 | EVAL C 2.717e-07 S 0.9965 | buf 197568 | 11615s
+ep 24948 | dynL 0.194 polR 1.322e+00 info 2.393e-03 | train C 2.25e-07 S 0.996 | EVAL C 2.756e-07 S 0.9966 | buf 199584 | 11736s
+ep 25000 | dynL 0.200 polR 1.306e+00 info 2.792e-03 | train C 4.98e-08 S 1.000 | EVAL C 2.555e-07 S 0.9965 | buf 200000 | 11799s
+[infogain] saved replay buffer (200000 transitions) -> logs/po4ncpa_hybrid_s0.20/replay_buffer.npz (4.4s)
+[infogain] done in 11804s
+=== PO4NCPA HYBRID (sigma=0.20) DONE ===

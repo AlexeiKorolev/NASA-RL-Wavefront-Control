@@ -1,0 +1,17 @@
+[infogain] correction scale min 2.52e-09 max 4.65e-08 | probe scale (x0.1) min 2.52e-10 max 4.65e-09 | modes=55 action=110
+[infogain] device=cuda image=33x33 modes=55 action=110 workers=14 max_steps=8 lambda_info=0.0
+ep   252 | dynL 0.281 polR 0.000e+00 info 0.000e+00 | train C 1.46e-03 S 0.777 | EVAL C 1.842e-04 S 0.9733 | buf 2016 | 129s
+ep   504 | dynL 0.316 polR 0.000e+00 info 0.000e+00 | train C 1.62e-03 S 0.840 | EVAL C 1.842e-04 S 0.9733 | buf 4032 | 253s
+ep   756 | dynL 0.336 polR 0.000e+00 info 0.000e+00 | train C 1.38e-03 S 0.794 | EVAL C 1.842e-04 S 0.9733 | buf 6048 | 377s
+ep  1008 | dynL 0.351 polR 0.000e+00 info 0.000e+00 | train C 1.51e-03 S 0.804 | EVAL C 1.842e-04 S 0.9733 | buf 8064 | 501s
+ep  1260 | dynL 0.359 polR 0.000e+00 info 0.000e+00 | train C 1.46e-03 S 0.767 | EVAL C 1.842e-04 S 0.9733 | buf 10080 | 625s
+ep  1512 | dynL 0.369 polR 0.000e+00 info 0.000e+00 | train C 1.10e-03 S 0.827 | EVAL C 1.842e-04 S 0.9733 | buf 12096 | 750s
+ep  1764 | dynL 0.373 polR 0.000e+00 info 0.000e+00 | train C 1.78e-03 S 0.760 | EVAL C 1.842e-04 S 0.9733 | buf 14112 | 875s
+ep  2016 | dynL 0.379 polR -3.388e+00 info 6.912e-02 | train C 2.77e-04 S 0.952 | EVAL C 2.435e-04 S 0.9699 | buf 16128 | 1009s
+ep  2268 | dynL 0.371 polR -3.016e+00 info 4.936e-02 | train C 5.24e-04 S 0.920 | EVAL C 4.747e-04 S 0.9366 | buf 18144 | 1217s
+ep  2520 | dynL 0.367 polR -2.806e+00 info 5.435e-02 | train C 5.58e-04 S 0.935 | EVAL C 5.452e-04 S 0.9357 | buf 20160 | 1424s
+ep  2772 | dynL 0.363 polR -2.791e+00 info 5.731e-02 | train C 3.98e-04 S 0.947 | EVAL C 6.475e-04 S 0.9185 | buf 22176 | 1630s
+ep  3024 | dynL 0.361 polR -3.116e+00 info 8.362e-02 | train C 5.72e-04 S 0.908 | EVAL C 5.842e-04 S 0.9031 | buf 24192 | 1837s
+ep  3276 | dynL 0.363 polR -2.963e+00 info 7.195e-02 | train C 6.52e-04 S 0.913 | EVAL C 5.479e-04 S 0.9333 | buf 26208 | 2044s
+ep  3528 | dynL 0.365 polR -2.446e+00 info 4.284e-02 | train C 3.57e-04 S 0.956 | EVAL C 1.814e-04 S 0.9733 | buf 28224 | 2250s
+[2026-07-03T18:14:22.149] error: *** JOB 3295091 ON adroit-h11g3 CANCELLED AT 2026-07-03T18:14:22 DUE to SIGNAL Terminated ***

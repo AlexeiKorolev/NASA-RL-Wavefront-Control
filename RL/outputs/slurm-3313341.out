@@ -1,0 +1,85 @@
+=== EFC vs drift: tau=0 ===
+[m1] run=po4ncpa_corona corona=True modes=55 probes=8 dark-hole pixels=372 draws=15 iters=20 tau=0.0
+[m1] building modal control Jacobian ...
+[m1] Jacobian (372, 55), condition number 2.11e+02
+  probe-EFC @        noiseless: median final 1.178e-10
+
+=== M3: pairwise-probe EFC vs photon budget ===
+  perfect-knowledge EFC (noiseless floor): 1.160e-10
+  ideal 55-mode floor                    : 1.18e-10
+  passive PO4NCPA (to beat)              : 1.5e-05
+
+    flux (ph/peak) | median true contrast
+         noiseless |            1.178e-10
+[m3-efc] done.
+=== EFC vs drift: tau=100 ===
+[m1] run=po4ncpa_corona corona=True modes=55 probes=8 dark-hole pixels=372 draws=15 iters=20 tau=100.0
+[m1] building modal control Jacobian ...
+[m1] Jacobian (372, 55), condition number 2.11e+02
+  probe-EFC @        noiseless: median final 6.589e-10
+
+=== M3: pairwise-probe EFC vs photon budget ===
+  perfect-knowledge EFC (noiseless floor): 5.951e-10
+  ideal 55-mode floor                    : 1.18e-10
+  passive PO4NCPA (to beat)              : 1.5e-05
+
+    flux (ph/peak) | median true contrast
+         noiseless |            6.589e-10
+[m3-efc] done.
+=== EFC vs drift: tau=30 ===
+[m1] run=po4ncpa_corona corona=True modes=55 probes=8 dark-hole pixels=372 draws=15 iters=20 tau=30.0
+[m1] building modal control Jacobian ...
+[m1] Jacobian (372, 55), condition number 2.11e+02
+  probe-EFC @        noiseless: median final 4.656e-09
+
+=== M3: pairwise-probe EFC vs photon budget ===
+  perfect-knowledge EFC (noiseless floor): 4.627e-09
+  ideal 55-mode floor                    : 1.18e-10
+  passive PO4NCPA (to beat)              : 1.5e-05
+
+    flux (ph/peak) | median true contrast
+         noiseless |            4.656e-09
+[m3-efc] done.
+=== EFC vs drift: tau=10 ===
+[m1] run=po4ncpa_corona corona=True modes=55 probes=8 dark-hole pixels=372 draws=15 iters=20 tau=10.0
+[m1] building modal control Jacobian ...
+[m1] Jacobian (372, 55), condition number 2.11e+02
+  probe-EFC @        noiseless: median final 4.147e-08
+
+=== M3: pairwise-probe EFC vs photon budget ===
+  perfect-knowledge EFC (noiseless floor): 4.224e-08
+  ideal 55-mode floor                    : 1.18e-10
+  passive PO4NCPA (to beat)              : 1.5e-05
+
+    flux (ph/peak) | median true contrast
+         noiseless |            4.147e-08
+[m3-efc] done.
+=== EFC vs drift: tau=3 ===
+[m1] run=po4ncpa_corona corona=True modes=55 probes=8 dark-hole pixels=372 draws=15 iters=20 tau=3.0
+[m1] building modal control Jacobian ...
+[m1] Jacobian (372, 55), condition number 2.11e+02
+  probe-EFC @        noiseless: median final 4.711e-07
+
+=== M3: pairwise-probe EFC vs photon budget ===
+  perfect-knowledge EFC (noiseless floor): 6.255e-07
+  ideal 55-mode floor                    : 1.18e-10
+  passive PO4NCPA (to beat)              : 1.5e-05
+
+    flux (ph/peak) | median true contrast
+         noiseless |            4.711e-07
+[m3-efc] done.
+=== EFC vs drift: tau=1 ===
+[m1] run=po4ncpa_corona corona=True modes=55 probes=8 dark-hole pixels=372 draws=15 iters=20 tau=1.0
+[m1] building modal control Jacobian ...
+[m1] Jacobian (372, 55), condition number 2.11e+02
+  probe-EFC @        noiseless: median final 4.481e-06
+
+=== M3: pairwise-probe EFC vs photon budget ===
+  perfect-knowledge EFC (noiseless floor): 3.514e-06
+  ideal 55-mode floor                    : 1.18e-10
+  passive PO4NCPA (to beat)              : 1.5e-05
+
+    flux (ph/peak) | median true contrast
+         noiseless |            4.481e-06
+[m3-efc] done.
+=== EFC PROBE DYNAMIC M4 DONE ===

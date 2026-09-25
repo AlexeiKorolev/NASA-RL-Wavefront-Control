@@ -1,0 +1,9 @@
+[viz] run=po4ncpa_corona coronagraph=True modes=55 image=(33, 33) device=cpu
+[viz] demo seed 900000: final C=2.545e-05 S=0.9964 | ideal floor C=1.178e-10
+[viz] notebooks/figs/view1_image_evolution.png
+[viz] notebooks/figs/view2_trajectory.png
+[viz] notebooks/figs/view3_phase_maps.png
+[viz] notebooks/figs/view4_distribution.png
+[viz] 60 held-out: contrast median 1.502e-05 (best 2.925e-06, worst 4.733e-05) | Strehl median 0.9975 | ideal floor median 1.178e-10
+[viz] done.
+=== VIZ DONE -> notebooks/figs/view{1,2,3,4}_*.png (po4ncpa_corona/best) ===

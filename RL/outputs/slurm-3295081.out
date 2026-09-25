@@ -1,0 +1,20 @@
+[infogain] correction scale min 2.52e-09 max 4.65e-08 | probe scale (x0.1) min 2.52e-10 max 4.65e-09 | modes=55 action=110
+[infogain] device=cuda image=33x33 modes=55 action=110 workers=14 max_steps=8 lambda_info=0.0
+ep   252 | dynL 0.282 polR 0.000e+00 info 0.000e+00 | train C 1.35e-03 S 0.861 | EVAL C 1.729e-04 S 0.9738 | buf 2016 | 122s
+ep   504 | dynL 0.316 polR 0.000e+00 info 0.000e+00 | train C 9.34e-04 S 0.849 | EVAL C 1.729e-04 S 0.9738 | buf 4032 | 240s
+ep   756 | dynL 0.334 polR 0.000e+00 info 0.000e+00 | train C 9.27e-04 S 0.878 | EVAL C 1.729e-04 S 0.9738 | buf 6048 | 358s
+ep  1008 | dynL 0.345 polR -2.976e+00 info 6.835e-02 | train C 2.14e-04 S 0.960 | EVAL C 1.830e-04 S 0.9720 | buf 8064 | 480s
+ep  1260 | dynL 0.346 polR -2.362e+00 info 3.262e-02 | train C 3.00e-04 S 0.961 | EVAL C 1.922e-04 S 0.9713 | buf 10080 | 679s
+ep  1512 | dynL 0.350 polR -2.377e+00 info 4.016e-02 | train C 3.14e-04 S 0.955 | EVAL C 1.812e-04 S 0.9699 | buf 12096 | 880s
+ep  1764 | dynL 0.357 polR -2.081e+00 info 2.925e-02 | train C 2.40e-04 S 0.962 | EVAL C 1.944e-04 S 0.9692 | buf 14112 | 1080s
+ep  2016 | dynL 0.361 polR -2.236e+00 info 4.172e-02 | train C 2.48e-04 S 0.966 | EVAL C 2.124e-04 S 0.9694 | buf 16128 | 1279s
+ep  2268 | dynL 0.364 polR -2.084e+00 info 3.298e-02 | train C 2.30e-04 S 0.973 | EVAL C 1.787e-04 S 0.9756 | buf 18144 | 1478s
+ep  2520 | dynL 0.366 polR -1.896e+00 info 3.758e-02 | train C 3.06e-04 S 0.962 | EVAL C 1.835e-04 S 0.9730 | buf 20160 | 1679s
+ep  2772 | dynL 0.372 polR -2.051e+00 info 3.621e-02 | train C 1.47e-04 S 0.968 | EVAL C 1.703e-04 S 0.9745 | buf 22176 | 1878s
+ep  3024 | dynL 0.375 polR -1.763e+00 info 3.059e-02 | train C 2.89e-04 S 0.949 | EVAL C 1.724e-04 S 0.9752 | buf 24192 | 2079s
+ep  3276 | dynL 0.377 polR -1.927e+00 info 3.607e-02 | train C 1.82e-04 S 0.972 | EVAL C 1.596e-04 S 0.9754 | buf 26208 | 2277s
+ep  3528 | dynL 0.381 polR -1.828e+00 info 3.366e-02 | train C 2.18e-04 S 0.953 | EVAL C 1.565e-04 S 0.9778 | buf 28224 | 2477s
+ep  3780 | dynL 0.383 polR -1.657e+00 info 2.592e-02 | train C 2.10e-04 S 0.968 | EVAL C 1.504e-04 S 0.9772 | buf 30240 | 2677s
+ep  4000 | dynL 0.385 polR -1.827e+00 info 3.318e-02 | train C 1.67e-04 S 0.971 | EVAL C 1.441e-04 S 0.9800 | buf 32000 | 2853s
+[infogain] done in 2855s
+=== PO4NCPA INFOGAIN SWEEP lambda=0.0 DONE ===

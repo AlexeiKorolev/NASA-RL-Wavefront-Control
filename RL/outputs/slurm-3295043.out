@@ -1,0 +1,22 @@
+[infogain] correction scale min 2.52e-09 max 4.65e-08 | probe scale (x0.1) min 2.52e-10 max 4.65e-09 | modes=55 action=110
+[infogain] device=cuda image=33x33 modes=55 action=110 workers=14 max_steps=8 lambda_info=0.3
+ep   252 | dynL 0.280 polR 0.000e+00 info 0.000e+00 | train C 1.31e-03 S 0.814 | EVAL C 1.729e-04 S 0.9738 | buf 2016 | 122s
+ep   504 | dynL 0.320 polR 0.000e+00 info 0.000e+00 | train C 2.25e-03 S 0.739 | EVAL C 1.729e-04 S 0.9738 | buf 4032 | 239s
+ep   756 | dynL 0.337 polR 0.000e+00 info 0.000e+00 | train C 9.42e-04 S 0.891 | EVAL C 1.729e-04 S 0.9738 | buf 6048 | 355s
+ep  1008 | dynL 0.348 polR -3.159e+00 info 5.954e-02 | train C 1.85e-04 S 0.979 | EVAL C 2.209e-04 S 0.9696 | buf 8064 | 477s
+ep  1260 | dynL 0.338 polR -3.037e+00 info 7.334e-02 | train C 4.30e-04 S 0.937 | EVAL C 4.614e-04 S 0.9318 | buf 10080 | 675s
+ep  1512 | dynL 0.336 polR -3.146e+00 info 7.623e-02 | train C 5.51e-04 S 0.939 | EVAL C 6.587e-04 S 0.9111 | buf 12096 | 875s
+ep  1764 | dynL 0.335 polR -2.515e+00 info 4.441e-02 | train C 2.83e-04 S 0.948 | EVAL C 6.074e-04 S 0.9447 | buf 14112 | 1073s
+ep  2016 | dynL 0.332 polR -3.156e+00 info 9.387e-02 | train C 7.91e-04 S 0.930 | EVAL C 9.701e-04 S 0.8861 | buf 16128 | 1273s
+ep  2268 | dynL 0.332 polR -3.264e+00 info 9.721e-02 | train C 5.61e-04 S 0.900 | EVAL C 6.752e-04 S 0.8833 | buf 18144 | 1472s
+ep  2520 | dynL 0.328 polR -3.090e+00 info 1.069e-01 | train C 6.99e-04 S 0.911 | EVAL C 5.441e-04 S 0.9304 | buf 20160 | 1671s
+ep  2772 | dynL 0.327 polR -2.999e+00 info 1.137e-01 | train C 2.92e-04 S 0.956 | EVAL C 5.163e-04 S 0.9385 | buf 22176 | 1871s
+ep  3024 | dynL 0.327 polR -2.577e+00 info 5.631e-02 | train C 2.37e-04 S 0.959 | EVAL C 1.886e-04 S 0.9707 | buf 24192 | 2071s
+ep  3276 | dynL 0.337 polR -2.800e+00 info 7.296e-02 | train C 5.54e-04 S 0.940 | EVAL C 5.013e-04 S 0.9435 | buf 26208 | 2269s
+ep  3528 | dynL 0.339 polR -2.748e+00 info 4.172e-02 | train C 3.16e-04 S 0.954 | EVAL C 1.867e-04 S 0.9727 | buf 28224 | 2468s
+ep  3780 | dynL 0.340 polR -2.383e+00 info 3.297e-02 | train C 1.75e-04 S 0.972 | EVAL C 1.644e-04 S 0.9738 | buf 30240 | 2668s
+ep  4032 | dynL 0.344 polR -2.414e+00 info 3.926e-02 | train C 3.79e-04 S 0.964 | EVAL C 1.958e-04 S 0.9714 | buf 32256 | 2868s
+ep  4284 | dynL 0.347 polR -2.439e+00 info 6.760e-02 | train C 4.52e-04 S 0.950 | EVAL C 1.874e-04 S 0.9721 | buf 34272 | 3070s
+ep  4536 | dynL 0.350 polR -2.284e+00 info 4.161e-02 | train C 1.72e-04 S 0.978 | EVAL C 2.076e-04 S 0.9690 | buf 36288 | 3269s
+ep  4788 | dynL 0.355 polR -2.237e+00 info 3.366e-02 | train C 2.84e-04 S 0.962 | EVAL C 1.990e-04 S 0.9712 | buf 38304 | 3469s
+[2026-07-03T15:34:11.007] error: *** JOB 3295043 ON adroit-h11g3 CANCELLED AT 2026-07-03T15:34:11 DUE TO TIME LIMIT ***

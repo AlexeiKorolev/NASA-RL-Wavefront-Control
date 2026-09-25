@@ -1,0 +1,57 @@
+[m1] run=po4ncpa_corona corona=True modes=55 probes=8 dark-hole pixels=372 draws=15 iters=10
+[m1] building modal control Jacobian ...
+[m1] Jacobian (372, 55), condition number 2.11e+02
+  draw  0: start 1.30e-04  perfect-EFC 1.16e-10  probe-EFC 1.32e-10
+  draw  1: start 1.84e-04  perfect-EFC 1.16e-10  probe-EFC 1.17e-10
+  draw  2: start 1.66e-04  perfect-EFC 1.16e-10  probe-EFC 1.17e-10
+  draw  3: start 1.43e-04  perfect-EFC 4.84e-08  probe-EFC 4.79e-08
+  draw  4: start 3.18e-04  perfect-EFC 1.16e-10  probe-EFC 1.18e-10
+  draw  5: start 2.25e-04  perfect-EFC 1.16e-10  probe-EFC 1.32e-10
+  draw  6: start 1.24e-04  perfect-EFC 1.16e-10  probe-EFC 1.18e-10
+  draw  7: start 1.43e-04  perfect-EFC 1.16e-10  probe-EFC 1.17e-10
+  draw  8: start 2.38e-04  perfect-EFC 1.16e-10  probe-EFC 1.32e-10
+  draw  9: start 2.03e-04  perfect-EFC 1.16e-10  probe-EFC 1.33e-10
+  draw 10: start 1.74e-04  perfect-EFC 1.16e-10  probe-EFC 1.17e-10
+  draw 11: start 1.28e-04  perfect-EFC 1.16e-10  probe-EFC 1.18e-10
+  draw 12: start 1.78e-04  perfect-EFC 1.16e-10  probe-EFC 1.32e-10
+  draw 13: start 1.91e-04  perfect-EFC 1.16e-10  probe-EFC 1.17e-10
+  draw 14: start 2.23e-04  perfect-EFC 1.16e-10  probe-EFC 1.18e-10
+
+=== M1 pairwise-probe EFC baseline ===
+
+  [perfect] start median 1.777e-04  ->  final median 1.160e-10  (best 1.160e-10, worst 4.840e-08)
+   median contrast vs EFC iteration:
+     iter  0: 1.777e-04
+     iter  1: 1.392e-06
+     iter  2: 3.692e-08
+     iter  3: 3.375e-10
+     iter  4: 1.266e-10
+     iter  5: 1.192e-10
+     iter  6: 1.169e-10
+     iter  7: 1.163e-10
+     iter  8: 1.161e-10
+     iter  9: 1.160e-10
+     iter 10: 1.160e-10
+
+  [probe] start median 1.777e-04  ->  final median 1.178e-10  (best 1.170e-10, worst 4.786e-08)
+   median contrast vs EFC iteration:
+     iter  0: 1.777e-04
+     iter  1: 1.395e-06
+     iter  2: 3.810e-08
+     iter  3: 3.160e-10
+     iter  4: 1.368e-10
+     iter  5: 1.178e-10
+     iter  6: 1.178e-10
+     iter  7: 1.178e-10
+     iter  8: 1.178e-10
+     iter  9: 1.178e-10
+     iter 10: 1.178e-10
+
+[m1] REFERENCE POINTS:
+     passive PO4NCPA (to beat)  : 1.5e-05
+     probe-EFC baseline (M1)    : 1.178e-10
+     perfect-knowledge EFC      : 1.160e-10
+     ideal 55-mode floor        : 1.18e-10
+[m1] probe-EFC vs passive PO4NCPA: 127308.7x deeper
+[m1] done.
+=== EFC PROBE M1 DONE ===

@@ -1,0 +1,8 @@
+[recon] n_dh=372 correction scale [2.52e-09,4.65e-08] probe x0.1 | modes=55
+[recon] device=cuda image=33x33 modes=55 action=110 n_dh=372 lambda_dchan=3.0
+ep   100 | dynL 2.156 fldL 0.691 polR 0.000e+00 | train C 1.57e-03 S 0.753 | EVAL C 1.922e-04 S 0.9731 | buf 2000 | 420s
+ep   200 | dynL 2.237 fldL 0.714 polR 0.000e+00 | train C 1.90e-03 S 0.750 | EVAL C 1.912e-04 S 0.9729 | buf 4000 | 886s
+ep   300 | dynL 2.228 fldL 0.639 polR -2.534e+00 | train C 2.87e-04 S 0.960 | EVAL C 3.893e-04 S 0.9582 | buf 6000 | 1346s
+ep   400 | dynL 2.237 fldL 0.607 polR -2.425e+00 | train C 4.20e-04 S 0.948 | EVAL C 2.867e-04 S 0.9590 | buf 8000 | 1806s
+[recon] done in 1806s
+=== PO4NCPA PROBE RECON SANITY DONE ===

@@ -1,0 +1,11 @@
+[infogain] correction scale min 2.52e-09 max 4.65e-08 | probe scale (x0.1) min 2.52e-10 max 4.65e-09 | modes=55 action=110
+[infogain] device=cuda image=33x33 modes=55 action=110 workers=14 max_steps=8 lambda_info=0.3
+ep   252 | dynL 0.280 polR 0.000e+00 info 0.000e+00 | train C 1.95e-03 S 0.748 | EVAL C 1.729e-04 S 0.9738 | buf 2016 | 122s
+ep   504 | dynL 0.321 polR 0.000e+00 info 0.000e+00 | train C 1.68e-03 S 0.689 | EVAL C 1.729e-04 S 0.9738 | buf 4032 | 239s
+ep   756 | dynL 0.337 polR 0.000e+00 info 0.000e+00 | train C 8.86e-04 S 0.849 | EVAL C 1.729e-04 S 0.9738 | buf 6048 | 357s
+ep  1008 | dynL 0.349 polR -3.349e+00 info 5.686e-02 | train C 1.04e-04 S 0.987 | EVAL C 1.874e-04 S 0.9727 | buf 8064 | 478s
+ep  1260 | dynL 0.347 polR -2.558e+00 info 3.875e-02 | train C 2.93e-04 S 0.963 | EVAL C 3.271e-04 S 0.9598 | buf 10080 | 677s
+ep  1512 | dynL 0.346 polR -3.103e+00 info 6.858e-02 | train C 3.17e-04 S 0.959 | EVAL C 3.204e-04 S 0.9596 | buf 12096 | 876s
+ep  1764 | dynL 0.343 polR -2.443e+00 info 3.837e-02 | train C 6.66e-04 S 0.922 | EVAL C 1.793e-04 S 0.9729 | buf 14112 | 1076s
+ep  2016 | dynL 0.350 polR -2.888e+00 info 5.227e-02 | train C 2.03e-04 S 0.959 | EVAL C 2.280e-04 S 0.9685 | buf 16128 | 1277s
+[2026-07-03T17:33:30.120] error: *** JOB 3295083 ON adroit-h11g3 CANCELLED AT 2026-07-03T17:33:30 DUE to SIGNAL Terminated ***

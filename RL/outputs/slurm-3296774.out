@@ -1,0 +1,14 @@
+name, memory.total [MiB]
+Tesla V100-PCIE-32GB, 32768 MiB
+=== SMOKE: efc_warmstart=true sigma=0.20 ===
+[infogain] correction scale min 2.60e-09 max 4.56e-08 | probe scale (x0.1) min 2.60e-10 max 4.56e-09 | modes=55 action=110
+[infogain] RESUMED from logs/po4ncpa_probe_logdeep3/po4ncpa_infogain_best.pt
+[infogain] no replay buffer at logs/_force_fresh_buffer_does_not_exist.npz -> refilling (resume_refill=800); expect the usual resume transient
+[infogain] device=cuda image=33x33 modes=55 action=110 workers=8 max_steps=8 lambda_info=0.0 reward=log lr_final_frac=1.0 explore_std_final=0.06
+ep   200 | dynL 0.364 polR 1.111e+00 info 7.822e-01 | train C 1.73e-05 S 0.998 | EVAL C 1.702e-06 S 0.9997 | buf 1600 | 232s
+ep   400 | dynL 0.345 polR 1.067e+00 info 7.664e-01 | train C 1.24e-05 S 0.998 | EVAL C 1.734e-06 S 0.9997 | buf 3200 | 448s
+ep   600 | dynL 0.331 polR 1.031e+00 info 1.042e+00 | train C 1.99e-05 S 0.997 | EVAL C 1.463e-06 S 0.9998 | buf 4800 | 660s
+ep   800 | dynL 0.326 polR 1.091e+00 info 9.902e-01 | train C 1.29e-05 S 0.997 | EVAL C 8.294e-07 S 0.9998 | buf 6400 | 868s
+[infogain] saved replay buffer (6400 transitions) -> logs/po4ncpa_smoke_wstrue_s0.20/replay_buffer.npz (0.2s)
+[infogain] done in 869s
+=== SMOKE (ws=true sigma=0.20) DONE ===

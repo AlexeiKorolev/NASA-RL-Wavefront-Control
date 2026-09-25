@@ -113,6 +113,12 @@ class CoronagraphOptics:
         self._aberration_radial_orders = np.array(
             [_noll_radial_order(i + self.aberration_start_mode) for i in range(num_aberration_modes)],
             dtype=np.float64)
+        # Temporal-evolution state (set by set_random_aberration, consumed by
+        # evolve_aberration): modal coefficients, per-mode spectrum weights, and the
+        # target RMS the realized phase is renormalized to after every AR(1) step.
+        self._ab_coeffs = None
+        self._ab_weights = None
+        self._ab_rms_waves = None
 
         # --- ideal modal corrector (optional) -------------------------------
         # An idealized "Zernike corrector" that bypasses the DM entirely: a modal
@@ -137,10 +143,17 @@ class CoronagraphOptics:
                 modes[i] = 2.0 * k * z                 # pupil phase per unit coeff
             self._correction_modes = modes             # (num_correction_modes, num_pixels)
             self.correction_coeffs = np.zeros(self.num_correction_modes)
+            # Per-mode corrector gain (unitless). The truth optics realizes
+            # ``gain_i * coeff_i`` of each mode; a controller that assumes gain 1
+            # (e.g. EFC's calibrated Jacobian/probe response) is therefore
+            # miscalibrated by ``gain``. Defaults to unity -> no mismatch, so every
+            # existing run is unaffected.
+            self.correction_gain = np.ones(self.num_correction_modes)
         else:
             self.num_correction_modes = None
             self._correction_modes = None
             self.correction_coeffs = None
+            self.correction_gain = None
 
     # ------------------------------------------------------------------------
     # Wavefront construction
@@ -170,6 +183,7 @@ class CoronagraphOptics:
     # ------------------------------------------------------------------------
     def set_aberration_phase(self, phase) -> None:
         self.aberration_phase = self.pupil_grid.zeros() + np.asarray(phase)
+        self._ab_coeffs = None                # not modal: no temporal evolution possible
 
     def set_random_aberration(self, rms_waves: float, rng: np.random.Generator | None = None,
                               spectrum: str = "white", psd_exponent: float = 2.0) -> None:
@@ -181,20 +195,44 @@ class CoronagraphOptics:
             concentrating power in low-order modes (Gutierrez et al. use 1/f^2).
         """
         rng = np.random.default_rng() if rng is None else rng
-        coeffs = rng.standard_normal(len(self._aberration_basis))
         if spectrum == "power_law":
             n = np.maximum(self._aberration_radial_orders, 1.0)
-            coeffs = coeffs * n ** (-0.5 * psd_exponent)
-        elif spectrum != "white":
+            weights = n ** (-0.5 * psd_exponent)
+        elif spectrum == "white":
+            weights = np.ones(len(self._aberration_basis))
+        else:
             raise ValueError(f"unknown spectrum {spectrum!r} (expected 'white' or 'power_law')")
-        phase = sum(c * m for c, m in zip(coeffs, self._aberration_basis))
+        self._ab_coeffs = rng.standard_normal(len(self._aberration_basis)) * weights
+        self._ab_weights = weights
+        self._ab_rms_waves = float(rms_waves)
+        self._rebuild_aberration_phase()
+
+    def _rebuild_aberration_phase(self) -> None:
+        """Realize ``aberration_phase`` from the stored modal coefficients, renormalized
+        to the stored target RMS (waves)."""
+        phase = sum(c * m for c, m in zip(self._ab_coeffs, self._aberration_basis))
         rms = np.std(phase[self._aperture_support])
         if rms > 0:
-            phase = phase / rms * (rms_waves * 2 * np.pi)
+            phase = phase / rms * (self._ab_rms_waves * 2 * np.pi)
         self.aberration_phase = phase
+
+    def evolve_aberration(self, rho: float, rng: np.random.Generator | None = None) -> None:
+        """One AR(1) step of temporal NCPA drift: ``c <- rho*c + sqrt(1-rho^2)*xi`` with
+        the innovation ``xi`` drawn from the same modal spectrum as the original draw,
+        then the phase is renormalized to the draw's fixed RMS. ``rho = exp(-1/tau)``
+        gives correlation time ``tau`` (in evolution steps); the disturbance "boils"
+        in shape at constant wavefront error. Requires a prior set_random_aberration."""
+        if self._ab_coeffs is None:
+            raise RuntimeError("evolve_aberration requires a prior set_random_aberration")
+        rng = np.random.default_rng() if rng is None else rng
+        rho = float(rho)
+        xi = rng.standard_normal(len(self._ab_coeffs)) * self._ab_weights
+        self._ab_coeffs = rho * self._ab_coeffs + np.sqrt(max(0.0, 1.0 - rho * rho)) * xi
+        self._rebuild_aberration_phase()
 
     def clear_aberration(self) -> None:
         self.aberration_phase = self.pupil_grid.zeros()
+        self._ab_coeffs = None
 
     # ------------------------------------------------------------------------
     # DM control
@@ -228,7 +266,22 @@ class CoronagraphOptics:
             raise RuntimeError("set_correction_modes requires ideal_modal_correction=True")
         coeffs = np.asarray(coeffs, dtype=np.float64)
         self.correction_coeffs = coeffs.copy()
-        self.correction_phase = self.pupil_grid.zeros() + (self._correction_modes.T @ coeffs)
+        # The realized phase applies the (possibly non-unit) per-mode corrector gain;
+        # the commanded ``correction_coeffs`` stay in the controller's nominal units.
+        applied = self.correction_gain * coeffs if self.correction_gain is not None else coeffs
+        self.correction_phase = self.pupil_grid.zeros() + (self._correction_modes.T @ applied)
+
+    def set_correction_gain(self, gain) -> None:
+        """Set the per-mode corrector gain (scalar or length-num_correction_modes).
+
+        Models an instrument whose corrector realizes ``gain_i * coeff_i`` while the
+        controller believes the gain is 1 -- the canonical model mismatch that a
+        statically-calibrated EFC Jacobian/probe response cannot see. Re-applies the
+        current command so ``correction_phase`` reflects the new gain immediately."""
+        if self._correction_modes is None:
+            raise RuntimeError("set_correction_gain requires ideal_modal_correction=True")
+        self.correction_gain = np.ones(self.num_correction_modes) * np.asarray(gain, dtype=np.float64)
+        self.set_correction_modes(self.correction_coeffs)
 
     def add_correction_modes(self, delta) -> None:
         """Increment the ideal-corrector modal coefficients (closed loop)."""
@@ -286,6 +339,31 @@ class CoronagraphOptics:
         if lyot:
             wf = self.lyot_stop.forward(wf)
         return self.prop.forward(wf).intensity
+
+    def focal_field(self, coronagraph: bool = True, lyot: bool | None = None,
+                    extra_phase=None, probe_actuators=None) -> np.ndarray:
+        """Complex focal-plane electric field (1D, on the focal grid), normalized so that
+        ``|focal_field|**2 == normalized_intensity`` (i.e. divided by sqrt of the
+        unaberrated bare-aperture peak). Ground truth for probe reconstruction / eval;
+        not used in the observation. ``probe_actuators`` / ``extra_phase`` apply a
+        temporary probe exposure and are restored afterwards, mirroring
+        ``normalized_intensity``."""
+        if lyot is None:
+            lyot = coronagraph
+        if probe_actuators is not None:
+            saved = self.get_actuators()
+            self.add_actuators(probe_actuators)
+        try:
+            wf = self.dm.forward(self._wavefront(extra_phase=extra_phase))
+            if coronagraph:
+                wf = self.coronagraph.forward(wf)
+            if lyot:
+                wf = self.lyot_stop.forward(wf)
+            field = np.asarray(self.prop.forward(wf).electric_field)
+        finally:
+            if probe_actuators is not None:
+                self.set_actuators(saved)
+        return field / np.sqrt(self.reference_peak)
 
     def normalized_intensity(self, coronagraph: bool = True, lyot: bool | None = None,
                              probe_actuators=None, extra_phase=None, flux: float | None = None,

@@ -1,0 +1,8 @@
+[probe] correction scale min 2.52e-09 max 4.65e-08 | probe scale (x0.1) min 2.52e-10 max 4.65e-09 | modes=55
+[probe] device=cuda image=33x33 modes=55 action=110 coronagraph=True
+ep   100 | dynL 0.405 polR 0.000e+00 | train C 1.22e-03 S 0.853 | EVAL C 1.742e-04 S 0.9741 | buf 2000 | 443s
+ep   200 | dynL 0.410 polR 0.000e+00 | train C 1.39e-03 S 0.867 | EVAL C 1.742e-04 S 0.9741 | buf 4000 | 863s
+ep   300 | dynL 0.399 polR -2.572e+00 | train C 4.30e-04 S 0.957 | EVAL C 2.621e-04 S 0.9673 | buf 6000 | 1295s
+ep   400 | dynL 0.398 polR -2.150e+00 | train C 2.58e-04 S 0.954 | EVAL C 2.089e-04 S 0.9722 | buf 8000 | 1713s
+[probe] done in 1713s
+=== PO4NCPA PROBE SANITY DONE ===

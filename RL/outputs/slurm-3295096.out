@@ -1,0 +1,28 @@
+[m1] run=po4ncpa_corona corona=True modes=55 probes=8 dark-hole pixels=372 draws=15 iters=10
+[m1] building modal control Jacobian ...
+[m1] Jacobian (372, 55), condition number 2.11e+02
+  probe-EFC @        noiseless: median final 1.178e-10
+  probe-EFC @  1.0e+12 ph/peak: median final 1.178e-10
+  probe-EFC @  1.0e+11 ph/peak: median final 1.178e-10
+  probe-EFC @  1.0e+10 ph/peak: median final 1.183e-10
+  probe-EFC @  1.0e+09 ph/peak: median final 1.244e-10
+  probe-EFC @  1.0e+08 ph/peak: median final 1.844e-10
+  probe-EFC @  1.0e+07 ph/peak: median final 7.859e-10
+  probe-EFC @  1.0e+06 ph/peak: median final 5.978e-09
+
+=== M3: pairwise-probe EFC vs photon budget ===
+  perfect-knowledge EFC (noiseless floor): 1.160e-10
+  ideal 55-mode floor                    : 1.18e-10
+  passive PO4NCPA (to beat)              : 1.5e-05
+
+    flux (ph/peak) | median true contrast
+         noiseless |            1.178e-10
+           1.0e+12 |            1.178e-10
+           1.0e+11 |            1.178e-10
+           1.0e+10 |            1.183e-10
+           1.0e+09 |            1.244e-10
+           1.0e+08 |            1.844e-10
+           1.0e+07 |            7.859e-10
+           1.0e+06 |            5.978e-09
+[m3-efc] done.
+=== EFC PROBE NOISE M3 DONE ===

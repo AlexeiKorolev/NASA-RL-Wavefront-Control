@@ -1,0 +1,14 @@
+name, memory.total [MiB]
+NVIDIA A100-PCIE-40GB, 40960 MiB
+=== SMOKE: efc_warmstart=true sigma=0.20 ===
+[infogain] correction scale min 2.60e-09 max 4.56e-08 | probe scale (x0.1) min 2.60e-10 max 4.56e-09 | modes=55 action=110
+[infogain] RESUMED from logs/po4ncpa_probe_logdeep3/po4ncpa_infogain_best.pt
+[infogain] no replay buffer at logs/_force_fresh_buffer_does_not_exist.npz -> refilling (resume_refill=800); expect the usual resume transient
+[infogain] device=cuda image=33x33 modes=55 action=110 workers=8 max_steps=8 lambda_info=0.0 reward=log lr_final_frac=1.0 explore_std_final=0.06
+ep   200 | dynL 0.332 polR 1.249e+00 info 6.237e-02 | train C 1.23e-05 S 0.998 | EVAL C 7.407e-07 S 0.9997 | buf 1600 | 175s
+ep   400 | dynL 0.316 polR 1.181e+00 info 6.462e-02 | train C 2.02e-05 S 0.996 | EVAL C 7.897e-07 S 0.9997 | buf 3200 | 327s
+ep   600 | dynL 0.308 polR 1.157e+00 info 7.427e-02 | train C 1.15e-05 S 0.993 | EVAL C 7.095e-07 S 0.9996 | buf 4800 | 482s
+ep   800 | dynL 0.300 polR 1.211e+00 info 4.434e-02 | train C 1.46e-05 S 0.998 | EVAL C 6.344e-07 S 0.9996 | buf 6400 | 630s
+[infogain] saved replay buffer (6400 transitions) -> logs/po4ncpa_smoke_wstrue_s0.20/replay_buffer.npz (0.2s)
+[infogain] done in 632s
+=== SMOKE (ws=true sigma=0.20) DONE ===

@@ -1,0 +1,12 @@
+[infogain] correction scale min 2.52e-09 max 4.65e-08 | probe scale (x0.1) min 2.52e-10 max 4.65e-09 | modes=55 action=110
+[infogain] device=cuda image=33x33 modes=55 action=110 workers=14 max_steps=8 lambda_info=0.3
+ep   112 | dynL 0.298 polR 0.000e+00 info 0.000e+00 | train C 2.17e-03 S 0.665 | EVAL C 1.742e-04 S 0.9741 | buf 896 | 35s
+ep   224 | dynL 0.320 polR -2.197e+00 info 4.551e-02 | train C 1.77e-04 S 0.965 | EVAL C 1.990e-04 S 0.9718 | buf 1792 | 69s
+ep   336 | dynL 0.320 polR -1.694e+00 info 2.794e-02 | train C 2.87e-04 S 0.954 | EVAL C 2.005e-04 S 0.9743 | buf 2688 | 118s
+ep   448 | dynL 0.325 polR -1.793e+00 info 3.814e-02 | train C 2.68e-04 S 0.962 | EVAL C 2.144e-04 S 0.9741 | buf 3584 | 165s
+ep   560 | dynL 0.331 polR -1.520e+00 info 3.389e-02 | train C 2.85e-04 S 0.964 | EVAL C 2.162e-04 S 0.9717 | buf 4480 | 214s
+ep   672 | dynL 0.338 polR -1.725e+00 info 3.761e-02 | train C 1.07e-04 S 0.973 | EVAL C 2.187e-04 S 0.9685 | buf 5376 | 262s
+ep   784 | dynL 0.344 polR -1.742e+00 info 4.575e-02 | train C 2.59e-04 S 0.964 | EVAL C 2.269e-04 S 0.9704 | buf 6272 | 309s
+ep   800 | dynL 0.343 polR -1.657e+00 info 4.063e-02 | train C 3.14e-04 S 0.965 | EVAL C 2.145e-04 S 0.9732 | buf 6400 | 324s
+[infogain] done in 325s
+=== PO4NCPA INFOGAIN SANITY DONE ===

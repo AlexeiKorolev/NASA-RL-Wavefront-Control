@@ -1,0 +1,4 @@
+[infogain] correction scale min 2.84e-09 max 4.66e-08 | probe scale (x0.1) min 2.84e-10 max 4.66e-09 | modes=55 action=110
+[infogain] RESUMED from logs/po4ncpa_probe_r2/po4ncpa_probe_best.pt
+[infogain] device=cuda image=33x33 modes=55 action=110 workers=14 max_steps=8 lambda_info=0.0 reward=log lr_final_frac=0.1 explore_std_final=0.02
+[2026-07-03T23:22:05.958] error: *** JOB 3295181 ON adroit-h11g2 CANCELLED AT 2026-07-03T23:22:05 DUE to SIGNAL Terminated ***

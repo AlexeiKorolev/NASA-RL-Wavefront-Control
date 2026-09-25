@@ -47,6 +47,7 @@ class CoronagraphEnv(gym.Env):
                  aberration_start_mode: int = 2,       # Noll index of first mode (4 excludes tip/tilt)
                  aberration_spectrum: str = "white",   # "white" or "power_law" (1/f^psd)
                  psd_exponent: float = 2.0,
+                 aberration_tau: float | None = None,  # AR(1) drift correlation time in steps (None/0 = static)
                  # action / DM
                  action_scale: float = 1e-8,            # meters of surface per unit action
                  max_abs_actuator: float = 5e-7,        # DM stroke limit (meters of surface)
@@ -66,7 +67,9 @@ class CoronagraphEnv(gym.Env):
                  flatten_obs: bool = False,             # flat vector obs (image+command) for an MLP
                  image_scale: str = "log",              # "log" or "linear" image normalization
                  linear_ceil: float = 1.0,              # clip ceiling for linear image scaling
-                 action_mode: str = "incremental"):     # "incremental" (add) or "absolute" (set) command
+                 action_mode: str = "incremental",      # "incremental" (add) or "absolute" (set) command
+                 probe_mode: bool = False,              # learned active probing (M2): action=[probe, correction]
+                 probe_scale: float = 1e-8):            # meters/coeff for the probe half of the action
         super().__init__()
 
         self.ideal_modal_correction = bool(ideal_modal_correction)
@@ -84,13 +87,28 @@ class CoronagraphEnv(gym.Env):
             raise ValueError("include_command=True is only supported with ideal_modal_correction=True.")
         self.aberration_spectrum = str(aberration_spectrum)
         self.psd_exponent = float(psd_exponent)
+        # Dynamic NCPA (M4): once per step() the aberration takes one AR(1) drift step
+        # with correlation time ``aberration_tau`` (in steps) at constant RMS, BEFORE the
+        # correction is applied -- so the observation each action was computed from is one
+        # drift step stale, the challenge a predict-ahead probe policy can exploit.
+        self.aberration_tau = float(aberration_tau) if aberration_tau else None
+        self._ab_rho = float(np.exp(-1.0 / self.aberration_tau)) if self.aberration_tau else None
         self.flatten_obs = bool(flatten_obs)
         self.image_scale = str(image_scale)
         if self.image_scale not in ("log", "linear", "raw"):
             raise ValueError(f"image_scale must be 'log', 'linear', or 'raw', got {image_scale!r}")
+        # Learned active probing (M2): the action carries a probe half and a
+        # correction half; the observation is [dark image, probe-difference image].
+        self.probe_mode = bool(probe_mode)
+        if self.probe_mode:
+            if not self.ideal_modal_correction:
+                raise ValueError("probe_mode=True requires ideal_modal_correction=True.")
+            if not self.include_command:
+                raise ValueError("probe_mode=True requires include_command=True.")
         # Single-channel science obs (no diversity probe) for PO4NCPA-style
         # sequential phase diversity, where the temporal frame pair is the probe.
-        self.n_img_channels = 1 if str(diversity) == "none" else 2
+        # In probe_mode the two channels are [dark image, probe-difference image].
+        self.n_img_channels = 2 if self.probe_mode else (1 if str(diversity) == "none" else 2)
         self.linear_ceil = float(linear_ceil)
         self.action_mode = str(action_mode)
         if self.action_mode not in ("incremental", "absolute"):
@@ -127,6 +145,22 @@ class CoronagraphEnv(gym.Env):
             self.modal_basis = None
             action_dim = self.num_actuators
         self.num_control_modes = num_control_modes
+
+        # Correction dimension (M). In probe_mode the action is [probe(M), correction(M)].
+        self.control_dim = int(action_dim)
+        self.probe_scale = probe_scale
+        if self.probe_mode:
+            # pupil-phase basis for a modal probe: probe_phase = corr_modes.T @ probe_coeffs
+            self._corr_modes = np.asarray(self.optics._correction_modes)
+            action_space_dim = 2 * action_dim
+        else:
+            self._corr_modes = None
+            action_space_dim = action_dim
+        # Reconstruction-auxiliary hook: when enabled, expose the true dark-hole complex
+        # field in step()'s info (a supervision target; not part of the observation).
+        # Off by default -- costs one extra propagation per step, collection only.
+        self.return_true_field = False
+        self._last_true_field = None
 
         self.max_steps = int(max_steps)
         self.rms_min_waves = float(rms_min_waves)
@@ -166,7 +200,7 @@ class CoronagraphEnv(gym.Env):
             })
         else:
             self.observation_space = spaces.Box(low=0.0, high=img_hi, shape=(nc, h, w), dtype=np.float32)
-        self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(action_dim,), dtype=np.float32)
+        self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(action_space_dim,), dtype=np.float32)
 
         self._step_count = 0
         self._ideal_image_cache = None
@@ -213,9 +247,16 @@ class CoronagraphEnv(gym.Env):
         return np.clip(scaled, 0.0, 1.0).reshape(self.image_shape).astype(np.float32)
 
     def _command_vector(self) -> np.ndarray:
-        """Previous corrector command, normalized to ~[-1, 1] by the stroke limit."""
-        return np.clip(self.optics.correction_coeffs / self.max_abs_actuator,
-                       -1.0, 1.0).astype(np.float32)
+        """Previous corrector command, normalized to ~[-1, 1] by the stroke limit.
+
+        In the residual-learning hybrid an EFC warm-start base is subtracted first, so the
+        channel reports the RESIDUAL command the policy actually controls (matching its
+        action scale) instead of saturating on EFC's large baseline."""
+        coeffs = self.optics.correction_coeffs
+        base = getattr(self, "_correction_offset", None)
+        if base is not None:
+            coeffs = coeffs - base
+        return np.clip(coeffs / self.max_abs_actuator, -1.0, 1.0).astype(np.float32)
 
     def _observe(self):
         """Propagate the science image and the diversity image.
@@ -258,6 +299,37 @@ class CoronagraphEnv(gym.Env):
         strehl = float(np.max(science)) if not corona else self.optics.strehl()
         return obs, contrast, strehl
 
+    def _observe_probe(self, probe_command: np.ndarray, compute_strehl: bool = True):
+        """Probe-mode observation: [dark image, probe-difference image] at the current
+        corrector state. The pairwise probe difference d = I(+p) - I(-p) linearizes the
+        dark-hole field (see notes/PLAN_active_probing.md, M0/M1) and is the sensing
+        channel the policy reads. Returns (obs, contrast, strehl).
+
+        In coronagraphic mode the Strehl needs a separate (non-corona) propagation used
+        only for logging; ``compute_strehl=False`` skips it on intermediate steps (a ~25%
+        speedup, since only the episode's last Strehl is consumed during training)."""
+        corona = self.use_coronagraph
+        opt = self.optics
+        o = opt.normalized_intensity(coronagraph=corona, lyot=corona,
+                                     flux=self.photon_flux, rng=self.np_random)
+        probe_phase = self._corr_modes.T @ np.asarray(probe_command, dtype=np.float64)
+        ip = opt.normalized_intensity(coronagraph=corona, lyot=corona, extra_phase=probe_phase,
+                                      flux=self.photon_flux, rng=self.np_random)
+        im = opt.normalized_intensity(coronagraph=corona, lyot=corona, extra_phase=-probe_phase,
+                                      flux=self.photon_flux, rng=self.np_random)
+        o2d = np.clip(o, 0.0, None).reshape(self.image_shape).astype(np.float32)
+        d2d = (np.asarray(ip) - np.asarray(im)).reshape(self.image_shape).astype(np.float32)
+        obs = {"image": np.stack([o2d, d2d], axis=0), "command": self._command_vector()}
+        contrast = opt.dark_hole_contrast(intensity=o)
+        if not compute_strehl:
+            strehl = float("nan")
+        else:
+            strehl = float(np.max(o)) if not corona else opt.strehl()
+        if self.return_true_field:
+            field = opt.focal_field(coronagraph=corona, lyot=corona)  # noiseless ground truth
+            self._last_true_field = np.asarray(field)[opt.dark_hole_mask].astype(np.complex64)
+        return obs, contrast, strehl
+
     # ------------------------------------------------------------------------
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
@@ -271,12 +343,50 @@ class CoronagraphEnv(gym.Env):
                                           spectrum=self.aberration_spectrum,
                                           psd_exponent=self.psd_exponent)
         self._step_count = 0
-        obs, contrast, strehl = self._observe()
+        if self.probe_mode:
+            obs, contrast, strehl = self._observe_probe(np.zeros(self.control_dim))
+        else:
+            obs, contrast, strehl = self._observe()
         self._prev_contrast = contrast
         return obs, {"contrast": contrast, "strehl": strehl}
 
     def step(self, action):
         action = np.clip(np.asarray(action, dtype=np.float64), -1.0, 1.0)
+        if self._ab_rho is not None:
+            # The world drifts between control frames (all of this step's exposures see
+            # the same frozen frame -- exposure time << drift time).
+            self.optics.evolve_aberration(self._ab_rho, self.np_random)
+
+        if self.probe_mode:
+            # action = [probe(M), correction(M)]. Apply the correction, then sense with
+            # the probe. The probe senses the *post-correction* residual, which the next
+            # correction nulls (EFC-style closed loop).
+            probe_command = action[:self.control_dim] * self.probe_scale
+            corr = action[self.control_dim:] * self.action_scale
+            if self.action_mode == "absolute":
+                if self.max_abs_actuator is not None:
+                    corr = np.clip(corr, -self.max_abs_actuator, self.max_abs_actuator)
+                # Residual-learning hybrid: when an EFC warm-start base is set, the policy's
+                # (clipped) absolute command is the RESIDUAL added on top of EFC's converged
+                # command rather than overwriting it. base is None for every normal env.
+                base = getattr(self, "_correction_offset", None)
+                self.optics.set_correction_modes(corr if base is None else base + corr)
+            else:
+                self.optics.add_correction_modes(corr)
+                if self.max_abs_actuator is not None:
+                    self.optics.set_correction_modes(
+                        np.clip(self.optics.correction_coeffs, -self.max_abs_actuator, self.max_abs_actuator))
+            self._step_count += 1
+            truncated = self._step_count >= self.max_steps
+            # Strehl (extra propagation) only needed on the final step for logging.
+            obs, contrast, strehl = self._observe_probe(probe_command, compute_strehl=truncated)
+            reward = -float(np.log10(max(contrast, 1e-12))) / 10.0   # trainer uses its own reward
+            self._prev_contrast = contrast
+            info = {"contrast": contrast, "strehl": strehl}
+            if self.return_true_field:
+                info["field_dh"] = self._last_true_field
+            return obs, float(reward), False, truncated, info
+
         command = action * self.action_scale
         if self.ideal_modal_correction:
             if self.action_mode == "absolute":

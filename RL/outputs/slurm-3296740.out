@@ -1,0 +1,23 @@
+[mismatch] run=po4ncpa_corona modes=55 probes=8 dark-hole px=372 draws=15 iters=10 | Jacobian cond 2.11e+02
+  sigma=0.000  gain rms= 0.000  perfect-EFC=1.160e-10  probe-EFC=1.178e-10
+  sigma=0.020  gain rms= 0.020  perfect-EFC=1.186e-09  probe-EFC=1.208e-09
+  sigma=0.050  gain rms= 0.050  perfect-EFC=3.339e-08  probe-EFC=3.023e-08
+  sigma=0.100  gain rms= 0.100  perfect-EFC=3.163e-08  probe-EFC=3.189e-08
+  sigma=0.200  gain rms= 0.200  perfect-EFC=1.582e-07  probe-EFC=2.083e-07
+  sigma=0.300  gain rms= 0.300  perfect-EFC=4.342e-07  probe-EFC=4.493e-07
+
+=== EFC under corrector-gain model mismatch ===
+  ideal-model floor (sigma=0) probe-EFC: 1.178e-10
+  learned probe (logdeep3, true system) : 3.70e-08
+
+    sigma |   perfect-EFC |     probe-EFC | probe degrade x
+    0.000 |     1.160e-10 |     1.178e-10 |            1.0x
+    0.020 |     1.186e-09 |     1.208e-09 |           10.2x
+    0.050 |     3.339e-08 |     3.023e-08 |          256.6x
+    0.100 |     3.163e-08 |     3.189e-08 |          270.6x
+    0.200 |     1.582e-07 |     2.083e-07 |         1767.6x
+    0.300 |     4.342e-07 |     4.493e-07 |         3813.2x
+
+[mismatch] wrote logs/efc_mismatch/efc_mismatch.csv
+[mismatch] done.
+=== EFC MISMATCH SWEEP DONE ===

@@ -1,0 +1,16 @@
+name, memory.total [MiB]
+NVIDIA A100 80GB PCIe, 81920 MiB
+[infogain] correction scale min 2.60e-09 max 4.56e-08 | probe scale (x0.1) min 2.60e-10 max 4.56e-09 | modes=55 action=110
+[infogain] device=cuda image=33x33 modes=55 action=110 workers=14 max_steps=8 lambda_info=0.0 reward=log lr_final_frac=1.0 explore_std_final=-1.0
+ep   112 | dynL 0.428 polR 0.000e+00 info 0.000e+00 | train C 1.04e-03 S 0.909 | EVAL C 1.839e-04 S 0.9727 | buf 896 | [upd 70ms (smpl 6 dcomp 64) gath 50ms eval 16.7s] | 30s
+ep   224 | dynL 0.364 polR -3.185e-01 info 1.484e-03 | train C 2.57e-04 S 0.938 | EVAL C 2.005e-04 S 0.9720 | buf 1792 | [upd 132ms (smpl 10 dcomp 98) gath 0ms eval 17.1s] | 62s
+ep   336 | dynL 0.351 polR -2.246e-01 info 4.541e-03 | train C 1.05e-04 S 0.985 | EVAL C 2.832e-04 S 0.9551 | buf 2688 | [upd 267ms (smpl 9 dcomp 98) gath 0ms eval 16.0s] | 108s
+ep   448 | dynL 0.338 polR -2.828e-01 info 1.904e-02 | train C 2.62e-04 S 0.954 | EVAL C 2.100e-04 S 0.9708 | buf 3584 | [upd 283ms (smpl 9 dcomp 98) gath 0ms eval 16.8s] | 157s
+ep   560 | dynL 0.334 polR -2.444e-01 info 1.306e-02 | train C 1.35e-04 S 0.969 | EVAL C 2.286e-04 S 0.9669 | buf 4480 | [upd 271ms (smpl 9 dcomp 98) gath 0ms eval 16.6s] | 204s
+ep   672 | dynL 0.331 polR -9.719e-02 info 6.330e-03 | train C 3.01e-04 S 0.970 | EVAL C 1.955e-04 S 0.9699 | buf 5376 | [upd 274ms (smpl 9 dcomp 98) gath 0ms eval 16.6s] | 251s
+ep   784 | dynL 0.333 polR -2.224e-01 info 1.603e-02 | train C 2.29e-04 S 0.954 | EVAL C 2.154e-04 S 0.9687 | buf 6272 | [upd 273ms (smpl 9 dcomp 98) gath 0ms eval 17.1s] | 299s
+ep   896 | dynL 0.326 polR -1.621e-01 info 1.395e-02 | train C 2.48e-04 S 0.956 | EVAL C 2.458e-04 S 0.9609 | buf 7168 | [upd 278ms (smpl 9 dcomp 98) gath 0ms eval 17.7s] | 348s
+ep  1000 | dynL 0.331 polR -1.361e-01 info 1.817e-02 | train C 1.59e-04 S 0.969 | EVAL C 2.010e-04 S 0.9706 | buf 8000 | [upd 281ms (smpl 9 dcomp 98) gath 0ms eval 16.8s] | 394s
+[infogain] saved replay buffer (8000 transitions) -> logs/po4ncpa_probe_profile/replay_buffer.npz (0.2s)
+[infogain] done in 395s
+=== PO4NCPA PROFILE DONE ===

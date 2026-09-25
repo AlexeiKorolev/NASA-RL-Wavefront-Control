@@ -1,0 +1,14 @@
+[po4ncpa] per-mode action scale: min 2.52e-09 max 4.65e-08 (headroom 5.0, 55 modes)
+[po4ncpa] device=cuda image=33x33 modes=55 coronagraph=True
+[po4ncpa] ideal-image residual ref: max=6.395e-10 sum=1.659e-07
+ep   250 | dynL 0.170 polR 0.000e+00 | train C 1.57e-03 S 0.751 | EVAL C 1.825e-04 S 0.9734 | buf 5000 | 648s
+ep   500 | dynL 0.169 polR 0.000e+00 | train C 1.02e-03 S 0.832 | EVAL C 1.825e-04 S 0.9734 | buf 10000 | 1296s
+ep   750 | dynL 0.169 polR 0.000e+00 | train C 1.81e-03 S 0.787 | EVAL C 1.825e-04 S 0.9734 | buf 15000 | 1946s
+ep  1000 | dynL 0.170 polR 0.000e+00 | train C 1.18e-03 S 0.797 | EVAL C 1.825e-04 S 0.9734 | buf 20000 | 2593s
+ep  1250 | dynL 0.170 polR 0.000e+00 | train C 1.38e-03 S 0.766 | EVAL C 1.825e-04 S 0.9734 | buf 25000 | 3239s
+ep  1500 | dynL 0.171 polR 0.000e+00 | train C 1.65e-03 S 0.754 | EVAL C 1.825e-04 S 0.9734 | buf 30000 | 3881s
+ep  1750 | dynL 0.172 polR 0.000e+00 | train C 1.81e-03 S 0.760 | EVAL C 1.825e-04 S 0.9734 | buf 35000 | 4535s
+ep  2000 | dynL 0.174 polR 0.000e+00 | train C 2.07e-03 S 0.742 | EVAL C 1.825e-04 S 0.9734 | buf 40000 | 5185s
+ep  2250 | dynL 0.174 polR 0.000e+00 | train C 2.05e-03 S 0.760 | EVAL C 1.825e-04 S 0.9734 | buf 45000 | 5834s
+ep  2500 | dynL 0.174 polR 0.000e+00 | train C 1.51e-03 S 0.754 | EVAL C 1.825e-04 S 0.9734 | buf 50000 | 6480s
+ep  2750 | dynL 0.175 polR 0.000e+00 | train C 1.35e-03 S 0.794 | EVAL C 1.825e-04 S 0.9734 | buf 55000 | 7124s
