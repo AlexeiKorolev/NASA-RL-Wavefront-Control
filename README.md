@@ -1,31 +1,6 @@
-# findings:
-
-1. Optimal normalization.
-2. Zernike converges slower and overfits more?
-3. Transformers vs fully-connected
-4. RL for coronagraphic imaging!
-5. Fine tuning on adverserial noise vs. adding different levels of noise to the data vs. gaussian neural nets.
-6. Generate basis via Gramm Schmidt https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process
-7. Try linear / quadradic reward functions for RL.
-8. Fit a linear model raw to the image (1D NN) for a baseline
-9. Try different action scales.
-10. Seperate direction and magnitude from the output of the neural network. Possibly split the training too.
-
-11. Train on different fixed levels of noise and use a neural net ensemble.
-12. Investigate different nudge vectors.
-
-distribution graph: https://www.desmos.com/calculator/jpz9ge36zg
-
-Slopes 512 model: /scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/jobs/20251116_192105
-Zernike non-random: /scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/jobs/20251116_192016/exp-fc1-zscore-ep10000-bs262144-lr1e-3-s42-h512-256-128-images.slurm
-Zernike random: /scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/jobs/20251116_192023
-Transfoermer: /scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/jobs/20251116_195013
-USE STREHL FOR RL FIRST
-Transformer random: /scratch/network/ak9088/NASA-RL-Wavefront-Control/RL/jobs/20251116_195050
-
-Linear model for baseline: 20251127_230433
-
 # Deformable Mirror Control with Reinforcement Learning and High-Contrast Imaging
+
+Research with the NASA Ames Coronagraph Experiment team on learned control of deformable mirrors for space-telescope coronagraphs. Companion repo: [Lightweight-ML-for-Wavefront-Control-in-Coronagraphs](https://github.com/AlexeiKorolev/Lightweight-ML-for-Wavefront-Control-in-Coronagraphs).
 
 This project explores the intersection of adaptive optics, high-contrast imaging, and machine learning. It provides a simulation framework for controlling a deformable mirror (DM) in a coronagraphic telescope system using reinforcement learning (RL) and neural networks. The goal is to optimize wavefront correction for exoplanet imaging and other high-contrast astronomical applications.
 
@@ -64,3 +39,5 @@ Install dependencies:
 ```sh
 pip install hcipy stable-baselines3 torch matplotlib scipy tqdm scikit-learn
 ```
+
+Working notes and run references are in [NOTES.md](NOTES.md).
